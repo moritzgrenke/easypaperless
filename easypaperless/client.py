@@ -670,31 +670,98 @@ class PaperlessClient:
         """
         return await self._get_resource("tags", id, Tag)
 
-    async def create_tag(self, *, name: str, **kwargs: Any) -> Tag:
+    async def create_tag(
+        self,
+        *,
+        name: str,
+        color: str | None = None,
+        is_inbox_tag: bool | None = None,
+        match: str | None = None,
+        matching_algorithm: int | None = None,
+        is_insensitive: bool | None = None,
+        parent: int | None = None,
+    ) -> Tag:
         """Create a new tag.
 
         Args:
-            name: Tag name (must be unique).
-            **kwargs: Additional fields passed directly to the paperless-ngx
-                API (e.g. ``color="#ff0000"``, ``is_inbox_tag=True``).
+            name: Tag name. Must be unique.
+            color: Background colour in the paperless-ngx UI as a CSS hex
+                string (e.g. ``"#ff0000"``).
+            is_inbox_tag: When ``True``, newly ingested documents receive this
+                tag automatically until processed. At most one tag should be
+                the inbox tag.
+            match: Auto-matching pattern tested against incoming document
+                content. Interpretation depends on ``matching_algorithm``.
+            matching_algorithm: Controls how ``match`` is applied: ``0``=none,
+                ``1``=any word, ``2``=all words, ``3``=exact, ``4``=regex,
+                ``5``=fuzzy, ``6``=auto (ML).
+            is_insensitive: When ``True``, ``match`` is evaluated
+                case-insensitively.
+            parent: ID of an existing tag to use as parent, enabling
+                hierarchical tag trees. ``None`` creates a root-level tag.
 
         Returns:
             The newly created :class:`~easypaperless.models.tags.Tag`.
         """
-        return await self._create_resource("tags", Tag, name=name, **kwargs)
+        return await self._create_resource(
+            "tags",
+            Tag,
+            name=name,
+            color=color,
+            is_inbox_tag=is_inbox_tag,
+            match=match,
+            matching_algorithm=matching_algorithm,
+            is_insensitive=is_insensitive,
+            parent=parent,
+        )
 
-    async def update_tag(self, id: int, **kwargs: Any) -> Tag:
+    async def update_tag(
+        self,
+        id: int,
+        *,
+        name: str | None = None,
+        color: str | None = None,
+        is_inbox_tag: bool | None = None,
+        match: str | None = None,
+        matching_algorithm: int | None = None,
+        is_insensitive: bool | None = None,
+        parent: int | None = None,
+    ) -> Tag:
         """Partially update a tag (PATCH semantics).
 
         Args:
             id: Numeric ID of the tag to update.
-            **kwargs: Fields to update (e.g. ``name="new-name"``,
-                ``color="#00ff00"``).
+            name: Tag name. Must be unique.
+            color: Background colour in the paperless-ngx UI as a CSS hex
+                string (e.g. ``"#00ff00"``).
+            is_inbox_tag: When ``True``, newly ingested documents receive this
+                tag automatically until processed. At most one tag should be
+                the inbox tag.
+            match: Auto-matching pattern tested against incoming document
+                content. Interpretation depends on ``matching_algorithm``.
+            matching_algorithm: Controls how ``match`` is applied: ``0``=none,
+                ``1``=any word, ``2``=all words, ``3``=exact, ``4``=regex,
+                ``5``=fuzzy, ``6``=auto (ML).
+            is_insensitive: When ``True``, ``match`` is evaluated
+                case-insensitively.
+            parent: ID of an existing tag to use as parent, enabling
+                hierarchical tag trees.
 
         Returns:
             The updated :class:`~easypaperless.models.tags.Tag`.
         """
-        return await self._update_resource("tags", id, Tag, **kwargs)
+        return await self._update_resource(
+            "tags",
+            id,
+            Tag,
+            name=name,
+            color=color,
+            is_inbox_tag=is_inbox_tag,
+            match=match,
+            matching_algorithm=matching_algorithm,
+            is_insensitive=is_insensitive,
+            parent=parent,
+        )
 
     async def delete_tag(self, id: int) -> None:
         """Delete a tag.
@@ -741,31 +808,74 @@ class PaperlessClient:
         """
         return await self._get_resource("correspondents", id, Correspondent)
 
-    async def create_correspondent(self, *, name: str, **kwargs: Any) -> Correspondent:
+    async def create_correspondent(
+        self,
+        *,
+        name: str,
+        match: str | None = None,
+        matching_algorithm: int | None = None,
+        is_insensitive: bool | None = None,
+    ) -> Correspondent:
         """Create a new correspondent.
 
         Args:
-            name: Correspondent name (must be unique).
-            **kwargs: Additional fields passed directly to the API.
+            name: Correspondent name (sender/recipient). Must be unique.
+            match: Auto-matching pattern tested against incoming document
+                content. Interpretation depends on ``matching_algorithm``.
+            matching_algorithm: Controls how ``match`` is applied: ``0``=none,
+                ``1``=any word, ``2``=all words, ``3``=exact, ``4``=regex,
+                ``5``=fuzzy, ``6``=auto (ML).
+            is_insensitive: When ``True``, ``match`` is evaluated
+                case-insensitively.
 
         Returns:
             The newly created
             :class:`~easypaperless.models.correspondents.Correspondent`.
         """
-        return await self._create_resource("correspondents", Correspondent, name=name, **kwargs)
+        return await self._create_resource(
+            "correspondents",
+            Correspondent,
+            name=name,
+            match=match,
+            matching_algorithm=matching_algorithm,
+            is_insensitive=is_insensitive,
+        )
 
-    async def update_correspondent(self, id: int, **kwargs: Any) -> Correspondent:
+    async def update_correspondent(
+        self,
+        id: int,
+        *,
+        name: str | None = None,
+        match: str | None = None,
+        matching_algorithm: int | None = None,
+        is_insensitive: bool | None = None,
+    ) -> Correspondent:
         """Partially update a correspondent (PATCH semantics).
 
         Args:
             id: Numeric ID of the correspondent to update.
-            **kwargs: Fields to update (e.g. ``name="ACME Corp"``).
+            name: Correspondent name (sender/recipient). Must be unique.
+            match: Auto-matching pattern tested against incoming document
+                content. Interpretation depends on ``matching_algorithm``.
+            matching_algorithm: Controls how ``match`` is applied: ``0``=none,
+                ``1``=any word, ``2``=all words, ``3``=exact, ``4``=regex,
+                ``5``=fuzzy, ``6``=auto (ML).
+            is_insensitive: When ``True``, ``match`` is evaluated
+                case-insensitively.
 
         Returns:
             The updated
             :class:`~easypaperless.models.correspondents.Correspondent`.
         """
-        return await self._update_resource("correspondents", id, Correspondent, **kwargs)
+        return await self._update_resource(
+            "correspondents",
+            id,
+            Correspondent,
+            name=name,
+            match=match,
+            matching_algorithm=matching_algorithm,
+            is_insensitive=is_insensitive,
+        )
 
     async def delete_correspondent(self, id: int) -> None:
         """Delete a correspondent.
@@ -812,31 +922,76 @@ class PaperlessClient:
         """
         return await self._get_resource("document_types", id, DocumentType)
 
-    async def create_document_type(self, *, name: str, **kwargs: Any) -> DocumentType:
+    async def create_document_type(
+        self,
+        *,
+        name: str,
+        match: str | None = None,
+        matching_algorithm: int | None = None,
+        is_insensitive: bool | None = None,
+    ) -> DocumentType:
         """Create a new document type.
 
         Args:
-            name: Document-type name (must be unique).
-            **kwargs: Additional fields passed directly to the API.
+            name: Document-type name (e.g. ``"Invoice"``, ``"Receipt"``).
+                Must be unique.
+            match: Auto-matching pattern tested against incoming document
+                content. Interpretation depends on ``matching_algorithm``.
+            matching_algorithm: Controls how ``match`` is applied: ``0``=none,
+                ``1``=any word, ``2``=all words, ``3``=exact, ``4``=regex,
+                ``5``=fuzzy, ``6``=auto (ML).
+            is_insensitive: When ``True``, ``match`` is evaluated
+                case-insensitively.
 
         Returns:
             The newly created
             :class:`~easypaperless.models.document_types.DocumentType`.
         """
-        return await self._create_resource("document_types", DocumentType, name=name, **kwargs)
+        return await self._create_resource(
+            "document_types",
+            DocumentType,
+            name=name,
+            match=match,
+            matching_algorithm=matching_algorithm,
+            is_insensitive=is_insensitive,
+        )
 
-    async def update_document_type(self, id: int, **kwargs: Any) -> DocumentType:
+    async def update_document_type(
+        self,
+        id: int,
+        *,
+        name: str | None = None,
+        match: str | None = None,
+        matching_algorithm: int | None = None,
+        is_insensitive: bool | None = None,
+    ) -> DocumentType:
         """Partially update a document type (PATCH semantics).
 
         Args:
             id: Numeric ID of the document type to update.
-            **kwargs: Fields to update (e.g. ``name="Receipt"``).
+            name: Document-type name (e.g. ``"Invoice"``, ``"Receipt"``).
+                Must be unique.
+            match: Auto-matching pattern tested against incoming document
+                content. Interpretation depends on ``matching_algorithm``.
+            matching_algorithm: Controls how ``match`` is applied: ``0``=none,
+                ``1``=any word, ``2``=all words, ``3``=exact, ``4``=regex,
+                ``5``=fuzzy, ``6``=auto (ML).
+            is_insensitive: When ``True``, ``match`` is evaluated
+                case-insensitively.
 
         Returns:
             The updated
             :class:`~easypaperless.models.document_types.DocumentType`.
         """
-        return await self._update_resource("document_types", id, DocumentType, **kwargs)
+        return await self._update_resource(
+            "document_types",
+            id,
+            DocumentType,
+            name=name,
+            match=match,
+            matching_algorithm=matching_algorithm,
+            is_insensitive=is_insensitive,
+        )
 
     async def delete_document_type(self, id: int) -> None:
         """Delete a document type.
@@ -883,33 +1038,88 @@ class PaperlessClient:
         """
         return await self._get_resource("storage_paths", id, StoragePath)
 
-    async def create_storage_path(self, *, name: str, **kwargs: Any) -> StoragePath:
+    async def create_storage_path(
+        self,
+        *,
+        name: str,
+        path: str | None = None,
+        match: str | None = None,
+        matching_algorithm: int | None = None,
+        is_insensitive: bool | None = None,
+    ) -> StoragePath:
         """Create a new storage path.
 
         Args:
-            name: Storage-path name (must be unique).
-            **kwargs: Additional fields passed directly to the API
-                (e.g. ``path="{created_year}/{correspondent}/{title}"``).
+            name: Storage-path name. Must be unique.
+            path: Template string for the archive file path. Supported
+                placeholders: ``{created_year}``, ``{created_month}``,
+                ``{created_day}``, ``{correspondent}``, ``{document_type}``,
+                ``{title}``, ``{asn}``. Example:
+                ``"{created_year}/{correspondent}/{title}"``. When omitted,
+                the server default location is used.
+            match: Auto-matching pattern tested against incoming document
+                content. Interpretation depends on ``matching_algorithm``.
+            matching_algorithm: Controls how ``match`` is applied: ``0``=none,
+                ``1``=any word, ``2``=all words, ``3``=exact, ``4``=regex,
+                ``5``=fuzzy, ``6``=auto (ML).
+            is_insensitive: When ``True``, ``match`` is evaluated
+                case-insensitively.
 
         Returns:
             The newly created
             :class:`~easypaperless.models.storage_paths.StoragePath`.
         """
-        return await self._create_resource("storage_paths", StoragePath, name=name, **kwargs)
+        return await self._create_resource(
+            "storage_paths",
+            StoragePath,
+            name=name,
+            path=path,
+            match=match,
+            matching_algorithm=matching_algorithm,
+            is_insensitive=is_insensitive,
+        )
 
-    async def update_storage_path(self, id: int, **kwargs: Any) -> StoragePath:
+    async def update_storage_path(
+        self,
+        id: int,
+        *,
+        name: str | None = None,
+        path: str | None = None,
+        match: str | None = None,
+        matching_algorithm: int | None = None,
+        is_insensitive: bool | None = None,
+    ) -> StoragePath:
         """Partially update a storage path (PATCH semantics).
 
         Args:
             id: Numeric ID of the storage path to update.
-            **kwargs: Fields to update (e.g. ``path="{title}"``,
-                ``name="new-name"``).
+            name: Storage-path name. Must be unique.
+            path: Template string for the archive file path. Supported
+                placeholders: ``{created_year}``, ``{created_month}``,
+                ``{created_day}``, ``{correspondent}``, ``{document_type}``,
+                ``{title}``, ``{asn}``. Example: ``"{title}"``.
+            match: Auto-matching pattern tested against incoming document
+                content. Interpretation depends on ``matching_algorithm``.
+            matching_algorithm: Controls how ``match`` is applied: ``0``=none,
+                ``1``=any word, ``2``=all words, ``3``=exact, ``4``=regex,
+                ``5``=fuzzy, ``6``=auto (ML).
+            is_insensitive: When ``True``, ``match`` is evaluated
+                case-insensitively.
 
         Returns:
             The updated
             :class:`~easypaperless.models.storage_paths.StoragePath`.
         """
-        return await self._update_resource("storage_paths", id, StoragePath, **kwargs)
+        return await self._update_resource(
+            "storage_paths",
+            id,
+            StoragePath,
+            name=name,
+            path=path,
+            match=match,
+            matching_algorithm=matching_algorithm,
+            is_insensitive=is_insensitive,
+        )
 
     async def delete_storage_path(self, id: int) -> None:
         """Delete a storage path.
@@ -935,38 +1145,70 @@ class PaperlessClient:
         """
         return await self._get_resource("custom_fields", id, CustomField)
 
-    async def create_custom_field(self, *, name: str, data_type: str, **kwargs: Any) -> CustomField:
+    async def create_custom_field(
+        self,
+        *,
+        name: str,
+        data_type: str,
+        extra_data: Any | None = None,
+    ) -> CustomField:
         """Create a new custom field.
 
         Args:
-            name: Field name (must be unique).
-            data_type: Value type.  Must be one of the
-                :class:`~easypaperless.models.custom_fields.FieldDataType`
-                enum values: ``"string"``, ``"boolean"``, ``"integer"``,
-                ``"float"``, ``"monetary"``, ``"date"``, ``"url"``,
-                ``"documentlink"``, ``"select"``.
-            **kwargs: Additional fields passed directly to the API.
+            name: Field name shown in the UI. Must be unique.
+            data_type: Value type. One of ``"string"``, ``"boolean"``,
+                ``"integer"``, ``"float"``, ``"monetary"``, ``"date"``,
+                ``"url"``, ``"documentlink"``, ``"select"``.
+            extra_data: Additional configuration for the field type. For
+                ``data_type="select"``, pass
+                ``{"select_options": ["Option A", "Option B"]}``. For all
+                other types, leave as ``None``.
 
         Returns:
             The newly created
             :class:`~easypaperless.models.custom_fields.CustomField`.
         """
         return await self._create_resource(
-            "custom_fields", CustomField, name=name, data_type=data_type, **kwargs
+            "custom_fields",
+            CustomField,
+            name=name,
+            data_type=data_type,
+            extra_data=extra_data,
         )
 
-    async def update_custom_field(self, id: int, **kwargs: Any) -> CustomField:
+    async def update_custom_field(
+        self,
+        id: int,
+        *,
+        name: str | None = None,
+        extra_data: Any | None = None,
+    ) -> CustomField:
         """Partially update a custom field (PATCH semantics).
+
+        Note:
+            ``data_type`` is intentionally excluded — the paperless-ngx API
+            does not allow changing the type of an existing custom field. To
+            change the type, delete and recreate the field.
 
         Args:
             id: Numeric ID of the custom field to update.
-            **kwargs: Fields to update (e.g. ``name="Invoice Number"``).
+            name: Field name shown in the UI. Must be unique.
+            extra_data: Additional configuration for the field type (e.g.
+                ``{"select_options": ["Option A", "Option B"]}`` for select
+                fields). Passing ``None`` is a no-op and will not clear the
+                existing value.
 
         Returns:
             The updated
             :class:`~easypaperless.models.custom_fields.CustomField`.
         """
-        return await self._update_resource("custom_fields", id, CustomField, **kwargs)
+        return await self._update_resource(
+            "custom_fields",
+            id,
+            CustomField,
+            name=name,
+            extra_data=extra_data,
+        )
 
     async def delete_custom_field(self, id: int) -> None:
         """Delete a custom field.
