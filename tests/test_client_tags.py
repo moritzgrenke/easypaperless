@@ -239,3 +239,76 @@ async def test_list_storage_paths_ids_and_name_contains(client, mock_router):
     await client.list_storage_paths(ids=[1], name_contains="Arch")
     assert captured["params"]["id__in"] == "1"
     assert captured["params"]["name__icontains"] == "Arch"
+
+
+# ---------------------------------------------------------------------------
+# page / page_size / ordering for all resource list methods
+# ---------------------------------------------------------------------------
+
+async def test_list_tags_page_size_ordering(client, mock_router):
+    captured: dict = {}
+    mock_router.get("/tags/").mock(side_effect=_capturing_side_effect(captured, TAG_LIST))
+    await client.list_tags(page=2, page_size=10, ordering="name", descending=True)
+    assert captured["params"]["page"] == "2"
+    assert captured["params"]["page_size"] == "10"
+    assert captured["params"]["ordering"] == "-name"
+
+
+async def test_list_tags_ordering_asc(client, mock_router):
+    captured: dict = {}
+    mock_router.get("/tags/").mock(side_effect=_capturing_side_effect(captured, TAG_LIST))
+    await client.list_tags(ordering="name")
+    assert captured["params"]["ordering"] == "name"
+
+
+async def test_list_correspondents_page_size_ordering(client, mock_router):
+    captured: dict = {}
+    mock_router.get("/correspondents/").mock(side_effect=_capturing_side_effect(captured, CORR_LIST))
+    await client.list_correspondents(page=1, page_size=5, ordering="name", descending=True)
+    assert captured["params"]["page"] == "1"
+    assert captured["params"]["page_size"] == "5"
+    assert captured["params"]["ordering"] == "-name"
+
+
+async def test_list_document_types_page_size_ordering(client, mock_router):
+    captured: dict = {}
+    mock_router.get("/document_types/").mock(side_effect=_capturing_side_effect(captured, DT_LIST))
+    await client.list_document_types(page=3, page_size=20, ordering="id")
+    assert captured["params"]["page"] == "3"
+    assert captured["params"]["page_size"] == "20"
+    assert captured["params"]["ordering"] == "id"
+
+
+async def test_list_storage_paths_page_size_ordering(client, mock_router):
+    captured: dict = {}
+    mock_router.get("/storage_paths/").mock(side_effect=_capturing_side_effect(captured, SP_LIST))
+    await client.list_storage_paths(page=2, page_size=10, ordering="name", descending=True)
+    assert captured["params"]["page"] == "2"
+    assert captured["params"]["page_size"] == "10"
+    assert captured["params"]["ordering"] == "-name"
+
+
+async def test_list_custom_fields_page_size_ordering(client, mock_router):
+    captured: dict = {}
+    mock_router.get("/custom_fields/").mock(side_effect=_capturing_side_effect(captured, CF_LIST))
+    await client.list_custom_fields(page=1, page_size=50, ordering="name", descending=False)
+    assert captured["params"]["page"] == "1"
+    assert captured["params"]["page_size"] == "50"
+    assert captured["params"]["ordering"] == "name"
+
+
+async def test_list_custom_fields_ordering_desc(client, mock_router):
+    captured: dict = {}
+    mock_router.get("/custom_fields/").mock(side_effect=_capturing_side_effect(captured, CF_LIST))
+    await client.list_custom_fields(ordering="id", descending=True)
+    assert captured["params"]["ordering"] == "-id"
+
+
+async def test_list_tags_no_pagination_params_sends_no_page(client, mock_router):
+    """When page/page_size/ordering are omitted, they must not appear in the request."""
+    captured: dict = {}
+    mock_router.get("/tags/").mock(side_effect=_capturing_side_effect(captured, TAG_LIST))
+    await client.list_tags()
+    assert "page" not in captured["params"]
+    assert "page_size" not in captured["params"]
+    assert "ordering" not in captured["params"]

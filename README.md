@@ -89,7 +89,7 @@ that accept IDs also accept string names — resolution happens transparently.
 | Parameter | Type | Description |
 |---|---|---|
 | `search` | `str` | Search string; behaviour controlled by `search_mode`. |
-| `search_mode` | `str` | `"title_or_text"` *(default)* — FTS across title + OCR content; `"title"` — title substring; `"query"` — raw paperless query language. |
+| `search_mode` | `str` | `"title_or_text"` *(default)* — FTS across title + OCR content; `"title"` — title substring; `"query"` — raw paperless query language; `"original_filename"` — original file-name substring. |
 
 ### Tag filters
 
@@ -133,13 +133,17 @@ All date strings are ISO-8601 (`"YYYY-MM-DD"`).
 | Parameter | Type | Description |
 |---|---|---|
 | `asn` | `int` | Archive serial number (exact match). |
+| `checksum` | `str` | MD5 checksum of the original file (exact match). |
 
-### Pagination control
+### Pagination and ordering
 
 | Parameter | Default | Description |
 |---|---|---|
 | `page_size` | `25` | Results per API page.  Increase (e.g. `500`) to reduce round-trips on large archives. |
-| `max_results` | `None` | Stop fetching once this many documents have been collected.  Avoids pulling the entire archive when you only need the first N results. |
+| `page` | `None` | Return exactly this page (1-based).  Disables auto-pagination — only that single page is fetched. |
+| `ordering` | `None` | Field to sort by, e.g. `"created"`, `"title"`, `"added"`. |
+| `descending` | `False` | When `True`, reverses the `ordering` direction. |
+| `max_results` | `None` | Stop fetching once this many documents have been collected.  Avoids pulling the entire archive when you only need the first N results.  Ignored when `page` is set (use `page_size` instead). |
 
 ### Example
 
@@ -149,9 +153,31 @@ docs = await client.list_documents(
     exclude_document_types=["Spam"],
     added_after="2024-01-01",
     tags=["inbox"],
+    ordering="created",
+    descending=True,
     page_size=100,
     max_results=50,
 )
+```
+
+## Listing tags, correspondents, document types, storage paths, custom fields
+
+All `list_*` resource methods support the same set of pagination and ordering
+parameters in addition to their own filters (`ids`, `name_contains`):
+
+| Parameter | Default | Description |
+|---|---|---|
+| `page` | `None` | Return exactly this page (1-based).  Disables auto-pagination. |
+| `page_size` | server default | Results per page when `page` is set. |
+| `ordering` | `None` | Field to sort by, e.g. `"name"`, `"id"`. |
+| `descending` | `False` | When `True`, reverses the `ordering` direction. |
+
+```python
+# First 10 tags sorted by name descending
+tags = await client.list_tags(page=1, page_size=10, ordering="name", descending=True)
+
+# All correspondents whose name contains "bank", sorted by name
+corrs = await client.list_correspondents(name_contains="bank", ordering="name")
 ```
 
 ## Logging

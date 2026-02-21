@@ -24,6 +24,7 @@ _SEARCH_MODE_MAP = {
     "title": "title__icontains",
     "title_or_text": "search",
     "query": "query",
+    "original_filename": "original_filename__icontains",
 }
 
 _RESOURCE_MODELS = {
@@ -169,7 +170,11 @@ class PaperlessClient:
         added_before: str | None = None,
         modified_after: str | None = None,
         modified_before: str | None = None,
+        checksum: str | None = None,
         page_size: int = 25,
+        page: int | None = None,
+        ordering: str | None = None,
+        descending: bool = False,
         max_results: int | None = None,
     ) -> list[Document]:
         """Return a filtered list of documents.
@@ -188,6 +193,9 @@ class PaperlessClient:
                   only (raw API ``title__icontains``).
                 * ``"query"`` — paperless query language, e.g.
                   ``"tag:invoice date:[2024 TO *]"`` (raw API ``query``).
+                * ``"original_filename"`` — case-insensitive substring match
+                  on the original file name (raw API
+                  ``original_filename__icontains``).
 
             tags: Documents must have **all** of these tags (AND semantics).
                 Accepts tag IDs or tag names.
@@ -222,9 +230,23 @@ class PaperlessClient:
                 documents **modified** after this date are returned.
             modified_before: ISO-8601 date string (``"YYYY-MM-DD"``).  Only
                 documents **modified** before this date are returned.
+            checksum: MD5 checksum of the original file (exact match).
+                Returns only the document whose original file matches this
+                checksum.
             page_size: Number of results per API page.  Default: ``25``.
                 Increase to reduce the number of HTTP requests for large
                 result sets.
+            page: Return only this specific page of results (1-based). When
+                set, auto-pagination is disabled and only the results from
+                that single page are returned. Use together with ``page_size``
+                to control page size. Default: ``None`` (auto-paginate through
+                all pages).
+            ordering: Field name to sort by. Examples: ``"created"``,
+                ``"title"``, ``"added"``. Use together with ``descending`` to
+                control direction. Default: ``None`` (server default ordering).
+            descending: When ``True``, reverses the sort direction of
+                ``ordering``. Ignored when ``ordering`` is ``None``.
+                Default: ``False``.
             max_results: Stop fetching pages once this many documents have
                 been collected and return at most this many results.
                 ``None`` *(default)* returns everything.
@@ -293,6 +315,20 @@ class PaperlessClient:
 
         if modified_before is not None:
             params["modified__date__lt"] = modified_before
+
+        if checksum is not None:
+            params["checksum"] = checksum
+
+        if ordering is not None:
+            params["ordering"] = f"-{ordering}" if descending else ordering
+
+        if page is not None:
+            params["page"] = page
+            resp = await self._session.get("/documents/", params=params)
+            items = resp.json().get("results", [])
+            if max_results is not None:
+                items = items[:max_results]
+            return [Document.model_validate(item) for item in items]
 
         items = await self._session.get_all_pages("/documents/", params, max_results=max_results)
         return [Document.model_validate(item) for item in items]
@@ -609,7 +645,11 @@ class PaperlessClient:
         model_class: type,
         params: dict[str, Any] | None = None,
     ) -> list:
-        items = await self._session.get_all_pages(f"/{resource}/", params)
+        if params and "page" in params:
+            resp = await self._session.get(f"/{resource}/", params=params)
+            items = resp.json().get("results", [])
+        else:
+            items = await self._session.get_all_pages(f"/{resource}/", params)
         return [model_class.model_validate(item) for item in items]
 
     async def _get_resource(self, resource: str, id: int, model_class: type):
@@ -644,6 +684,10 @@ class PaperlessClient:
         *,
         ids: list[int] | None = None,
         name_contains: str | None = None,
+        page: int | None = None,
+        page_size: int | None = None,
+        ordering: str | None = None,
+        descending: bool = False,
     ) -> list[Tag]:
         """Return tags defined in paperless-ngx.
 
@@ -651,6 +695,13 @@ class PaperlessClient:
             ids: Return only tags whose ID is in this list.
             name_contains: Case-insensitive substring filter on tag name
                 (raw API ``name__icontains``).
+            page: Return only this specific page (1-based). Disables
+                auto-pagination. Default: ``None`` (return all).
+            page_size: Number of results per page. When omitted, the server
+                default is used.
+            ordering: Field to sort by. Examples: ``"name"``, ``"id"``.
+            descending: When ``True``, reverses the sort direction of
+                ``ordering``. Ignored when ``ordering`` is ``None``.
 
         Returns:
             List of :class:`~easypaperless.models.tags.Tag` objects.
@@ -660,6 +711,12 @@ class PaperlessClient:
             params["id__in"] = ",".join(str(i) for i in ids)
         if name_contains is not None:
             params["name__icontains"] = name_contains
+        if page is not None:
+            params["page"] = page
+        if page_size is not None:
+            params["page_size"] = page_size
+        if ordering is not None:
+            params["ordering"] = f"-{ordering}" if descending else ordering
         return await self._list_resource("tags", Tag, params or None)
 
     async def get_tag(self, id: int) -> Tag:
@@ -667,6 +724,13 @@ class PaperlessClient:
 
         Args:
             id: Numeric tag ID.
+
+        Returns:
+            The :class:`~easypaperless.models.tags.Tag` with the given ID.
+
+        Raises:
+            ~easypaperless.exceptions.NotFoundError: If no tag exists with
+                that ID.
         """
         return await self._get_resource("tags", id, Tag)
 
@@ -768,6 +832,10 @@ class PaperlessClient:
 
         Args:
             id: Numeric ID of the tag to delete.
+
+        Raises:
+            ~easypaperless.exceptions.NotFoundError: If no tag exists with
+                that ID.
         """
         await self._delete_resource("tags", id)
 
@@ -780,6 +848,10 @@ class PaperlessClient:
         *,
         ids: list[int] | None = None,
         name_contains: str | None = None,
+        page: int | None = None,
+        page_size: int | None = None,
+        ordering: str | None = None,
+        descending: bool = False,
     ) -> list[Correspondent]:
         """Return correspondents defined in paperless-ngx.
 
@@ -787,6 +859,13 @@ class PaperlessClient:
             ids: Return only correspondents whose ID is in this list.
             name_contains: Case-insensitive substring filter on correspondent
                 name (raw API ``name__icontains``).
+            page: Return only this specific page (1-based). Disables
+                auto-pagination. Default: ``None`` (return all).
+            page_size: Number of results per page. When omitted, the server
+                default is used.
+            ordering: Field to sort by. Examples: ``"name"``, ``"id"``.
+            descending: When ``True``, reverses the sort direction of
+                ``ordering``. Ignored when ``ordering`` is ``None``.
 
         Returns:
             List of
@@ -798,6 +877,12 @@ class PaperlessClient:
             params["id__in"] = ",".join(str(i) for i in ids)
         if name_contains is not None:
             params["name__icontains"] = name_contains
+        if page is not None:
+            params["page"] = page
+        if page_size is not None:
+            params["page_size"] = page_size
+        if ordering is not None:
+            params["ordering"] = f"-{ordering}" if descending else ordering
         return await self._list_resource("correspondents", Correspondent, params or None)
 
     async def get_correspondent(self, id: int) -> Correspondent:
@@ -805,6 +890,14 @@ class PaperlessClient:
 
         Args:
             id: Numeric correspondent ID.
+
+        Returns:
+            The :class:`~easypaperless.models.correspondents.Correspondent`
+            with the given ID.
+
+        Raises:
+            ~easypaperless.exceptions.NotFoundError: If no correspondent
+                exists with that ID.
         """
         return await self._get_resource("correspondents", id, Correspondent)
 
@@ -882,6 +975,10 @@ class PaperlessClient:
 
         Args:
             id: Numeric ID of the correspondent to delete.
+
+        Raises:
+            ~easypaperless.exceptions.NotFoundError: If no correspondent
+                exists with that ID.
         """
         await self._delete_resource("correspondents", id)
 
@@ -894,6 +991,10 @@ class PaperlessClient:
         *,
         ids: list[int] | None = None,
         name_contains: str | None = None,
+        page: int | None = None,
+        page_size: int | None = None,
+        ordering: str | None = None,
+        descending: bool = False,
     ) -> list[DocumentType]:
         """Return document types defined in paperless-ngx.
 
@@ -901,6 +1002,13 @@ class PaperlessClient:
             ids: Return only document types whose ID is in this list.
             name_contains: Case-insensitive substring filter on document-type
                 name (raw API ``name__icontains``).
+            page: Return only this specific page (1-based). Disables
+                auto-pagination. Default: ``None`` (return all).
+            page_size: Number of results per page. When omitted, the server
+                default is used.
+            ordering: Field to sort by. Examples: ``"name"``, ``"id"``.
+            descending: When ``True``, reverses the sort direction of
+                ``ordering``. Ignored when ``ordering`` is ``None``.
 
         Returns:
             List of
@@ -912,6 +1020,12 @@ class PaperlessClient:
             params["id__in"] = ",".join(str(i) for i in ids)
         if name_contains is not None:
             params["name__icontains"] = name_contains
+        if page is not None:
+            params["page"] = page
+        if page_size is not None:
+            params["page_size"] = page_size
+        if ordering is not None:
+            params["ordering"] = f"-{ordering}" if descending else ordering
         return await self._list_resource("document_types", DocumentType, params or None)
 
     async def get_document_type(self, id: int) -> DocumentType:
@@ -919,6 +1033,14 @@ class PaperlessClient:
 
         Args:
             id: Numeric document-type ID.
+
+        Returns:
+            The :class:`~easypaperless.models.document_types.DocumentType`
+            with the given ID.
+
+        Raises:
+            ~easypaperless.exceptions.NotFoundError: If no document type
+                exists with that ID.
         """
         return await self._get_resource("document_types", id, DocumentType)
 
@@ -998,6 +1120,10 @@ class PaperlessClient:
 
         Args:
             id: Numeric ID of the document type to delete.
+
+        Raises:
+            ~easypaperless.exceptions.NotFoundError: If no document type
+                exists with that ID.
         """
         await self._delete_resource("document_types", id)
 
@@ -1010,6 +1136,10 @@ class PaperlessClient:
         *,
         ids: list[int] | None = None,
         name_contains: str | None = None,
+        page: int | None = None,
+        page_size: int | None = None,
+        ordering: str | None = None,
+        descending: bool = False,
     ) -> list[StoragePath]:
         """Return storage paths defined in paperless-ngx.
 
@@ -1017,6 +1147,13 @@ class PaperlessClient:
             ids: Return only storage paths whose ID is in this list.
             name_contains: Case-insensitive substring filter on storage-path
                 name (raw API ``name__icontains``).
+            page: Return only this specific page (1-based). Disables
+                auto-pagination. Default: ``None`` (return all).
+            page_size: Number of results per page. When omitted, the server
+                default is used.
+            ordering: Field to sort by. Examples: ``"name"``, ``"id"``.
+            descending: When ``True``, reverses the sort direction of
+                ``ordering``. Ignored when ``ordering`` is ``None``.
 
         Returns:
             List of
@@ -1028,6 +1165,12 @@ class PaperlessClient:
             params["id__in"] = ",".join(str(i) for i in ids)
         if name_contains is not None:
             params["name__icontains"] = name_contains
+        if page is not None:
+            params["page"] = page
+        if page_size is not None:
+            params["page_size"] = page_size
+        if ordering is not None:
+            params["ordering"] = f"-{ordering}" if descending else ordering
         return await self._list_resource("storage_paths", StoragePath, params or None)
 
     async def get_storage_path(self, id: int) -> StoragePath:
@@ -1035,6 +1178,14 @@ class PaperlessClient:
 
         Args:
             id: Numeric storage-path ID.
+
+        Returns:
+            The :class:`~easypaperless.models.storage_paths.StoragePath`
+            with the given ID.
+
+        Raises:
+            ~easypaperless.exceptions.NotFoundError: If no storage path
+                exists with that ID.
         """
         return await self._get_resource("storage_paths", id, StoragePath)
 
@@ -1126,6 +1277,10 @@ class PaperlessClient:
 
         Args:
             id: Numeric ID of the storage path to delete.
+
+        Raises:
+            ~easypaperless.exceptions.NotFoundError: If no storage path
+                exists with that ID.
         """
         await self._delete_resource("storage_paths", id)
 
@@ -1133,15 +1288,52 @@ class PaperlessClient:
     # Custom Fields
     # ------------------------------------------------------------------
 
-    async def list_custom_fields(self) -> list[CustomField]:
-        """Return all custom fields defined in paperless-ngx."""
-        return await self._list_resource("custom_fields", CustomField)
+    async def list_custom_fields(
+        self,
+        *,
+        page: int | None = None,
+        page_size: int | None = None,
+        ordering: str | None = None,
+        descending: bool = False,
+    ) -> list[CustomField]:
+        """Return all custom fields defined in paperless-ngx.
+
+        Args:
+            page: Return only this specific page (1-based). Disables
+                auto-pagination. Default: ``None`` (return all).
+            page_size: Number of results per page. When omitted, the server
+                default is used.
+            ordering: Field to sort by. Examples: ``"name"``, ``"id"``.
+            descending: When ``True``, reverses the sort direction of
+                ``ordering``. Ignored when ``ordering`` is ``None``.
+
+        Returns:
+            List of
+            :class:`~easypaperless.models.custom_fields.CustomField`
+            objects.
+        """
+        params: dict[str, Any] = {}
+        if page is not None:
+            params["page"] = page
+        if page_size is not None:
+            params["page_size"] = page_size
+        if ordering is not None:
+            params["ordering"] = f"-{ordering}" if descending else ordering
+        return await self._list_resource("custom_fields", CustomField, params or None)
 
     async def get_custom_field(self, id: int) -> CustomField:
         """Fetch a single custom field by its ID.
 
         Args:
             id: Numeric custom-field ID.
+
+        Returns:
+            The :class:`~easypaperless.models.custom_fields.CustomField`
+            with the given ID.
+
+        Raises:
+            ~easypaperless.exceptions.NotFoundError: If no custom field
+                exists with that ID.
         """
         return await self._get_resource("custom_fields", id, CustomField)
 
@@ -1215,5 +1407,9 @@ class PaperlessClient:
 
         Args:
             id: Numeric ID of the custom field to delete.
+
+        Raises:
+            ~easypaperless.exceptions.NotFoundError: If no custom field
+                exists with that ID.
         """
         await self._delete_resource("custom_fields", id)

@@ -185,11 +185,11 @@ _DOCTYPE_RESP = {
 }
 
 
-def _capturing_side_effect(captured: dict):
+def _capturing_side_effect(captured: dict, response_data: dict = DOC_LIST):
     """Return a respx side-effect that stores the request URL params."""
     def _side_effect(request):
         captured["params"] = dict(request.url.params)
-        return Response(200, json=DOC_LIST)
+        return Response(200, json=response_data)
     return _side_effect
 
 
@@ -397,3 +397,64 @@ async def test_list_documents_max_results_exact_first_page(client, mock_router):
     docs = await client.list_documents(max_results=2)
     assert len(docs) == 2
     assert call_count == 1
+
+
+# ---------------------------------------------------------------------------
+# checksum / page / ordering / search_mode=original_filename
+# ---------------------------------------------------------------------------
+
+async def test_list_documents_checksum(client, mock_router):
+    captured: dict = {}
+    mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured, DOC_LIST))
+    await client.list_documents(checksum="abc123")
+    assert captured["params"]["checksum"] == "abc123"
+
+
+async def test_list_documents_ordering_asc(client, mock_router):
+    captured: dict = {}
+    mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured, DOC_LIST))
+    await client.list_documents(ordering="created")
+    assert captured["params"]["ordering"] == "created"
+
+
+async def test_list_documents_ordering_desc(client, mock_router):
+    captured: dict = {}
+    mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured, DOC_LIST))
+    await client.list_documents(ordering="created", descending=True)
+    assert captured["params"]["ordering"] == "-created"
+
+
+async def test_list_documents_page(client, mock_router):
+    captured: dict = {}
+    mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured, DOC_LIST))
+    docs = await client.list_documents(page=2)
+    assert captured["params"]["page"] == "2"
+    assert len(docs) == 1
+
+
+async def test_list_documents_page_suppresses_autopagination(client, mock_router):
+    """With page= set, only one request should be made regardless of next."""
+    page_resp = {
+        "count": 100,
+        "next": "http://paperless.test/api/documents/?page=3",
+        "previous": None,
+        "results": [{"id": 1, "title": "A", "tags": []}],
+    }
+    call_count = 0
+
+    def side_effect(request):
+        nonlocal call_count
+        call_count += 1
+        return Response(200, json=page_resp)
+
+    mock_router.get("/documents/").mock(side_effect=side_effect)
+    docs = await client.list_documents(page=2)
+    assert call_count == 1
+    assert len(docs) == 1
+
+
+async def test_list_documents_search_mode_original_filename(client, mock_router):
+    captured: dict = {}
+    mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured, DOC_LIST))
+    await client.list_documents(search="invoice.pdf", search_mode="original_filename")
+    assert captured["params"]["original_filename__icontains"] == "invoice.pdf"
