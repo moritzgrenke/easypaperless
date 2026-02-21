@@ -31,6 +31,7 @@ class HttpSession:
                 base_url=self._base_url,
                 headers={"Authorization": f"Token {self._api_key}"},
                 timeout=30.0,
+                follow_redirects=True,
             )
         return self._client
 
@@ -89,6 +90,36 @@ class HttpSession:
 
     async def get(self, path: str, *, params: dict[str, Any] | None = None) -> httpx.Response:
         return await self.request("GET", path, params=params)
+
+    async def get_download(self, path: str) -> httpx.Response:
+        """GET for binary downloads with auth-preserving redirect handling.
+
+        httpx strips the Authorization header when following redirects to a
+        different host (a security default).  Download endpoints commonly
+        redirect to a media URL served by nginx, which still needs the token.
+        This method follows each redirect hop as a *fresh* request so the
+        client's default Authorization header is always re-attached.
+        """
+        client = self._get_client()
+        logger.debug("GET (download) %s", path)
+        try:
+            resp = await client.request("GET", path, follow_redirects=False)
+        except httpx.HTTPError as exc:
+            raise ServerError(str(exc)) from exc
+
+        hops = 0
+        while resp.is_redirect and hops < 5:
+            location = resp.headers["location"]
+            logger.debug("Redirect %d -> %s", resp.status_code, location)
+            try:
+                resp = await client.request("GET", location, follow_redirects=False)
+            except httpx.HTTPError as exc:
+                raise ServerError(str(exc)) from exc
+            hops += 1
+
+        logger.debug("%d GET %s", resp.status_code, path)
+        self._raise_for_status(resp, "GET", path)
+        return resp
 
     async def post(
         self,

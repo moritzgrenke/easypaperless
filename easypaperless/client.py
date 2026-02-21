@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 
 from easypaperless._internal.http import HttpSession
 from easypaperless._internal.resolvers import NameResolver
-from easypaperless.exceptions import TaskTimeoutError, UploadError
+from easypaperless.exceptions import ServerError, TaskTimeoutError, UploadError
 from easypaperless.models.correspondents import Correspondent
 from easypaperless.models.custom_fields import CustomField
 from easypaperless.models.document_types import DocumentType
@@ -380,7 +380,15 @@ class PaperlessClient:
             Raw file bytes.
         """
         endpoint = "download" if original else "archive"
-        resp = await self._session.get(f"/documents/{id}/{endpoint}/")
+        resp = await self._session.get_download(f"/documents/{id}/{endpoint}/")
+        content_type = resp.headers.get("content-type", "")
+        if "text/html" in content_type or resp.content[:9].lower().startswith(b"<!doctype"):
+            raise ServerError(
+                f"Download returned an HTML page (content-type: {content_type!r}). "
+                "The server redirected to a login page even after re-attaching auth. "
+                "Run with --verbose to see redirect details.",
+                status_code=None,
+            )
         return resp.content
 
     # ------------------------------------------------------------------
