@@ -16,7 +16,7 @@ from easypaperless.exceptions import ServerError, TaskTimeoutError, UploadError
 from easypaperless.models.correspondents import Correspondent
 from easypaperless.models.custom_fields import CustomField
 from easypaperless.models.document_types import DocumentType
-from easypaperless.models.documents import Document, DocumentMetadata, Task, TaskStatus
+from easypaperless.models.documents import Document, DocumentMetadata, DocumentNote, Task, TaskStatus
 from easypaperless.models.storage_paths import StoragePath
 from easypaperless.models.tags import Tag
 
@@ -426,6 +426,63 @@ class PaperlessClient:
                 status_code=None,
             )
         return resp.content
+
+    # ------------------------------------------------------------------
+    # Notes
+    # ------------------------------------------------------------------
+
+    async def get_notes(self, document_id: int) -> list[DocumentNote]:
+        """Fetch all notes attached to a document.
+
+        Args:
+            document_id: Numeric ID of the document whose notes to retrieve.
+
+        Returns:
+            List of :class:`~easypaperless.models.documents.DocumentNote` objects,
+            ordered by creation time.
+
+        Raises:
+            ~easypaperless.exceptions.NotFoundError: If no document exists
+                with that ID.
+        """
+        logger.debug("Fetching notes for document id=%d", document_id)
+        resp = await self._session.get(f"/documents/{document_id}/notes/")
+        return [DocumentNote.model_validate(item) for item in resp.json()]
+
+    async def create_note(self, document_id: int, *, note: str) -> DocumentNote:
+        """Create a new note on a document.
+
+        Args:
+            document_id: Numeric ID of the document to annotate.
+            note: Text content of the note.
+
+        Returns:
+            The newly created :class:`~easypaperless.models.documents.DocumentNote`.
+
+        Raises:
+            ~easypaperless.exceptions.NotFoundError: If no document exists
+                with that ID.
+        """
+        logger.debug("Creating note for document id=%d", document_id)
+        resp = await self._session.post(
+            f"/documents/{document_id}/notes/",
+            json={"note": note},
+        )
+        return DocumentNote.model_validate(resp.json())
+
+    async def delete_note(self, document_id: int, note_id: int) -> None:
+        """Delete a note from a document.
+
+        Args:
+            document_id: Numeric ID of the document that owns the note.
+            note_id: Numeric ID of the note to delete.
+
+        Raises:
+            ~easypaperless.exceptions.NotFoundError: If no document or note
+                exists with the given IDs.
+        """
+        logger.debug("Deleting note id=%d from document id=%d", note_id, document_id)
+        await self._session.delete(f"/documents/{document_id}/notes/{note_id}/")
 
     # ------------------------------------------------------------------
     # Upload

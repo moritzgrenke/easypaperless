@@ -160,6 +160,21 @@ docs = await client.list_documents(
 )
 ```
 
+## Document notes
+
+```python
+# List all notes on a document
+notes = await client.get_notes(42)
+for n in notes:
+    print(n.note, n.created)
+
+# Add a note
+note = await client.create_note(42, note="Needs review")
+
+# Delete a note by ID
+await client.delete_note(42, note_id=note.id)
+```
+
 ## Listing tags, correspondents, document types, storage paths, custom fields
 
 All `list_*` resource methods support the same set of pagination and ordering
