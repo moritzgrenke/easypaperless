@@ -19,11 +19,19 @@ scripts = [
 docs = [
     "pdoc>=14",
 ]
+embeddings = [
+    "numpy>=1.26",
+]
+embeddings-st = [
+    "easypaperless[embeddings]",
+    "sentence-transformers>=2.7",
+]
 dev = [
     "pytest>=8.0",
     "pytest-asyncio>=0.23",
     "respx>=0.21",
     "pytest-cov",
+    "numpy>=1.26",
 ]
 
 [tool.pytest.ini_options]

@@ -28,6 +28,7 @@ from easypaperless.models import (
     Task,
     TaskStatus,
 )
+from easypaperless._embedding import OllamaProvider, SentenceTransformerProvider
 from easypaperless.store import DocumentStore
 from easypaperless.sync import SyncPaperlessClient
 
@@ -38,6 +39,9 @@ __all__ = [
     "PaperlessClient",
     "SyncPaperlessClient",
     "DocumentStore",
+    # Embedding providers
+    "OllamaProvider",
+    "SentenceTransformerProvider",
     # Models
     "Correspondent",
     "CustomField",
