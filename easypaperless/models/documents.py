@@ -6,7 +6,7 @@ from datetime import date, datetime
 from enum import StrEnum
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 class TaskStatus(StrEnum):
@@ -96,6 +96,13 @@ class DocumentNote(BaseModel):
     created: datetime | None = None
     document: int | None = None
     user: int | None = None
+
+    @field_validator("user", mode="before")
+    @classmethod
+    def _coerce_user(cls, v: object) -> int | None:
+        if isinstance(v, dict):
+            return v.get("id")
+        return v  # type: ignore[return-value]
 
 
 class FileMetadataEntry(BaseModel):

@@ -17,6 +17,12 @@ NOTE_DATA = {
     "user": 1,
 }
 
+# Real paperless-ngx returns a nested user object rather than a plain int.
+NOTE_DATA_NESTED_USER = {
+    **NOTE_DATA,
+    "user": {"id": 1, "username": "admin", "first_name": "", "last_name": ""},
+}
+
 
 async def test_get_notes(client, mock_router):
     mock_router.get("/documents/42/notes/").mock(return_value=Response(200, json=[NOTE_DATA]))
@@ -41,6 +47,12 @@ async def test_create_note(client, mock_router):
     assert note.id == 1
     assert note.note == "Needs review"
     assert note.document == 42
+
+
+async def test_get_notes_nested_user(client, mock_router):
+    mock_router.get("/documents/42/notes/").mock(return_value=Response(200, json=[NOTE_DATA_NESTED_USER]))
+    notes = await client.get_notes(42)
+    assert notes[0].user == 1
 
 
 async def test_delete_note(client, mock_router):
