@@ -74,11 +74,19 @@ class OllamaProvider:
     Args:
         model: Ollama model name (e.g. ``"nomic-embed-text"``).
         url: Base URL of the Ollama server.
+        timeout: Request timeout in seconds.  Defaults to 120 s to allow for
+            cold model loading.
     """
 
-    def __init__(self, model: str, url: str = "http://localhost:11434") -> None:
+    def __init__(
+        self,
+        model: str,
+        url: str = "http://localhost:11434",
+        timeout: float = 120.0,
+    ) -> None:
         self._model = model
         self._url = url.rstrip("/")
+        self._timeout = timeout
 
     async def embed(self, texts: list[str]) -> list[list[float]]:
         """Embed texts via the Ollama ``/api/embed`` endpoint.
@@ -92,7 +100,7 @@ class OllamaProvider:
         Raises:
             httpx.HTTPStatusError: If the Ollama server returns an error.
         """
-        async with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient(timeout=self._timeout) as client:
             resp = await client.post(
                 f"{self._url}/api/embed",
                 json={"model": self._model, "input": texts},
