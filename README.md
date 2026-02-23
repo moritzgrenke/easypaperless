@@ -73,12 +73,80 @@ async with PaperlessClient(url="http://localhost:8000", api_key="YOUR_TOKEN") as
     # Force a full re-fetch (e.g. to pick up deleted documents):
     # count = await store.sync(force_full=True)
 
-    # Search locally — no network request
+    # Search locally — no network request; supports the same filter params as list_documents()
     results = store.search_documents(
         tags=["invoice"],
+        exclude_tags=["processed"],
+        any_correspondent=["ACME Corp", "Bank"],
         created_after="2024-01-01",
+        added_after="2024-06-01",
         title_regex=r"Q[1-4]\s+\d{4}",  # Python regex on title
+        max_results=20,
     )
+    store.close()
+```
+
+### search_documents() filter parameters
+
+`search_documents()` supports the same rich filter set as `list_documents()`, plus two additional regex filters applied in Python after SQL pre-filtering.
+
+**Store-only filters**
+
+| Parameter | Type | Description |
+|---|---|---|
+| `title_contains` | `str` | Case-insensitive SQL `LIKE` match on the title. |
+| `title_regex` | `str` | Python regex applied to the title (case-insensitive). |
+| `content_regex` | `str` | Python regex applied to OCR content (case-insensitive). |
+| `max_results` | `int` | Truncate the final result list to at most this many documents. |
+
+**Tag, correspondent, document-type, and date filters** — identical to `list_documents()`:
+
+| Parameter | Semantics |
+|---|---|
+| `tags` | Document has **all** of these tags (AND). |
+| `any_tag` | Document has **at least one** of these tags (OR). |
+| `exclude_tags` | Document has **none** of these tags. |
+| `correspondent` | Assigned to this correspondent (single value). |
+| `any_correspondent` | Assigned to **any** of these (OR). Takes precedence over `correspondent`. |
+| `exclude_correspondents` | Not assigned to any of these. |
+| `document_type` | Has this document type (single value). |
+| `any_document_type` | Type is **any** of these (OR). Takes precedence over `document_type`. |
+| `exclude_document_types` | Type is **none** of these. |
+| `created_after` / `created_before` | Document date (ISO-8601). |
+| `added_after` / `added_before` | Ingestion date (ISO-8601). |
+| `modified_after` / `modified_before` | Last-modified date (ISO-8601). |
+
+All name/ID parameters accept either an integer ID or a string name resolved from the local cache.
+
+## DocumentStore — semantic search
+
+Requires `pip install easypaperless[embeddings]` (adds `numpy` and an embedding provider).
+
+```python
+from easypaperless import PaperlessClient, DocumentStore
+from easypaperless._embedding import SentenceTransformerProvider
+
+async with PaperlessClient(url="http://localhost:8000", api_key="YOUR_TOKEN") as client:
+    store = DocumentStore(client, db_path="paperless.db")
+    await store.sync()
+
+    provider = SentenceTransformerProvider("all-MiniLM-L6-v2")
+
+    # Embed all cached documents (skips already-embedded docs by default)
+    await store.embed_documents(provider)
+
+    # Semantic search — returns (Document, score) tuples sorted by similarity
+    results = await store.semantic_search(
+        "quarterly tax invoice",
+        provider,
+        max_results=5,
+        # Optional: same filters as search_documents()
+        tags=["invoice"],
+        created_after="2024-01-01",
+    )
+    for doc, score in results:
+        print(f"{score:.3f}  {doc.title}")
+
     store.close()
 ```
 

@@ -405,7 +405,7 @@ async def test_embed_documents_force_reembeds(tmp_path):
     store.close()
 
 
-async def test_semantic_search_returns_top_k(tmp_path):
+async def test_semantic_search_max_results(tmp_path):
     docs = [
         make_doc(id=1, title="Alpha"),
         make_doc(id=2, title="Beta"),
@@ -438,7 +438,7 @@ async def test_semantic_search_returns_top_k(tmp_path):
     query_vec = [1.0, 0.0, 0.0]
     provider = make_fake_provider([query_vec])
 
-    results = await store.semantic_search("query", provider, top_k=2)
+    results = await store.semantic_search("query", provider, max_results=2)
     assert len(results) == 2
     assert results[0][0].id == 2  # highest similarity
     assert results[0][1] > results[1][1]  # scores descending
@@ -451,4 +451,185 @@ async def test_semantic_search_empty_embeddings(tmp_path):
     provider = make_fake_provider([[0.1, 0.2]])
     results = await store.semantic_search("query", provider)
     assert results == []
+    store.close()
+
+
+# ------------------------------------------------------------------
+# New filter parameter tests
+# ------------------------------------------------------------------
+
+
+async def test_search_any_tag(tmp_path):
+    tag_a = make_tag(1, "invoice")
+    tag_b = make_tag(2, "bank")
+    docs = [
+        make_doc(id=1, tags=[1]),
+        make_doc(id=2, tags=[2]),
+        make_doc(id=3, tags=[]),
+    ]
+    client = make_client(docs=docs, tags=[tag_a, tag_b])
+    store = DocumentStore(client, tmp_path / "test.db")
+    await store.sync()
+
+    results = store.search_documents(any_tag=["invoice", "bank"])
+    ids = {r.id for r in results}
+    assert ids == {1, 2}
+    store.close()
+
+
+async def test_search_exclude_tags(tmp_path):
+    tag = make_tag(1, "invoice")
+    docs = [
+        make_doc(id=1, tags=[1]),
+        make_doc(id=2, tags=[]),
+    ]
+    client = make_client(docs=docs, tags=[tag])
+    store = DocumentStore(client, tmp_path / "test.db")
+    await store.sync()
+
+    results = store.search_documents(exclude_tags=["invoice"])
+    assert len(results) == 1
+    assert results[0].id == 2
+    store.close()
+
+
+async def test_search_document_type(tmp_path):
+    dt = make_doc_type(10, "Invoice")
+    docs = [
+        make_doc(id=1, document_type=10),
+        make_doc(id=2, document_type=None),
+    ]
+    client = make_client(docs=docs, doc_types=[dt])
+    store = DocumentStore(client, tmp_path / "test.db")
+    await store.sync()
+
+    results = store.search_documents(document_type="Invoice")
+    assert len(results) == 1
+    assert results[0].id == 1
+    store.close()
+
+
+async def test_search_any_document_type(tmp_path):
+    dt_a = make_doc_type(10, "Invoice")
+    dt_b = make_doc_type(11, "Receipt")
+    docs = [
+        make_doc(id=1, document_type=10),
+        make_doc(id=2, document_type=11),
+        make_doc(id=3, document_type=None),
+    ]
+    client = make_client(docs=docs, doc_types=[dt_a, dt_b])
+    store = DocumentStore(client, tmp_path / "test.db")
+    await store.sync()
+
+    results = store.search_documents(any_document_type=["Invoice", "Receipt"])
+    ids = {r.id for r in results}
+    assert ids == {1, 2}
+    store.close()
+
+
+async def test_search_exclude_document_types(tmp_path):
+    dt = make_doc_type(10, "Invoice")
+    docs = [
+        make_doc(id=1, document_type=10),
+        make_doc(id=2, document_type=None),
+    ]
+    client = make_client(docs=docs, doc_types=[dt])
+    store = DocumentStore(client, tmp_path / "test.db")
+    await store.sync()
+
+    results = store.search_documents(exclude_document_types=["Invoice"])
+    assert len(results) == 1
+    assert results[0].id == 2
+    store.close()
+
+
+async def test_search_any_correspondent(tmp_path):
+    corr_a = make_correspondent(5, "ACME")
+    corr_b = make_correspondent(6, "Globex")
+    docs = [
+        make_doc(id=1, correspondent=5),
+        make_doc(id=2, correspondent=6),
+        make_doc(id=3, correspondent=None),
+    ]
+    client = make_client(docs=docs, correspondents=[corr_a, corr_b])
+    store = DocumentStore(client, tmp_path / "test.db")
+    await store.sync()
+
+    results = store.search_documents(any_correspondent=["ACME", "Globex"])
+    ids = {r.id for r in results}
+    assert ids == {1, 2}
+    store.close()
+
+
+async def test_search_added_after(tmp_path):
+    docs = [
+        make_doc(id=1, added="2024-06-01T00:00:00"),
+        make_doc(id=2, added="2023-01-01T00:00:00"),
+    ]
+    client = make_client(docs=docs)
+    store = DocumentStore(client, tmp_path / "test.db")
+    await store.sync()
+
+    results = store.search_documents(added_after="2024-01-01")
+    assert len(results) == 1
+    assert results[0].id == 1
+    store.close()
+
+
+async def test_search_modified_after(tmp_path):
+    docs = [
+        make_doc(id=1, modified="2024-09-01T00:00:00"),
+        make_doc(id=2, modified="2023-01-01T00:00:00"),
+    ]
+    client = make_client(docs=docs)
+    store = DocumentStore(client, tmp_path / "test.db")
+    await store.sync()
+
+    results = store.search_documents(modified_after="2024-01-01")
+    assert len(results) == 1
+    assert results[0].id == 1
+    store.close()
+
+
+async def test_search_max_results(tmp_path):
+    docs = [make_doc(id=i) for i in range(1, 6)]
+    client = make_client(docs=docs)
+    store = DocumentStore(client, tmp_path / "test.db")
+    await store.sync()
+
+    results = store.search_documents(max_results=3)
+    assert len(results) == 3
+    store.close()
+
+
+async def test_semantic_search_with_tag_filter(tmp_path):
+    tag = make_tag(7, "relevant")
+    docs = [
+        make_doc(id=1, title="Alpha", tags=[7]),
+        make_doc(id=2, title="Beta", tags=[]),
+    ]
+    client = make_client(docs=docs, tags=[tag])
+    store = DocumentStore(client, tmp_path / "test.db")
+    await store.sync()
+
+    conn = store._get_conn()
+    # Doc 2 has higher similarity but lacks the tag
+    emb_high = np.array([1.0, 0.0, 0.0], dtype=np.float32).tobytes()
+    emb_mid = np.array([0.8, 0.6, 0.0], dtype=np.float32).tobytes()
+    conn.execute(
+        "INSERT INTO embeddings (document_id, chunk_index, chunk_text, embedding) VALUES (?,?,?,?)",
+        (1, 0, "alpha text", emb_mid),
+    )
+    conn.execute(
+        "INSERT INTO embeddings (document_id, chunk_index, chunk_text, embedding) VALUES (?,?,?,?)",
+        (2, 0, "beta text", emb_high),
+    )
+    conn.commit()
+
+    query_vec = [1.0, 0.0, 0.0]
+    provider = make_fake_provider([query_vec])
+
+    results = await store.semantic_search("query", provider, tags=["relevant"])
+    assert len(results) == 1
+    assert results[0][0].id == 1
     store.close()

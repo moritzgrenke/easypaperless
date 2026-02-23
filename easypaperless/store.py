@@ -28,6 +28,8 @@ CREATE TABLE IF NOT EXISTS documents (
     correspondent_id INTEGER,
     document_type_id INTEGER,
     created_date TEXT,
+    added_date TEXT,
+    modified_date TEXT,
     raw_json TEXT NOT NULL
 );
 
@@ -276,17 +278,22 @@ class DocumentStore:
 
         # Upsert documents
         for doc in docs:
-            created_date_str = doc.created_date.isoformat() if doc.created_date else None
+            created_date_str  = doc.created_date.isoformat()        if doc.created_date else None
+            added_date_str    = doc.added.date().isoformat()         if doc.added         else None
+            modified_date_str = doc.modified.date().isoformat()      if doc.modified      else None
             conn.execute(
                 """INSERT OR REPLACE INTO documents
-                   (id, title, correspondent_id, document_type_id, created_date, raw_json)
-                   VALUES (?, ?, ?, ?, ?, ?)""",
+                   (id, title, correspondent_id, document_type_id, created_date,
+                    added_date, modified_date, raw_json)
+                   VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
                 (
                     doc.id,
                     doc.title,
                     doc.correspondent,
                     doc.document_type,
                     created_date_str,
+                    added_date_str,
+                    modified_date_str,
                     doc.model_dump_json(),
                 ),
             )
@@ -550,7 +557,22 @@ class DocumentStore:
         query: str,
         provider: EmbeddingProvider,
         *,
-        top_k: int = 10,
+        max_results: int = 10,
+        tags: list[int | str] | None = None,
+        any_tag: list[int | str] | None = None,
+        exclude_tags: list[int | str] | None = None,
+        correspondent: int | str | None = None,
+        any_correspondent: list[int | str] | None = None,
+        exclude_correspondents: list[int | str] | None = None,
+        document_type: int | str | None = None,
+        any_document_type: list[int | str] | None = None,
+        exclude_document_types: list[int | str] | None = None,
+        created_after: str | None = None,
+        created_before: str | None = None,
+        added_after: str | None = None,
+        added_before: str | None = None,
+        modified_after: str | None = None,
+        modified_before: str | None = None,
     ) -> list[tuple[Document, float]]:
         """Find documents semantically similar to a query string.
 
@@ -558,12 +580,30 @@ class DocumentStore:
         chunk embedding.  For each document the **maximum** similarity across
         all its chunks is used (best-chunk-wins strategy).
 
+        SQL filters are applied before loading embeddings to avoid unnecessary
+        work.
+
         Args:
             query: Natural-language query string.
             provider: The same
                 :class:`~easypaperless._embedding.EmbeddingProvider` used
                 during :meth:`embed_documents`.
-            top_k: Maximum number of results to return.
+            max_results: Maximum number of results to return.
+            tags: Documents must have **all** of these tags.
+            any_tag: Documents must have **at least one** of these tags.
+            exclude_tags: Documents must have **none** of these tags.
+            correspondent: Filter to a single correspondent (name or ID).
+            any_correspondent: Filter to any of these correspondents.
+            exclude_correspondents: Exclude these correspondents.
+            document_type: Filter to a single document type (name or ID).
+            any_document_type: Filter to any of these document types.
+            exclude_document_types: Exclude these document types.
+            created_after: ISO-8601 date — only docs created after this date.
+            created_before: ISO-8601 date — only docs created before this date.
+            added_after: ISO-8601 date — only docs added after this date.
+            added_before: ISO-8601 date — only docs added before this date.
+            modified_after: ISO-8601 date — only docs modified after this date.
+            modified_before: ISO-8601 date — only docs modified before this date.
 
         Returns:
             List of ``(Document, similarity_score)`` tuples, sorted by
@@ -584,9 +624,34 @@ class DocumentStore:
         query_vec = np.array(query_vecs[0], dtype=np.float32)
 
         conn = self._get_conn()
-        rows = conn.execute(
-            "SELECT document_id, embedding FROM embeddings"
-        ).fetchall()
+
+        conditions, bind = self._build_filter_sql(
+            tags=tags,
+            any_tag=any_tag,
+            exclude_tags=exclude_tags,
+            correspondent=correspondent,
+            any_correspondent=any_correspondent,
+            exclude_correspondents=exclude_correspondents,
+            document_type=document_type,
+            any_document_type=any_document_type,
+            exclude_document_types=exclude_document_types,
+            created_after=created_after,
+            created_before=created_before,
+            added_after=added_after,
+            added_before=added_before,
+            modified_after=modified_after,
+            modified_before=modified_before,
+        )
+
+        if conditions:
+            where = "WHERE " + " AND ".join(conditions)
+            rows = conn.execute(
+                f"SELECT e.document_id, e.embedding FROM embeddings e "
+                f"JOIN documents d ON d.id = e.document_id {where}",
+                bind,
+            ).fetchall()
+        else:
+            rows = conn.execute("SELECT document_id, embedding FROM embeddings").fetchall()
 
         if not rows:
             return []
@@ -599,7 +664,7 @@ class DocumentStore:
             if doc_id not in doc_max_sim or sim > doc_max_sim[doc_id]:
                 doc_max_sim[doc_id] = sim
 
-        top_ids = sorted(doc_max_sim, key=doc_max_sim.__getitem__, reverse=True)[:top_k]
+        top_ids = sorted(doc_max_sim, key=doc_max_sim.__getitem__, reverse=True)[:max_results]
 
         results: list[tuple[Document, float]] = []
         for doc_id in top_ids:
@@ -616,6 +681,118 @@ class DocumentStore:
     # Search (pure SQLite, no network)
     # ------------------------------------------------------------------
 
+    def _build_filter_sql(
+        self,
+        *,
+        tags: list[int | str] | None = None,
+        any_tag: list[int | str] | None = None,
+        exclude_tags: list[int | str] | None = None,
+        correspondent: int | str | None = None,
+        any_correspondent: list[int | str] | None = None,
+        exclude_correspondents: list[int | str] | None = None,
+        document_type: int | str | None = None,
+        any_document_type: list[int | str] | None = None,
+        exclude_document_types: list[int | str] | None = None,
+        created_after: str | None = None,
+        created_before: str | None = None,
+        added_after: str | None = None,
+        added_before: str | None = None,
+        modified_after: str | None = None,
+        modified_before: str | None = None,
+    ) -> tuple[list[str], list[Any]]:
+        """Build WHERE conditions against the ``documents d`` table alias.
+
+        Returns ``(conditions, bind)`` to be joined into a WHERE clause.
+        """
+        conditions: list[str] = []
+        bind: list[Any] = []
+
+        # tags: document must have ALL of these
+        if tags:
+            tag_ids = [self._resolve_local("tags", t) for t in tags]
+            for tag_id in tag_ids:
+                conditions.append(
+                    "EXISTS (SELECT 1 FROM document_tags dt"
+                    " WHERE dt.document_id = d.id AND dt.tag_id = ?)"
+                )
+                bind.append(tag_id)
+
+        # any_tag: document must have AT LEAST ONE of these
+        if any_tag:
+            tag_ids = [self._resolve_local("tags", t) for t in any_tag]
+            placeholders = ",".join("?" * len(tag_ids))
+            conditions.append(
+                f"EXISTS (SELECT 1 FROM document_tags dt"
+                f" WHERE dt.document_id = d.id AND dt.tag_id IN ({placeholders}))"
+            )
+            bind.extend(tag_ids)
+
+        # exclude_tags: document must have NONE of these
+        if exclude_tags:
+            tag_ids = [self._resolve_local("tags", t) for t in exclude_tags]
+            placeholders = ",".join("?" * len(tag_ids))
+            conditions.append(
+                f"NOT EXISTS (SELECT 1 FROM document_tags dt"
+                f" WHERE dt.document_id = d.id AND dt.tag_id IN ({placeholders}))"
+            )
+            bind.extend(tag_ids)
+
+        # correspondent / any_correspondent — any_correspondent takes precedence
+        if any_correspondent:
+            corr_ids = [self._resolve_local("correspondents", c) for c in any_correspondent]
+            placeholders = ",".join("?" * len(corr_ids))
+            conditions.append(f"d.correspondent_id IN ({placeholders})")
+            bind.extend(corr_ids)
+        elif correspondent is not None:
+            corr_id = self._resolve_local("correspondents", correspondent)
+            conditions.append("d.correspondent_id = ?")
+            bind.append(corr_id)
+
+        if exclude_correspondents:
+            corr_ids = [self._resolve_local("correspondents", c) for c in exclude_correspondents]
+            placeholders = ",".join("?" * len(corr_ids))
+            conditions.append(f"(d.correspondent_id IS NULL OR d.correspondent_id NOT IN ({placeholders}))")
+            bind.extend(corr_ids)
+
+        # document_type / any_document_type — any_document_type takes precedence
+        if any_document_type:
+            dt_ids = [self._resolve_local("document_types", dt) for dt in any_document_type]
+            placeholders = ",".join("?" * len(dt_ids))
+            conditions.append(f"d.document_type_id IN ({placeholders})")
+            bind.extend(dt_ids)
+        elif document_type is not None:
+            dt_id = self._resolve_local("document_types", document_type)
+            conditions.append("d.document_type_id = ?")
+            bind.append(dt_id)
+
+        if exclude_document_types:
+            dt_ids = [self._resolve_local("document_types", dt) for dt in exclude_document_types]
+            placeholders = ",".join("?" * len(dt_ids))
+            conditions.append(f"(d.document_type_id IS NULL OR d.document_type_id NOT IN ({placeholders}))")
+            bind.extend(dt_ids)
+
+        # Date range filters
+        if created_after is not None:
+            conditions.append("d.created_date > ?")
+            bind.append(created_after)
+        if created_before is not None:
+            conditions.append("d.created_date < ?")
+            bind.append(created_before)
+        if added_after is not None:
+            conditions.append("d.added_date > ?")
+            bind.append(added_after)
+        if added_before is not None:
+            conditions.append("d.added_date < ?")
+            bind.append(added_before)
+        if modified_after is not None:
+            conditions.append("d.modified_date > ?")
+            bind.append(modified_after)
+        if modified_before is not None:
+            conditions.append("d.modified_date < ?")
+            bind.append(modified_before)
+
+        return conditions, bind
+
     def search_documents(
         self,
         *,
@@ -623,62 +800,53 @@ class DocumentStore:
         title_regex: str | None = None,
         content_regex: str | None = None,
         tags: list[int | str] | None = None,
+        any_tag: list[int | str] | None = None,
+        exclude_tags: list[int | str] | None = None,
+        correspondent: int | str | None = None,
+        any_correspondent: list[int | str] | None = None,
+        exclude_correspondents: list[int | str] | None = None,
+        document_type: int | str | None = None,
+        any_document_type: list[int | str] | None = None,
+        exclude_document_types: list[int | str] | None = None,
         created_after: str | None = None,
         created_before: str | None = None,
-        correspondent: int | str | None = None,
+        added_after: str | None = None,
+        added_before: str | None = None,
+        modified_after: str | None = None,
+        modified_before: str | None = None,
+        max_results: int | None = None,
     ) -> list[Document]:
         """Search the local SQLite cache — no network request is made.
 
-        SQL filters (``title_contains``, ``created_after``, ``created_before``,
-        ``correspondent``, ``tags``) are applied first.  Regex filters
-        (``title_regex``, ``content_regex``) are then applied in Python on the
-        resulting rows.
+        SQL filters are applied first; ``title_regex`` and ``content_regex``
+        are applied in Python on the resulting rows.
 
         Args:
-            title_contains: Case-insensitive substring match on the document
-                title.  Applied as a SQL ``LIKE`` filter.
-            title_regex: Python ``re`` pattern applied to the document title
-                (case-insensitive).  Applied after SQL filtering.
-            content_regex: Python ``re`` pattern applied to the OCR content of
-                each candidate document (case-insensitive).  Applied after SQL
-                filtering.  Content must have been present when :meth:`sync`
-                was last called.
-            tags: Documents must have **all** of these tags.  Accepts tag IDs
-                or tag names (resolved from the local cache).
-            created_after: ISO-8601 date string (``"YYYY-MM-DD"``).  Only
-                documents created **after** this date are returned.
-            created_before: ISO-8601 date string (``"YYYY-MM-DD"``).  Only
-                documents created **before** this date are returned.
-            correspondent: Filter to documents assigned to this correspondent.
-                Accepts a correspondent ID or name (resolved from the local
-                cache).
+            title_contains: Case-insensitive substring match on the title.
+            title_regex: Python ``re`` pattern on the title (case-insensitive).
+            content_regex: Python ``re`` pattern on OCR content (case-insensitive).
+            tags: Documents must have **all** of these tags (name or ID).
+            any_tag: Documents must have **at least one** of these tags.
+            exclude_tags: Documents must have **none** of these tags.
+            correspondent: Filter to a single correspondent (name or ID).
+            any_correspondent: Filter to any of these correspondents.
+            exclude_correspondents: Exclude these correspondents.
+            document_type: Filter to a single document type (name or ID).
+            any_document_type: Filter to any of these document types.
+            exclude_document_types: Exclude these document types.
+            created_after: ISO-8601 date — only docs created after this date.
+            created_before: ISO-8601 date — only docs created before this date.
+            added_after: ISO-8601 date — only docs added after this date.
+            added_before: ISO-8601 date — only docs added before this date.
+            modified_after: ISO-8601 date — only docs modified after this date.
+            modified_before: ISO-8601 date — only docs modified before this date.
+            max_results: If given, truncate the final result list to this length.
 
         Returns:
             List of :class:`~easypaperless.models.documents.Document`
             objects matching all supplied filters.
-
-        Raises:
-            ~easypaperless.exceptions.NotFoundError: If a tag or correspondent
-                name is supplied that does not exist in the local cache.
         """
-        active_filters = {
-            k: v for k, v in {
-                "title_contains": title_contains,
-                "title_regex": title_regex,
-                "content_regex": content_regex,
-                "tags": tags,
-                "created_after": created_after,
-                "created_before": created_before,
-                "correspondent": correspondent,
-            }.items() if v is not None
-        }
-        if active_filters:
-            logger.debug(
-                "search_documents(%s)",
-                ", ".join(f"{k}={v!r}" for k, v in active_filters.items()),
-            )
-        else:
-            logger.debug("search_documents()")
+        logger.debug("search_documents()")
 
         conn = self._get_conn()
 
@@ -689,26 +857,25 @@ class DocumentStore:
             conditions.append("d.title LIKE ?")
             bind.append(f"%{title_contains}%")
 
-        if created_after is not None:
-            conditions.append("d.created_date > ?")
-            bind.append(created_after)
-
-        if created_before is not None:
-            conditions.append("d.created_date < ?")
-            bind.append(created_before)
-
-        if correspondent is not None:
-            corr_id = self._resolve_local("correspondents", correspondent)
-            conditions.append("d.correspondent_id = ?")
-            bind.append(corr_id)
-
-        if tags:
-            tag_ids = [self._resolve_local("tags", t) for t in tags]
-            for tag_id in tag_ids:
-                conditions.append(
-                    "EXISTS (SELECT 1 FROM document_tags dt WHERE dt.document_id = d.id AND dt.tag_id = ?)"
-                )
-                bind.append(tag_id)
+        filter_conditions, filter_bind = self._build_filter_sql(
+            tags=tags,
+            any_tag=any_tag,
+            exclude_tags=exclude_tags,
+            correspondent=correspondent,
+            any_correspondent=any_correspondent,
+            exclude_correspondents=exclude_correspondents,
+            document_type=document_type,
+            any_document_type=any_document_type,
+            exclude_document_types=exclude_document_types,
+            created_after=created_after,
+            created_before=created_before,
+            added_after=added_after,
+            added_before=added_before,
+            modified_after=modified_after,
+            modified_before=modified_before,
+        )
+        conditions.extend(filter_conditions)
+        bind.extend(filter_bind)
 
         where_clause = ("WHERE " + " AND ".join(conditions)) if conditions else ""
         sql = f"SELECT d.raw_json FROM documents d {where_clause}"
@@ -725,6 +892,9 @@ class DocumentStore:
             if content_re and not content_re.search(data.get("content", "") or ""):
                 continue
             results.append(Document.model_validate(data))
+
+        if max_results is not None:
+            results = results[:max_results]
 
         logger.debug("search_documents returned %d result(s)", len(results))
         return results
