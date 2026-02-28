@@ -13,6 +13,7 @@ from easypaperless.models.documents import (
     Task,
     TaskStatus,
 )
+from easypaperless.models.permissions import PermissionSet, SetPermissions
 from easypaperless.models.storage_paths import StoragePath
 from easypaperless.models.tags import Tag
 
@@ -26,7 +27,9 @@ __all__ = [
     "DocumentType",
     "FieldDataType",
     "FileMetadataEntry",
+    "PermissionSet",
     "SearchHit",
+    "SetPermissions",
     "StoragePath",
     "Tag",
     "Task",

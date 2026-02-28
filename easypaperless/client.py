@@ -17,6 +17,7 @@ from easypaperless.models.correspondents import Correspondent
 from easypaperless.models.custom_fields import CustomField
 from easypaperless.models.document_types import DocumentType
 from easypaperless.models.documents import Document, DocumentMetadata, DocumentNote, Task, TaskStatus
+from easypaperless.models.permissions import SetPermissions
 from easypaperless.models.storage_paths import StoragePath
 from easypaperless.models.tags import Tag
 
@@ -727,9 +728,21 @@ class PaperlessClient:
         resp = await self._session.get(f"/{resource}/{id}/")
         return model_class.model_validate(resp.json())
 
-    async def _create_resource(self, resource: str, model_class: type, **kwargs: Any):
+    async def _create_resource(
+        self,
+        resource: str,
+        model_class: type,
+        *,
+        owner: int | None = None,
+        set_permissions: SetPermissions | None = None,
+        **kwargs: Any,
+    ):
         logger.debug("Creating %s resource", resource)
         payload = {k: v for k, v in kwargs.items() if v is not None}
+        payload["owner"] = owner  # always send, even as null
+        payload["set_permissions"] = (
+            set_permissions if set_permissions is not None else SetPermissions()
+        ).model_dump()
         resp = await self._session.post(f"/{resource}/", json=payload)
         self._resolver.invalidate(resource)
         return model_class.model_validate(resp.json())
@@ -815,6 +828,8 @@ class PaperlessClient:
         matching_algorithm: int | None = None,
         is_insensitive: bool | None = None,
         parent: int | None = None,
+        owner: int | None = None,
+        set_permissions: SetPermissions | None = None,
     ) -> Tag:
         """Create a new tag.
 
@@ -834,6 +849,10 @@ class PaperlessClient:
                 case-insensitively.
             parent: ID of an existing tag to use as parent, enabling
                 hierarchical tag trees. ``None`` creates a root-level tag.
+            owner: Numeric user ID to assign as owner. ``None`` creates the
+                tag with no owner (visible to all users).
+            set_permissions: Explicit view/change permission sets. Defaults to
+                no permissions (all users have access via public visibility).
 
         Returns:
             The newly created :class:`~easypaperless.models.tags.Tag`.
@@ -841,6 +860,8 @@ class PaperlessClient:
         return await self._create_resource(
             "tags",
             Tag,
+            owner=owner,
+            set_permissions=set_permissions,
             name=name,
             color=color,
             is_inbox_tag=is_inbox_tag,
@@ -979,6 +1000,8 @@ class PaperlessClient:
         match: str | None = None,
         matching_algorithm: int | None = None,
         is_insensitive: bool | None = None,
+        owner: int | None = None,
+        set_permissions: SetPermissions | None = None,
     ) -> Correspondent:
         """Create a new correspondent.
 
@@ -991,6 +1014,10 @@ class PaperlessClient:
                 ``5``=fuzzy, ``6``=auto (ML).
             is_insensitive: When ``True``, ``match`` is evaluated
                 case-insensitively.
+            owner: Numeric user ID to assign as owner. ``None`` creates the
+                correspondent with no owner (visible to all users).
+            set_permissions: Explicit view/change permission sets. Defaults to
+                no permissions (all users have access via public visibility).
 
         Returns:
             The newly created
@@ -999,6 +1026,8 @@ class PaperlessClient:
         return await self._create_resource(
             "correspondents",
             Correspondent,
+            owner=owner,
+            set_permissions=set_permissions,
             name=name,
             match=match,
             matching_algorithm=matching_algorithm,
@@ -1122,6 +1151,8 @@ class PaperlessClient:
         match: str | None = None,
         matching_algorithm: int | None = None,
         is_insensitive: bool | None = None,
+        owner: int | None = None,
+        set_permissions: SetPermissions | None = None,
     ) -> DocumentType:
         """Create a new document type.
 
@@ -1135,6 +1166,10 @@ class PaperlessClient:
                 ``5``=fuzzy, ``6``=auto (ML).
             is_insensitive: When ``True``, ``match`` is evaluated
                 case-insensitively.
+            owner: Numeric user ID to assign as owner. ``None`` creates the
+                document type with no owner (visible to all users).
+            set_permissions: Explicit view/change permission sets. Defaults to
+                no permissions (all users have access via public visibility).
 
         Returns:
             The newly created
@@ -1143,6 +1178,8 @@ class PaperlessClient:
         return await self._create_resource(
             "document_types",
             DocumentType,
+            owner=owner,
+            set_permissions=set_permissions,
             name=name,
             match=match,
             matching_algorithm=matching_algorithm,
@@ -1268,6 +1305,8 @@ class PaperlessClient:
         match: str | None = None,
         matching_algorithm: int | None = None,
         is_insensitive: bool | None = None,
+        owner: int | None = None,
+        set_permissions: SetPermissions | None = None,
     ) -> StoragePath:
         """Create a new storage path.
 
@@ -1286,6 +1325,10 @@ class PaperlessClient:
                 ``5``=fuzzy, ``6``=auto (ML).
             is_insensitive: When ``True``, ``match`` is evaluated
                 case-insensitively.
+            owner: Numeric user ID to assign as owner. ``None`` creates the
+                storage path with no owner (visible to all users).
+            set_permissions: Explicit view/change permission sets. Defaults to
+                no permissions (all users have access via public visibility).
 
         Returns:
             The newly created
@@ -1294,6 +1337,8 @@ class PaperlessClient:
         return await self._create_resource(
             "storage_paths",
             StoragePath,
+            owner=owner,
+            set_permissions=set_permissions,
             name=name,
             path=path,
             match=match,
@@ -1414,6 +1459,8 @@ class PaperlessClient:
         name: str,
         data_type: str,
         extra_data: Any | None = None,
+        owner: int | None = None,
+        set_permissions: SetPermissions | None = None,
     ) -> CustomField:
         """Create a new custom field.
 
@@ -1426,6 +1473,10 @@ class PaperlessClient:
                 ``data_type="select"``, pass
                 ``{"select_options": ["Option A", "Option B"]}``. For all
                 other types, leave as ``None``.
+            owner: Numeric user ID to assign as owner. ``None`` creates the
+                field with no owner (visible to all users).
+            set_permissions: Explicit view/change permission sets. Defaults to
+                no permissions (all users have access via public visibility).
 
         Returns:
             The newly created
@@ -1434,6 +1485,8 @@ class PaperlessClient:
         return await self._create_resource(
             "custom_fields",
             CustomField,
+            owner=owner,
+            set_permissions=set_permissions,
             name=name,
             data_type=data_type,
             extra_data=extra_data,

@@ -246,6 +246,36 @@ note = await client.create_note(42, note="Needs review")
 await client.delete_note(42, note_id=note.id)
 ```
 
+## Creating tags, correspondents, document types, storage paths, custom fields
+
+All `create_*` methods accept two optional ownership parameters:
+
+| Parameter | Type | Default | Description |
+|---|---|---|---|
+| `owner` | `int \| None` | `None` | Numeric user ID to assign as owner. `None` = no owner (visible to all). |
+| `set_permissions` | `SetPermissions \| None` | `None` | Explicit view/change ACL. `None` = empty permissions (no restrictions). |
+
+By default both are omitted → the API sends `owner: null` and an empty permissions structure, so created objects are visible to all users regardless of the server's default-owner setting.
+
+```python
+from easypaperless import PaperlessClient, SetPermissions, PermissionSet
+
+async with PaperlessClient(url="http://localhost:8000", api_key="YOUR_TOKEN") as client:
+    # No owner — visible to everyone (recommended default)
+    tag = await client.create_tag(name="invoice")
+
+    # Assign an explicit owner by user ID
+    corr = await client.create_correspondent(name="ACME Corp", owner=3)
+
+    # Custom view permissions (users 1 and 2 may view; no one has change access)
+    perms = SetPermissions(view=PermissionSet(users=[1, 2]))
+    dt = await client.create_document_type(name="Contract", set_permissions=perms)
+
+    # Other create_* methods follow the same pattern
+    sp = await client.create_storage_path(name="Archive", path="{created_year}/{title}")
+    cf = await client.create_custom_field(name="Invoice number", data_type="string")
+```
+
 ## Listing tags, correspondents, document types, storage paths, custom fields
 
 All `list_*` resource methods support the same set of pagination and ordering
