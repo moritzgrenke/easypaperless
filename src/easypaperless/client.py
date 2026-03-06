@@ -58,6 +58,7 @@ class PaperlessClient:
         url: str,
         api_key: str,
         *,
+        timeout: float = 30.0,
         poll_interval: float = 2.0,
         poll_timeout: float = 60.0,
     ) -> None:
@@ -68,6 +69,9 @@ class PaperlessClient:
                 (e.g. ``"http://localhost:8000"``).
             api_key: API token.  Generate one in paperless-ngx under
                 *Settings → API → Generate Token*.
+            timeout: Default request timeout in seconds.  Individual
+                operations (e.g. uploads) may override this per-call.
+                Default: ``30.0``.
             poll_interval: Seconds between status checks when ``wait=True``
                 is passed to :meth:`upload_document`.  Default: ``2.0``.
             poll_timeout: Maximum seconds to wait for a document to finish
@@ -75,7 +79,7 @@ class PaperlessClient:
                 :exc:`~easypaperless.exceptions.TaskTimeoutError`.
                 Default: ``60.0``.
         """
-        self._session = HttpSession(base_url=url, api_key=api_key)
+        self._session = HttpSession(base_url=url, api_key=api_key, timeout=timeout)
         self._resolver = NameResolver(self._session)
         self._poll_interval = poll_interval
         self._poll_timeout = poll_timeout

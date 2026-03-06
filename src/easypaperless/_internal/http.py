@@ -19,10 +19,11 @@ logger = logging.getLogger(__name__)
 
 
 class HttpSession:
-    def __init__(self, base_url: str, api_key: str) -> None:
+    def __init__(self, base_url: str, api_key: str, timeout: float = 30.0) -> None:
         # Normalize: strip trailing slash, then append /api
         self._base_url = base_url.rstrip("/") + "/api"
         self._api_key = api_key
+        self._timeout = timeout
         self._client: httpx.AsyncClient | None = None
 
     def _get_client(self) -> httpx.AsyncClient:
@@ -30,7 +31,7 @@ class HttpSession:
             self._client = httpx.AsyncClient(
                 base_url=self._base_url,
                 headers={"Authorization": f"Token {self._api_key}"},
-                timeout=30.0,
+                timeout=self._timeout,
                 follow_redirects=True,
             )
         return self._client
