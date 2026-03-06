@@ -2,11 +2,14 @@
 
 from __future__ import annotations
 
+import json
+
 import pytest
 import respx
 from httpx import Response
 
 from easypaperless.models.documents import Document, DocumentMetadata
+from easypaperless.models.permissions import PermissionSet, SetPermissions
 
 DOC_DATA = {"id": 1, "title": "Test Document", "tags": []}
 DOC_LIST = {
@@ -169,6 +172,53 @@ async def test_update_document_with_correspondent_name(client, mock_router):
     )
     doc = await client.update_document(1, correspondent="ACME")
     assert doc.correspondent == 5
+
+
+def _patch_capturing_side_effect(captured: dict, response_data: dict = DOC_DATA):
+    """Return a respx side-effect that stores the request JSON body."""
+    def _side_effect(request):
+        captured["body"] = json.loads(request.content)
+        return Response(200, json=response_data)
+    return _side_effect
+
+
+async def test_update_document_with_owner(client, mock_router):
+    captured: dict = {}
+    mock_router.patch("/documents/1/").mock(
+        side_effect=_patch_capturing_side_effect(captured, {**DOC_DATA, "owner": 42})
+    )
+    doc = await client.update_document(1, owner=42)
+    assert doc.owner == 42
+    assert captured["body"]["owner"] == 42
+
+
+async def test_update_document_with_set_permissions(client, mock_router):
+    captured: dict = {}
+    mock_router.patch("/documents/1/").mock(
+        side_effect=_patch_capturing_side_effect(captured, DOC_DATA)
+    )
+    perms = SetPermissions(
+        view=PermissionSet(users=[1, 2], groups=[]),
+        change=PermissionSet(users=[1], groups=[3]),
+    )
+    await client.update_document(1, set_permissions=perms)
+    body = captured["body"]
+    assert body["set_permissions"] == {
+        "view": {"users": [1, 2], "groups": []},
+        "change": {"users": [1], "groups": [3]},
+    }
+
+
+async def test_update_document_owner_and_permissions_not_sent_when_omitted(client, mock_router):
+    captured: dict = {}
+    mock_router.patch("/documents/1/").mock(
+        side_effect=_patch_capturing_side_effect(captured, {**DOC_DATA, "title": "New"})
+    )
+    await client.update_document(1, title="New")
+    body = captured["body"]
+    assert "owner" not in body
+    assert "set_permissions" not in body
+    assert body == {"title": "New"}
 
 
 # ---------------------------------------------------------------------------

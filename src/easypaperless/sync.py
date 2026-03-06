@@ -202,6 +202,8 @@ class SyncPaperlessClient:
         tags: list[int | str] | None = None,
         asn: int | None = None,
         custom_fields: list[dict[str, Any]] | None = None,
+        owner: int | None = None,
+        set_permissions: SetPermissions | None = None,
     ) -> Document:
         return self._run(self._async_client.update_document(
             id,
@@ -214,6 +216,8 @@ class SyncPaperlessClient:
             tags=tags,
             asn=asn,
             custom_fields=custom_fields,
+            owner=owner,
+            set_permissions=set_permissions,
         ))
 
     def delete_document(self, id: int) -> None:

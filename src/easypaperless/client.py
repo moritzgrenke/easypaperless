@@ -482,6 +482,8 @@ class PaperlessClient:
         tags: list[int | str] | None = None,
         asn: int | None = None,
         custom_fields: list[dict] | None = None,
+        owner: int | None = None,
+        set_permissions: SetPermissions | None = None,
     ) -> Document:
         """Partially update a document (PATCH semantics — only passed fields change).
 
@@ -501,6 +503,8 @@ class PaperlessClient:
             asn: Archive serial number to assign.
             custom_fields: List of ``{"field": <field_id>, "value": ...}``
                 dicts.  Replaces the existing custom-field values.
+            owner: Numeric user ID to assign as document owner.
+            set_permissions: Explicit view/change permission sets.
 
         Returns:
             The updated :class:`~easypaperless.models.documents.Document`.
@@ -526,6 +530,10 @@ class PaperlessClient:
             payload["archive_serial_number"] = asn
         if custom_fields is not None:
             payload["custom_fields"] = custom_fields
+        if owner is not None:
+            payload["owner"] = owner
+        if set_permissions is not None:
+            payload["set_permissions"] = set_permissions.model_dump()
 
         resp = await self._session.patch(f"/documents/{id}/", json=payload)
         return Document.model_validate(resp.json())
