@@ -395,6 +395,17 @@ async def test_delete_correspondent_invalidates_cache(client, mock_router):
 
 # Document Types
 DT_DATA = {"id": 1, "name": "Invoice"}
+DT_DATA_FULL = {
+    "id": 1,
+    "name": "Invoice",
+    "slug": "invoice",
+    "match": "invoice",
+    "matching_algorithm": 3,
+    "is_insensitive": True,
+    "document_count": 25,
+    "owner": 1,
+    "user_can_change": True,
+}
 DT_LIST = {"count": 1, "next": None, "previous": None, "results": [DT_DATA]}
 
 
@@ -404,10 +415,159 @@ async def test_list_document_types(client, mock_router):
     assert isinstance(dts[0], DocumentType)
 
 
+async def test_get_document_type(client, mock_router):
+    mock_router.get("/document_types/1/").mock(return_value=Response(200, json=DT_DATA))
+    dt = await client.get_document_type(1)
+    assert dt.id == 1
+    assert dt.name == "Invoice"
+
+
 async def test_create_document_type(client, mock_router):
     mock_router.post("/document_types/").mock(return_value=Response(201, json=DT_DATA))
     dt = await client.create_document_type(name="Invoice")
     assert dt.name == "Invoice"
+
+
+async def test_update_document_type(client, mock_router):
+    updated = {**DT_DATA, "name": "Receipt"}
+    mock_router.patch("/document_types/1/").mock(
+        return_value=Response(200, json=updated),
+    )
+    dt = await client.update_document_type(1, name="Receipt")
+    assert dt.name == "Receipt"
+
+
+async def test_delete_document_type(client, mock_router):
+    mock_router.delete("/document_types/1/").mock(return_value=Response(204))
+    await client.delete_document_type(1)
+
+
+# ---------------------------------------------------------------------------
+# DocumentType model – all fields
+# ---------------------------------------------------------------------------
+
+async def test_document_type_model_all_fields(client, mock_router):
+    mock_router.get("/document_types/1/").mock(return_value=Response(200, json=DT_DATA_FULL))
+    dt = await client.get_document_type(1)
+    assert dt.id == 1
+    assert dt.name == "Invoice"
+    assert dt.slug == "invoice"
+    assert dt.match == "invoice"
+    assert dt.matching_algorithm == MatchingAlgorithm.EXACT
+    assert dt.is_insensitive is True
+    assert dt.document_count == 25
+    assert dt.owner == 1
+    assert dt.user_can_change is True
+
+
+# ---------------------------------------------------------------------------
+# DocumentType 404 / NotFoundError tests
+# ---------------------------------------------------------------------------
+
+async def test_get_document_type_not_found(client, mock_router):
+    not_found = Response(404, json={"detail": "Not found."})
+    mock_router.get("/document_types/999/").mock(return_value=not_found)
+    with pytest.raises(NotFoundError):
+        await client.get_document_type(999)
+
+
+async def test_update_document_type_not_found(client, mock_router):
+    not_found = Response(404, json={"detail": "Not found."})
+    mock_router.patch("/document_types/999/").mock(return_value=not_found)
+    with pytest.raises(NotFoundError):
+        await client.update_document_type(999, name="gone")
+
+
+async def test_delete_document_type_not_found(client, mock_router):
+    not_found = Response(404, json={"detail": "Not found."})
+    mock_router.delete("/document_types/999/").mock(return_value=not_found)
+    with pytest.raises(NotFoundError):
+        await client.delete_document_type(999)
+
+
+# ---------------------------------------------------------------------------
+# create_document_type – full payload with all optional parameters
+# ---------------------------------------------------------------------------
+
+async def test_create_document_type_all_params(client, mock_router):
+    captured: dict = {}
+    mock_router.post("/document_types/").mock(side_effect=_json_capturing_side_effect(
+        captured, DT_DATA_FULL, status=201,
+    ))
+    perms = SetPermissions(
+        view=PermissionSet(users=[2], groups=[]),
+        change=PermissionSet(users=[], groups=[1]),
+    )
+    dt = await client.create_document_type(
+        name="Invoice",
+        match="invoice",
+        matching_algorithm=MatchingAlgorithm.EXACT,
+        is_insensitive=True,
+        owner=1,
+        set_permissions=perms,
+    )
+    body = captured["body"]
+    assert body["name"] == "Invoice"
+    assert body["match"] == "invoice"
+    assert body["matching_algorithm"] == 3
+    assert body["is_insensitive"] is True
+    assert body["owner"] == 1
+    assert body["set_permissions"]["view"]["users"] == [2]
+    assert body["set_permissions"]["change"]["groups"] == [1]
+    assert isinstance(dt, DocumentType)
+
+
+# ---------------------------------------------------------------------------
+# update_document_type – PATCH semantics (only non-None fields sent)
+# ---------------------------------------------------------------------------
+
+async def test_update_document_type_only_sends_provided_fields(client, mock_router):
+    captured: dict = {}
+    mock_router.patch("/document_types/1/").mock(side_effect=_json_capturing_side_effect(
+        captured, {**DT_DATA, "name": "Receipt"},
+    ))
+    await client.update_document_type(1, name="Receipt")
+    body = captured["body"]
+    assert body == {"name": "Receipt"}
+
+
+async def test_update_document_type_empty_patch(client, mock_router):
+    captured: dict = {}
+    mock_router.patch("/document_types/1/").mock(side_effect=_json_capturing_side_effect(
+        captured, DT_DATA,
+    ))
+    await client.update_document_type(1)
+    assert captured["body"] == {}
+
+
+# ---------------------------------------------------------------------------
+# DocumentType cache invalidation
+# ---------------------------------------------------------------------------
+
+async def test_create_document_type_invalidates_cache(client, mock_router):
+    mock_router.get("/document_types/").mock(return_value=Response(200, json=DT_LIST))
+    new_dt = {"id": 2, "name": "Receipt"}
+    mock_router.post("/document_types/").mock(return_value=Response(201, json=new_dt))
+    await client.list_document_types()
+    await client.create_document_type(name="Receipt")
+    assert "document_types" not in client._resolver._cache
+
+
+async def test_update_document_type_invalidates_cache(client, mock_router):
+    mock_router.get("/document_types/").mock(return_value=Response(200, json=DT_LIST))
+    updated = {**DT_DATA, "name": "Receipt"}
+    mock_router.patch("/document_types/1/").mock(return_value=Response(200, json=updated))
+    await client.list_document_types()
+    await client.update_document_type(1, name="Receipt")
+    assert "document_types" not in client._resolver._cache
+
+
+async def test_delete_document_type_invalidates_cache(client, mock_router):
+    mock_router.get("/document_types/").mock(return_value=Response(200, json=DT_LIST))
+    mock_router.delete("/document_types/1/").mock(return_value=Response(204))
+    await client.list_document_types()
+    await client.delete_document_type(1)
+    assert "document_types" not in client._resolver._cache
 
 
 # Storage Paths

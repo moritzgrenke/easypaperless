@@ -15,7 +15,7 @@
 | PROJ-9 | Document Bulk Operations | Implemented | [PROJ-9-document-bulk-operations.md](PROJ-9-document-bulk-operations.md) |
 | PROJ-10 | Tags CRUD | Implemented | [PROJ-10-tags-crud.md](PROJ-10-tags-crud.md) |
 | PROJ-11 | Correspondents CRUD | Implemented | [PROJ-11-correspondents-crud.md](PROJ-11-correspondents-crud.md) |
-| PROJ-12 | Document Types CRUD | Partially Implemented | [PROJ-12-document-types-crud.md](PROJ-12-document-types-crud.md) |
+| PROJ-12 | Document Types CRUD | Implemented | [PROJ-12-document-types-crud.md](PROJ-12-document-types-crud.md) |
 | PROJ-13 | Custom Fields CRUD | Implemented | [PROJ-13-custom-fields-crud.md](PROJ-13-custom-fields-crud.md) |
 | PROJ-14 | Storage Paths CRUD | Partially Implemented | [PROJ-14-storage-paths-crud.md](PROJ-14-storage-paths-crud.md) |
 | PROJ-15 | Non-Document Bulk Operations | Partially Implemented | [PROJ-15-non-document-bulk-operations.md](PROJ-15-non-document-bulk-operations.md) |
