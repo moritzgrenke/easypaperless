@@ -572,6 +572,18 @@ async def test_delete_document_type_invalidates_cache(client, mock_router):
 
 # Storage Paths
 SP_DATA = {"id": 1, "name": "Archive", "path": "/docs/{created_year}/"}
+SP_DATA_FULL = {
+    "id": 1,
+    "name": "Archive",
+    "slug": "archive",
+    "path": "{created_year}/{correspondent}/{title}",
+    "match": "archive",
+    "matching_algorithm": 3,
+    "is_insensitive": True,
+    "document_count": 30,
+    "owner": 1,
+    "user_can_change": True,
+}
 SP_LIST = {"count": 1, "next": None, "previous": None, "results": [SP_DATA]}
 
 
@@ -580,6 +592,177 @@ async def test_list_storage_paths(client, mock_router):
     sps = await client.list_storage_paths()
     assert isinstance(sps[0], StoragePath)
     assert sps[0].path == "/docs/{created_year}/"
+
+
+async def test_get_storage_path(client, mock_router):
+    mock_router.get("/storage_paths/1/").mock(return_value=Response(200, json=SP_DATA))
+    sp = await client.get_storage_path(1)
+    assert sp.id == 1
+    assert sp.name == "Archive"
+
+
+async def test_create_storage_path(client, mock_router):
+    mock_router.post("/storage_paths/").mock(return_value=Response(201, json=SP_DATA))
+    sp = await client.create_storage_path(name="Archive")
+    assert sp.name == "Archive"
+
+
+async def test_update_storage_path(client, mock_router):
+    updated = {**SP_DATA, "name": "Deep Archive"}
+    mock_router.patch("/storage_paths/1/").mock(return_value=Response(200, json=updated))
+    sp = await client.update_storage_path(1, name="Deep Archive")
+    assert sp.name == "Deep Archive"
+
+
+async def test_delete_storage_path(client, mock_router):
+    mock_router.delete("/storage_paths/1/").mock(return_value=Response(204))
+    await client.delete_storage_path(1)
+
+
+# ---------------------------------------------------------------------------
+# StoragePath model – all fields
+# ---------------------------------------------------------------------------
+
+async def test_storage_path_model_all_fields(client, mock_router):
+    mock_router.get("/storage_paths/1/").mock(return_value=Response(200, json=SP_DATA_FULL))
+    sp = await client.get_storage_path(1)
+    assert sp.id == 1
+    assert sp.name == "Archive"
+    assert sp.slug == "archive"
+    assert sp.path == "{created_year}/{correspondent}/{title}"
+    assert sp.match == "archive"
+    assert sp.matching_algorithm == MatchingAlgorithm.EXACT
+    assert sp.is_insensitive is True
+    assert sp.document_count == 30
+    assert sp.owner == 1
+    assert sp.user_can_change is True
+
+
+# ---------------------------------------------------------------------------
+# StoragePath 404 / NotFoundError tests
+# ---------------------------------------------------------------------------
+
+async def test_get_storage_path_not_found(client, mock_router):
+    not_found = Response(404, json={"detail": "Not found."})
+    mock_router.get("/storage_paths/999/").mock(return_value=not_found)
+    with pytest.raises(NotFoundError):
+        await client.get_storage_path(999)
+
+
+async def test_update_storage_path_not_found(client, mock_router):
+    not_found = Response(404, json={"detail": "Not found."})
+    mock_router.patch("/storage_paths/999/").mock(return_value=not_found)
+    with pytest.raises(NotFoundError):
+        await client.update_storage_path(999, name="gone")
+
+
+async def test_delete_storage_path_not_found(client, mock_router):
+    not_found = Response(404, json={"detail": "Not found."})
+    mock_router.delete("/storage_paths/999/").mock(return_value=not_found)
+    with pytest.raises(NotFoundError):
+        await client.delete_storage_path(999)
+
+
+# ---------------------------------------------------------------------------
+# create_storage_path – full payload with all optional parameters
+# ---------------------------------------------------------------------------
+
+async def test_create_storage_path_all_params(client, mock_router):
+    captured: dict = {}
+    mock_router.post("/storage_paths/").mock(side_effect=_json_capturing_side_effect(
+        captured, SP_DATA_FULL, status=201,
+    ))
+    perms = SetPermissions(
+        view=PermissionSet(users=[2], groups=[]),
+        change=PermissionSet(users=[], groups=[1]),
+    )
+    sp = await client.create_storage_path(
+        name="Archive",
+        path="{created_year}/{correspondent}/{title}",
+        match="archive",
+        matching_algorithm=MatchingAlgorithm.EXACT,
+        is_insensitive=True,
+        owner=1,
+        set_permissions=perms,
+    )
+    body = captured["body"]
+    assert body["name"] == "Archive"
+    assert body["path"] == "{created_year}/{correspondent}/{title}"
+    assert body["match"] == "archive"
+    assert body["matching_algorithm"] == 3
+    assert body["is_insensitive"] is True
+    assert body["owner"] == 1
+    assert body["set_permissions"]["view"]["users"] == [2]
+    assert body["set_permissions"]["change"]["groups"] == [1]
+    assert isinstance(sp, StoragePath)
+
+
+# ---------------------------------------------------------------------------
+# update_storage_path – PATCH semantics (only non-None fields sent)
+# ---------------------------------------------------------------------------
+
+async def test_update_storage_path_only_sends_provided_fields(client, mock_router):
+    captured: dict = {}
+    mock_router.patch("/storage_paths/1/").mock(side_effect=_json_capturing_side_effect(
+        captured, {**SP_DATA, "name": "Deep Archive"},
+    ))
+    await client.update_storage_path(1, name="Deep Archive")
+    body = captured["body"]
+    assert body == {"name": "Deep Archive"}
+
+
+async def test_update_storage_path_empty_patch(client, mock_router):
+    captured: dict = {}
+    mock_router.patch("/storage_paths/1/").mock(side_effect=_json_capturing_side_effect(
+        captured, SP_DATA,
+    ))
+    await client.update_storage_path(1)
+    assert captured["body"] == {}
+
+
+async def test_update_storage_path_path_field(client, mock_router):
+    captured: dict = {}
+    updated = {**SP_DATA, "path": "{title}"}
+    mock_router.patch("/storage_paths/1/").mock(side_effect=_json_capturing_side_effect(
+        captured, updated,
+    ))
+    sp = await client.update_storage_path(1, path="{title}")
+    assert captured["body"] == {"path": "{title}"}
+    assert sp.path == "{title}"
+
+
+# ---------------------------------------------------------------------------
+# StoragePath cache invalidation
+# ---------------------------------------------------------------------------
+
+async def test_create_storage_path_invalidates_cache(client, mock_router):
+    mock_router.get("/storage_paths/").mock(
+        return_value=Response(200, json=SP_LIST),
+    )
+    new_sp = {"id": 2, "name": "NewPath"}
+    mock_router.post("/storage_paths/").mock(
+        return_value=Response(201, json=new_sp),
+    )
+    await client.list_storage_paths()
+    await client.create_storage_path(name="NewPath")
+    assert "storage_paths" not in client._resolver._cache
+
+
+async def test_update_storage_path_invalidates_cache(client, mock_router):
+    mock_router.get("/storage_paths/").mock(return_value=Response(200, json=SP_LIST))
+    updated = {**SP_DATA, "name": "Deep Archive"}
+    mock_router.patch("/storage_paths/1/").mock(return_value=Response(200, json=updated))
+    await client.list_storage_paths()
+    await client.update_storage_path(1, name="Deep Archive")
+    assert "storage_paths" not in client._resolver._cache
+
+
+async def test_delete_storage_path_invalidates_cache(client, mock_router):
+    mock_router.get("/storage_paths/").mock(return_value=Response(200, json=SP_LIST))
+    mock_router.delete("/storage_paths/1/").mock(return_value=Response(204))
+    await client.list_storage_paths()
+    await client.delete_storage_path(1)
+    assert "storage_paths" not in client._resolver._cache
 
 
 # Custom Fields
