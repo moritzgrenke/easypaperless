@@ -15,6 +15,7 @@ from typing import Any, Callable, TypeVar
 _T = TypeVar("_T")
 
 from easypaperless.client import PaperlessClient
+from easypaperless.models._base import MatchingAlgorithm
 from easypaperless.models.correspondents import Correspondent
 from easypaperless.models.custom_fields import CustomField
 from easypaperless.models.document_types import DocumentType
@@ -104,7 +105,7 @@ class SyncPaperlessClient:
         search: str | None = None,
         search_mode: str = "title_or_text",
         tags: list[int | str] | None = None,
-        any_tag: list[int | str] | None = None,
+        any_tags: list[int | str] | None = None,
         exclude_tags: list[int | str] | None = None,
         correspondent: int | str | None = None,
         any_correspondent: list[int | str] | None = None,
@@ -131,7 +132,7 @@ class SyncPaperlessClient:
             search=search,
             search_mode=search_mode,
             tags=tags,
-            any_tag=any_tag,
+            any_tags=any_tags,
             exclude_tags=exclude_tags,
             correspondent=correspondent,
             any_correspondent=any_correspondent,
@@ -305,7 +306,7 @@ class SyncPaperlessClient:
         color: str | None = None,
         is_inbox_tag: bool | None = None,
         match: str | None = None,
-        matching_algorithm: int | None = None,
+        matching_algorithm: MatchingAlgorithm | None = None,
         is_insensitive: bool | None = None,
         parent: int | None = None,
         owner: int | None = None,
@@ -331,7 +332,7 @@ class SyncPaperlessClient:
         color: str | None = None,
         is_inbox_tag: bool | None = None,
         match: str | None = None,
-        matching_algorithm: int | None = None,
+        matching_algorithm: MatchingAlgorithm | None = None,
         is_insensitive: bool | None = None,
         parent: int | None = None,
     ) -> Tag:
@@ -380,7 +381,7 @@ class SyncPaperlessClient:
         *,
         name: str,
         match: str | None = None,
-        matching_algorithm: int | None = None,
+        matching_algorithm: MatchingAlgorithm | None = None,
         is_insensitive: bool | None = None,
         owner: int | None = None,
         set_permissions: SetPermissions | None = None,
@@ -400,7 +401,7 @@ class SyncPaperlessClient:
         *,
         name: str | None = None,
         match: str | None = None,
-        matching_algorithm: int | None = None,
+        matching_algorithm: MatchingAlgorithm | None = None,
         is_insensitive: bool | None = None,
     ) -> Correspondent:
         return self._run(self._async_client.update_correspondent(
@@ -445,7 +446,7 @@ class SyncPaperlessClient:
         *,
         name: str,
         match: str | None = None,
-        matching_algorithm: int | None = None,
+        matching_algorithm: MatchingAlgorithm | None = None,
         is_insensitive: bool | None = None,
         owner: int | None = None,
         set_permissions: SetPermissions | None = None,
@@ -465,7 +466,7 @@ class SyncPaperlessClient:
         *,
         name: str | None = None,
         match: str | None = None,
-        matching_algorithm: int | None = None,
+        matching_algorithm: MatchingAlgorithm | None = None,
         is_insensitive: bool | None = None,
     ) -> DocumentType:
         return self._run(self._async_client.update_document_type(
@@ -511,7 +512,7 @@ class SyncPaperlessClient:
         name: str,
         path: str | None = None,
         match: str | None = None,
-        matching_algorithm: int | None = None,
+        matching_algorithm: MatchingAlgorithm | None = None,
         is_insensitive: bool | None = None,
         owner: int | None = None,
         set_permissions: SetPermissions | None = None,
@@ -533,7 +534,7 @@ class SyncPaperlessClient:
         name: str | None = None,
         path: str | None = None,
         match: str | None = None,
-        matching_algorithm: int | None = None,
+        matching_algorithm: MatchingAlgorithm | None = None,
         is_insensitive: bool | None = None,
     ) -> StoragePath:
         return self._run(self._async_client.update_storage_path(

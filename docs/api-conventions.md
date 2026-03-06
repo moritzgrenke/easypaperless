@@ -62,7 +62,7 @@ When filtering documents by a related resource:
 
 All FK parameters accept either integer IDs or string names (resolved transparently).
 
-> **Note:** The existing implementation uses `any_tag` (singular) instead of `any_tags`. This is an inconsistency — new code should use the plural form.
+> All FK filter parameters use the plural form (e.g. `any_tags`, not `any_tag`).
 
 ### Common field names
 

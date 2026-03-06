@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from pydantic import BaseModel, ConfigDict
 
+from easypaperless.models._base import MatchingAlgorithm
+
 
 class Tag(BaseModel):
     """A paperless-ngx tag.
@@ -27,7 +29,7 @@ class Tag(BaseModel):
     color: str | None = None
     text_color: str | None = None
     match: str | None = None
-    matching_algorithm: int | None = None
+    matching_algorithm: MatchingAlgorithm | None = None
     is_insensitive: bool | None = None
     is_inbox_tag: bool | None = None
     document_count: int | None = None

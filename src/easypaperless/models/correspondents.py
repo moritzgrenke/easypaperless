@@ -6,6 +6,8 @@ from datetime import date
 
 from pydantic import BaseModel, ConfigDict
 
+from easypaperless.models._base import MatchingAlgorithm
+
 
 class Correspondent(BaseModel):
     """A paperless-ngx correspondent (sender or recipient of a document).
@@ -24,7 +26,7 @@ class Correspondent(BaseModel):
     name: str
     slug: str | None = None
     match: str | None = None
-    matching_algorithm: int | None = None
+    matching_algorithm: MatchingAlgorithm | None = None
     is_insensitive: bool | None = None
     document_count: int | None = None
     last_correspondence: date | None = None

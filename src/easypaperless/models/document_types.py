@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from pydantic import BaseModel, ConfigDict
 
+from easypaperless.models._base import MatchingAlgorithm
+
 
 class DocumentType(BaseModel):
     """A paperless-ngx document type (e.g. Invoice, Receipt, Contract).
@@ -20,7 +22,7 @@ class DocumentType(BaseModel):
     name: str
     slug: str | None = None
     match: str | None = None
-    matching_algorithm: int | None = None
+    matching_algorithm: MatchingAlgorithm | None = None
     is_insensitive: bool | None = None
     document_count: int | None = None
     owner: int | None = None

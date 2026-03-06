@@ -13,6 +13,7 @@ logger = logging.getLogger(__name__)
 from easypaperless._internal.http import HttpSession
 from easypaperless._internal.resolvers import NameResolver
 from easypaperless.exceptions import ServerError, TaskTimeoutError, UploadError
+from easypaperless.models._base import MatchingAlgorithm
 from easypaperless.models.correspondents import Correspondent
 from easypaperless.models.custom_fields import CustomField
 from easypaperless.models.document_types import DocumentType
@@ -156,7 +157,7 @@ class PaperlessClient:
         search: str | None = None,
         search_mode: str = "title_or_text",
         tags: list[int | str] | None = None,
-        any_tag: list[int | str] | None = None,
+        any_tags: list[int | str] | None = None,
         exclude_tags: list[int | str] | None = None,
         correspondent: int | str | None = None,
         any_correspondent: list[int | str] | None = None,
@@ -201,7 +202,7 @@ class PaperlessClient:
 
             tags: Documents must have **all** of these tags (AND semantics).
                 Accepts tag IDs or tag names.
-            any_tag: Documents must have **at least one** of these tags
+            any_tags: Documents must have **at least one** of these tags
                 (OR semantics).  Accepts tag IDs or tag names.
             exclude_tags: Documents must have **none** of these tags.
                 Accepts tag IDs or tag names.
@@ -271,8 +272,8 @@ class PaperlessClient:
             resolved = await self._resolver.resolve_list("tags", tags)
             params["tags__id__all"] = ",".join(str(t) for t in resolved)
 
-        if any_tag is not None:
-            resolved = await self._resolver.resolve_list("tags", any_tag)
+        if any_tags is not None:
+            resolved = await self._resolver.resolve_list("tags", any_tags)
             params["tags__id__in"] = ",".join(str(t) for t in resolved)
 
         if exclude_tags is not None:
@@ -829,7 +830,7 @@ class PaperlessClient:
         color: str | None = None,
         is_inbox_tag: bool | None = None,
         match: str | None = None,
-        matching_algorithm: int | None = None,
+        matching_algorithm: MatchingAlgorithm | None = None,
         is_insensitive: bool | None = None,
         parent: int | None = None,
         owner: int | None = None,
@@ -846,9 +847,8 @@ class PaperlessClient:
                 the inbox tag.
             match: Auto-matching pattern tested against incoming document
                 content. Interpretation depends on ``matching_algorithm``.
-            matching_algorithm: Controls how ``match`` is applied: ``0``=none,
-                ``1``=any word, ``2``=all words, ``3``=exact, ``4``=regex,
-                ``5``=fuzzy, ``6``=auto (ML).
+            matching_algorithm: Controls how ``match`` is applied.
+                See :class:`~easypaperless.models.MatchingAlgorithm`.
             is_insensitive: When ``True``, ``match`` is evaluated
                 case-insensitively.
             parent: ID of an existing tag to use as parent, enabling
@@ -883,7 +883,7 @@ class PaperlessClient:
         color: str | None = None,
         is_inbox_tag: bool | None = None,
         match: str | None = None,
-        matching_algorithm: int | None = None,
+        matching_algorithm: MatchingAlgorithm | None = None,
         is_insensitive: bool | None = None,
         parent: int | None = None,
     ) -> Tag:
@@ -899,9 +899,8 @@ class PaperlessClient:
                 the inbox tag.
             match: Auto-matching pattern tested against incoming document
                 content. Interpretation depends on ``matching_algorithm``.
-            matching_algorithm: Controls how ``match`` is applied: ``0``=none,
-                ``1``=any word, ``2``=all words, ``3``=exact, ``4``=regex,
-                ``5``=fuzzy, ``6``=auto (ML).
+            matching_algorithm: Controls how ``match`` is applied.
+                See :class:`~easypaperless.models.MatchingAlgorithm`.
             is_insensitive: When ``True``, ``match`` is evaluated
                 case-insensitively.
             parent: ID of an existing tag to use as parent, enabling
@@ -1002,7 +1001,7 @@ class PaperlessClient:
         *,
         name: str,
         match: str | None = None,
-        matching_algorithm: int | None = None,
+        matching_algorithm: MatchingAlgorithm | None = None,
         is_insensitive: bool | None = None,
         owner: int | None = None,
         set_permissions: SetPermissions | None = None,
@@ -1013,9 +1012,8 @@ class PaperlessClient:
             name: Correspondent name (sender/recipient). Must be unique.
             match: Auto-matching pattern tested against incoming document
                 content. Interpretation depends on ``matching_algorithm``.
-            matching_algorithm: Controls how ``match`` is applied: ``0``=none,
-                ``1``=any word, ``2``=all words, ``3``=exact, ``4``=regex,
-                ``5``=fuzzy, ``6``=auto (ML).
+            matching_algorithm: Controls how ``match`` is applied.
+                See :class:`~easypaperless.models.MatchingAlgorithm`.
             is_insensitive: When ``True``, ``match`` is evaluated
                 case-insensitively.
             owner: Numeric user ID to assign as owner. ``None`` creates the
@@ -1044,7 +1042,7 @@ class PaperlessClient:
         *,
         name: str | None = None,
         match: str | None = None,
-        matching_algorithm: int | None = None,
+        matching_algorithm: MatchingAlgorithm | None = None,
         is_insensitive: bool | None = None,
     ) -> Correspondent:
         """Partially update a correspondent (PATCH semantics).
@@ -1054,9 +1052,8 @@ class PaperlessClient:
             name: Correspondent name (sender/recipient). Must be unique.
             match: Auto-matching pattern tested against incoming document
                 content. Interpretation depends on ``matching_algorithm``.
-            matching_algorithm: Controls how ``match`` is applied: ``0``=none,
-                ``1``=any word, ``2``=all words, ``3``=exact, ``4``=regex,
-                ``5``=fuzzy, ``6``=auto (ML).
+            matching_algorithm: Controls how ``match`` is applied.
+                See :class:`~easypaperless.models.MatchingAlgorithm`.
             is_insensitive: When ``True``, ``match`` is evaluated
                 case-insensitively.
 
@@ -1153,7 +1150,7 @@ class PaperlessClient:
         *,
         name: str,
         match: str | None = None,
-        matching_algorithm: int | None = None,
+        matching_algorithm: MatchingAlgorithm | None = None,
         is_insensitive: bool | None = None,
         owner: int | None = None,
         set_permissions: SetPermissions | None = None,
@@ -1165,9 +1162,8 @@ class PaperlessClient:
                 Must be unique.
             match: Auto-matching pattern tested against incoming document
                 content. Interpretation depends on ``matching_algorithm``.
-            matching_algorithm: Controls how ``match`` is applied: ``0``=none,
-                ``1``=any word, ``2``=all words, ``3``=exact, ``4``=regex,
-                ``5``=fuzzy, ``6``=auto (ML).
+            matching_algorithm: Controls how ``match`` is applied.
+                See :class:`~easypaperless.models.MatchingAlgorithm`.
             is_insensitive: When ``True``, ``match`` is evaluated
                 case-insensitively.
             owner: Numeric user ID to assign as owner. ``None`` creates the
@@ -1196,7 +1192,7 @@ class PaperlessClient:
         *,
         name: str | None = None,
         match: str | None = None,
-        matching_algorithm: int | None = None,
+        matching_algorithm: MatchingAlgorithm | None = None,
         is_insensitive: bool | None = None,
     ) -> DocumentType:
         """Partially update a document type (PATCH semantics).
@@ -1207,9 +1203,8 @@ class PaperlessClient:
                 Must be unique.
             match: Auto-matching pattern tested against incoming document
                 content. Interpretation depends on ``matching_algorithm``.
-            matching_algorithm: Controls how ``match`` is applied: ``0``=none,
-                ``1``=any word, ``2``=all words, ``3``=exact, ``4``=regex,
-                ``5``=fuzzy, ``6``=auto (ML).
+            matching_algorithm: Controls how ``match`` is applied.
+                See :class:`~easypaperless.models.MatchingAlgorithm`.
             is_insensitive: When ``True``, ``match`` is evaluated
                 case-insensitively.
 
@@ -1307,7 +1302,7 @@ class PaperlessClient:
         name: str,
         path: str | None = None,
         match: str | None = None,
-        matching_algorithm: int | None = None,
+        matching_algorithm: MatchingAlgorithm | None = None,
         is_insensitive: bool | None = None,
         owner: int | None = None,
         set_permissions: SetPermissions | None = None,
@@ -1324,9 +1319,8 @@ class PaperlessClient:
                 the server default location is used.
             match: Auto-matching pattern tested against incoming document
                 content. Interpretation depends on ``matching_algorithm``.
-            matching_algorithm: Controls how ``match`` is applied: ``0``=none,
-                ``1``=any word, ``2``=all words, ``3``=exact, ``4``=regex,
-                ``5``=fuzzy, ``6``=auto (ML).
+            matching_algorithm: Controls how ``match`` is applied.
+                See :class:`~easypaperless.models.MatchingAlgorithm`.
             is_insensitive: When ``True``, ``match`` is evaluated
                 case-insensitively.
             owner: Numeric user ID to assign as owner. ``None`` creates the
@@ -1357,7 +1351,7 @@ class PaperlessClient:
         name: str | None = None,
         path: str | None = None,
         match: str | None = None,
-        matching_algorithm: int | None = None,
+        matching_algorithm: MatchingAlgorithm | None = None,
         is_insensitive: bool | None = None,
     ) -> StoragePath:
         """Partially update a storage path (PATCH semantics).
@@ -1371,9 +1365,8 @@ class PaperlessClient:
                 ``{title}``, ``{asn}``. Example: ``"{title}"``.
             match: Auto-matching pattern tested against incoming document
                 content. Interpretation depends on ``matching_algorithm``.
-            matching_algorithm: Controls how ``match`` is applied: ``0``=none,
-                ``1``=any word, ``2``=all words, ``3``=exact, ``4``=regex,
-                ``5``=fuzzy, ``6``=auto (ML).
+            matching_algorithm: Controls how ``match`` is applied.
+                See :class:`~easypaperless.models.MatchingAlgorithm`.
             is_insensitive: When ``True``, ``match`` is evaluated
                 case-insensitively.
 

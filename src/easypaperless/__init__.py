@@ -13,6 +13,7 @@ from easypaperless.exceptions import (
     ValidationError,
 )
 from easypaperless.models import (
+    MatchingAlgorithm,
     Correspondent,
     CustomField,
     CustomFieldValue,
@@ -39,6 +40,7 @@ __all__ = [
     "PaperlessClient",
     "SyncPaperlessClient",
     # Models
+    "MatchingAlgorithm",
     "Correspondent",
     "CustomField",
     "CustomFieldValue",

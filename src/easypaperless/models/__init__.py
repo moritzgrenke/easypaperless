@@ -1,5 +1,6 @@
 """Public model exports."""
 
+from easypaperless.models._base import MatchingAlgorithm
 from easypaperless.models.correspondents import Correspondent
 from easypaperless.models.custom_fields import CustomField, FieldDataType
 from easypaperless.models.document_types import DocumentType
@@ -18,6 +19,7 @@ from easypaperless.models.storage_paths import StoragePath
 from easypaperless.models.tags import Tag
 
 __all__ = [
+    "MatchingAlgorithm",
     "Correspondent",
     "CustomField",
     "CustomFieldValue",
