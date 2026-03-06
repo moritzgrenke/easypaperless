@@ -584,6 +584,25 @@ async def test_list_storage_paths(client, mock_router):
 
 # Custom Fields
 CF_DATA = {"id": 1, "name": "Amount", "data_type": "monetary"}
+CF_DATA_FULL = {
+    "id": 1,
+    "name": "Amount",
+    "data_type": "monetary",
+    "extra_data": None,
+    "document_count": 10,
+}
+CF_DATA_SELECT = {
+    "id": 2,
+    "name": "Priority",
+    "data_type": "select",
+    "extra_data": {
+        "select_options": [
+            {"id": "abc123", "label": "High"},
+            {"id": "def456", "label": "Low"},
+        ],
+    },
+    "document_count": 5,
+}
 CF_LIST = {"count": 1, "next": None, "previous": None, "results": [CF_DATA]}
 
 
@@ -593,10 +612,200 @@ async def test_list_custom_fields(client, mock_router):
     assert isinstance(cfs[0], CustomField)
 
 
+async def test_get_custom_field(client, mock_router):
+    mock_router.get("/custom_fields/1/").mock(return_value=Response(200, json=CF_DATA))
+    cf = await client.get_custom_field(1)
+    assert cf.id == 1
+    assert cf.name == "Amount"
+
+
 async def test_create_custom_field(client, mock_router):
     mock_router.post("/custom_fields/").mock(return_value=Response(201, json=CF_DATA))
     cf = await client.create_custom_field(name="Amount", data_type="monetary")
     assert cf.data_type.value == "monetary"
+
+
+async def test_update_custom_field(client, mock_router):
+    updated = {**CF_DATA, "name": "Total Amount"}
+    mock_router.patch("/custom_fields/1/").mock(return_value=Response(200, json=updated))
+    cf = await client.update_custom_field(1, name="Total Amount")
+    assert cf.name == "Total Amount"
+
+
+async def test_delete_custom_field(client, mock_router):
+    mock_router.delete("/custom_fields/1/").mock(return_value=Response(204))
+    await client.delete_custom_field(1)
+
+
+# ---------------------------------------------------------------------------
+# CustomField model – all fields
+# ---------------------------------------------------------------------------
+
+async def test_custom_field_model_all_fields(client, mock_router):
+    mock_router.get("/custom_fields/1/").mock(return_value=Response(200, json=CF_DATA_FULL))
+    cf = await client.get_custom_field(1)
+    assert cf.id == 1
+    assert cf.name == "Amount"
+    assert cf.data_type.value == "monetary"
+    assert cf.extra_data is None
+    assert cf.document_count == 10
+
+
+async def test_custom_field_model_select_type(client, mock_router):
+    mock_router.get("/custom_fields/2/").mock(return_value=Response(200, json=CF_DATA_SELECT))
+    cf = await client.get_custom_field(2)
+    assert cf.id == 2
+    assert cf.name == "Priority"
+    assert cf.data_type.value == "select"
+    assert cf.extra_data is not None
+    assert len(cf.extra_data["select_options"]) == 2
+    assert cf.extra_data["select_options"][0]["label"] == "High"
+    assert cf.document_count == 5
+
+
+# ---------------------------------------------------------------------------
+# CustomField 404 / NotFoundError tests
+# ---------------------------------------------------------------------------
+
+async def test_get_custom_field_not_found(client, mock_router):
+    not_found = Response(404, json={"detail": "Not found."})
+    mock_router.get("/custom_fields/999/").mock(return_value=not_found)
+    with pytest.raises(NotFoundError):
+        await client.get_custom_field(999)
+
+
+async def test_update_custom_field_not_found(client, mock_router):
+    not_found = Response(404, json={"detail": "Not found."})
+    mock_router.patch("/custom_fields/999/").mock(return_value=not_found)
+    with pytest.raises(NotFoundError):
+        await client.update_custom_field(999, name="gone")
+
+
+async def test_delete_custom_field_not_found(client, mock_router):
+    not_found = Response(404, json={"detail": "Not found."})
+    mock_router.delete("/custom_fields/999/").mock(return_value=not_found)
+    with pytest.raises(NotFoundError):
+        await client.delete_custom_field(999)
+
+
+# ---------------------------------------------------------------------------
+# create_custom_field – full payload with all optional parameters
+# ---------------------------------------------------------------------------
+
+async def test_create_custom_field_all_params(client, mock_router):
+    captured: dict = {}
+    mock_router.post("/custom_fields/").mock(side_effect=_json_capturing_side_effect(
+        captured, CF_DATA_FULL, status=201,
+    ))
+    perms = SetPermissions(
+        view=PermissionSet(users=[2], groups=[]),
+        change=PermissionSet(users=[], groups=[1]),
+    )
+    cf = await client.create_custom_field(
+        name="Amount",
+        data_type="monetary",
+        owner=1,
+        set_permissions=perms,
+    )
+    body = captured["body"]
+    assert body["name"] == "Amount"
+    assert body["data_type"] == "monetary"
+    assert body["owner"] == 1
+    assert body["set_permissions"]["view"]["users"] == [2]
+    assert body["set_permissions"]["change"]["groups"] == [1]
+    assert isinstance(cf, CustomField)
+
+
+async def test_create_custom_field_select_with_extra_data(client, mock_router):
+    captured: dict = {}
+    mock_router.post("/custom_fields/").mock(side_effect=_json_capturing_side_effect(
+        captured, CF_DATA_SELECT, status=201,
+    ))
+    cf = await client.create_custom_field(
+        name="Priority",
+        data_type="select",
+        extra_data={"select_options": ["High", "Low"]},
+    )
+    body = captured["body"]
+    assert body["name"] == "Priority"
+    assert body["data_type"] == "select"
+    assert body["extra_data"] == {"select_options": ["High", "Low"]}
+    assert isinstance(cf, CustomField)
+    assert cf.data_type.value == "select"
+
+
+# ---------------------------------------------------------------------------
+# update_custom_field – PATCH semantics (only non-None fields sent)
+# ---------------------------------------------------------------------------
+
+async def test_update_custom_field_only_sends_provided_fields(client, mock_router):
+    captured: dict = {}
+    mock_router.patch("/custom_fields/1/").mock(side_effect=_json_capturing_side_effect(
+        captured, {**CF_DATA, "name": "Total Amount"},
+    ))
+    await client.update_custom_field(1, name="Total Amount")
+    body = captured["body"]
+    assert body == {"name": "Total Amount"}
+
+
+async def test_update_custom_field_empty_patch(client, mock_router):
+    captured: dict = {}
+    mock_router.patch("/custom_fields/1/").mock(side_effect=_json_capturing_side_effect(
+        captured, CF_DATA,
+    ))
+    await client.update_custom_field(1)
+    assert captured["body"] == {}
+
+
+async def test_update_custom_field_extra_data(client, mock_router):
+    captured: dict = {}
+    updated = {**CF_DATA_SELECT, "extra_data": {"select_options": [
+        {"id": "abc123", "label": "High"},
+        {"id": "def456", "label": "Low"},
+        {"id": "ghi789", "label": "Medium"},
+    ]}}
+    mock_router.patch("/custom_fields/2/").mock(side_effect=_json_capturing_side_effect(
+        captured, updated,
+    ))
+    await client.update_custom_field(
+        2, extra_data={"select_options": ["High", "Low", "Medium"]},
+    )
+    body = captured["body"]
+    assert body == {"extra_data": {"select_options": ["High", "Low", "Medium"]}}
+
+
+# ---------------------------------------------------------------------------
+# Custom Fields cache invalidation
+# ---------------------------------------------------------------------------
+
+async def test_create_custom_field_invalidates_cache(client, mock_router):
+    mock_router.get("/custom_fields/").mock(
+        return_value=Response(200, json=CF_LIST),
+    )
+    new_cf = {"id": 2, "name": "Priority", "data_type": "select"}
+    mock_router.post("/custom_fields/").mock(
+        return_value=Response(201, json=new_cf),
+    )
+    await client.list_custom_fields()
+    await client.create_custom_field(name="Priority", data_type="select")
+    assert "custom_fields" not in client._resolver._cache
+
+
+async def test_update_custom_field_invalidates_cache(client, mock_router):
+    mock_router.get("/custom_fields/").mock(return_value=Response(200, json=CF_LIST))
+    updated = {**CF_DATA, "name": "Total Amount"}
+    mock_router.patch("/custom_fields/1/").mock(return_value=Response(200, json=updated))
+    await client.list_custom_fields()
+    await client.update_custom_field(1, name="Total Amount")
+    assert "custom_fields" not in client._resolver._cache
+
+
+async def test_delete_custom_field_invalidates_cache(client, mock_router):
+    mock_router.get("/custom_fields/").mock(return_value=Response(200, json=CF_LIST))
+    mock_router.delete("/custom_fields/1/").mock(return_value=Response(204))
+    await client.list_custom_fields()
+    await client.delete_custom_field(1)
+    assert "custom_fields" not in client._resolver._cache
 
 
 # ---------------------------------------------------------------------------
