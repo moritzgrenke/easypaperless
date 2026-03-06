@@ -74,6 +74,22 @@ async def test_resolve_list():
     assert result == [1, 2]
 
 
+async def test_resolve_str_int_as_string_hint():
+    """When user passes '42' (int as str), error should hint to use int."""
+    session = FakeSession([{"id": 1, "name": "other"}])
+    resolver = NameResolver(session)
+    with pytest.raises(NotFoundError, match=r"looks like an integer ID"):
+        await resolver.resolve("tags", "42")
+
+
+async def test_resolve_empty_resource():
+    """An empty resource listing should raise NotFoundError for any name."""
+    session = FakeSession([])
+    resolver = NameResolver(session)
+    with pytest.raises(NotFoundError):
+        await resolver.resolve("tags", "anything")
+
+
 async def test_different_resources_cached_separately():
     session = FakeSession([{"id": 1, "name": "x"}])
     resolver = NameResolver(session)

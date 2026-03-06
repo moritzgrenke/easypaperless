@@ -29,7 +29,14 @@ class NameResolver:
         await self._ensure_loaded(resource)
         key = value.lower()
         if key not in self._cache[resource]:
-            raise NotFoundError(f"{resource!r} item with name {value!r} not found")
+            msg = f"{resource!r} item with name {value!r} not found"
+            if value.isdigit():
+                msg += (
+                    f". Hint: you passed the string {value!r} which looks like an"
+                    " integer ID — use int({value}) instead of a string if you meant"
+                    " to pass an ID"
+                )
+            raise NotFoundError(msg)
         resolved_id = self._cache[resource][key]
         logger.debug("Resolved %s %r -> %d", resource, value, resolved_id)
         return resolved_id
