@@ -3,16 +3,23 @@
 from __future__ import annotations
 
 import logging
+from typing import Any, Protocol
 
 from easypaperless.exceptions import NotFoundError
 
 logger = logging.getLogger(__name__)
 
 
+class _PageFetcher(Protocol):
+    async def get_all_pages(
+        self,
+        path: str,
+        params: dict[str, Any] | None = None,
+    ) -> list[dict[str, Any]]: ...
+
+
 class NameResolver:
-    def __init__(self, session: object) -> None:
-        # Circular import avoided by type: HttpSession passed as generic object,
-        # accessed only through its async methods.
+    def __init__(self, session: _PageFetcher) -> None:
         self._session = session
         self._cache: dict[str, dict[str, int]] = {}
 

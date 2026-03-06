@@ -5,7 +5,6 @@
 - **Language:** Python 3.11+
 - **HTTP client:** `httpx` (async-first)
 - **Data models:** Pydantic v2
-- **Local cache:** SQLite (stdlib)
 - **Build:** Hatch + hatchling
 - **Linting/formatting:** Ruff
 - **Type checking:** Mypy (strict)

@@ -3,11 +3,6 @@
 from __future__ import annotations
 
 from enum import IntEnum
-from typing import Generic, TypeVar
-
-from pydantic import BaseModel
-
-T = TypeVar("T")
 
 
 class MatchingAlgorithm(IntEnum):
@@ -20,10 +15,3 @@ class MatchingAlgorithm(IntEnum):
     REGEX = 4
     FUZZY = 5
     AUTO = 6
-
-
-class PaginatedResponse(BaseModel, Generic[T]):
-    count: int
-    next: str | None = None
-    previous: str | None = None
-    results: list[T]
