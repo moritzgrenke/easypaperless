@@ -2,26 +2,54 @@
 
 from __future__ import annotations
 
+import json
+
 import pytest
-import respx
 from httpx import Response
 
-from easypaperless.models.tags import Tag
+from easypaperless.exceptions import NotFoundError
+from easypaperless.models._base import MatchingAlgorithm
 from easypaperless.models.correspondents import Correspondent
-from easypaperless.models.document_types import DocumentType
-from easypaperless.models.storage_paths import StoragePath
 from easypaperless.models.custom_fields import CustomField
+from easypaperless.models.document_types import DocumentType
+from easypaperless.models.permissions import PermissionSet, SetPermissions
+from easypaperless.models.storage_paths import StoragePath
+from easypaperless.models.tags import Tag
 
 
-def _capturing_side_effect(captured: dict, response_data: dict):
+def _capturing_side_effect(captured: dict, response_data: dict, *, status: int = 200):
     """Return a respx side-effect that stores URL params and returns response_data."""
     def _side_effect(request):
         captured["params"] = dict(request.url.params)
-        return Response(200, json=response_data)
+        return Response(status, json=response_data)
+    return _side_effect
+
+
+def _json_capturing_side_effect(captured: dict, response_data: dict, *, status: int = 200):
+    """Return a respx side-effect that stores the JSON body and returns response_data."""
+    def _side_effect(request):
+        captured["body"] = json.loads(request.content)
+        return Response(status, json=response_data)
     return _side_effect
 
 
 TAG_DATA = {"id": 1, "name": "invoice"}
+TAG_DATA_FULL = {
+    "id": 1,
+    "name": "invoice",
+    "slug": "invoice",
+    "color": "#ff0000",
+    "text_color": "#ffffff",
+    "match": "invoice",
+    "matching_algorithm": 3,
+    "is_insensitive": True,
+    "is_inbox_tag": False,
+    "document_count": 42,
+    "owner": 1,
+    "user_can_change": True,
+    "parent": None,
+    "children": [2, 3],
+}
 TAG_LIST = {"count": 1, "next": None, "previous": None, "results": [TAG_DATA]}
 
 
@@ -63,6 +91,132 @@ async def test_create_tag_invalidates_cache(client, mock_router):
     await client.list_tags()
     # Create invalidates
     await client.create_tag(name="new")
+    assert "tags" not in client._resolver._cache
+
+
+# ---------------------------------------------------------------------------
+# Tag model – all fields
+# ---------------------------------------------------------------------------
+
+async def test_tag_model_all_fields(client, mock_router):
+    mock_router.get("/tags/1/").mock(return_value=Response(200, json=TAG_DATA_FULL))
+    tag = await client.get_tag(1)
+    assert tag.id == 1
+    assert tag.name == "invoice"
+    assert tag.slug == "invoice"
+    assert tag.color == "#ff0000"
+    assert tag.text_color == "#ffffff"
+    assert tag.match == "invoice"
+    assert tag.matching_algorithm == MatchingAlgorithm.EXACT
+    assert tag.is_insensitive is True
+    assert tag.is_inbox_tag is False
+    assert tag.document_count == 42
+    assert tag.owner == 1
+    assert tag.user_can_change is True
+    assert tag.parent is None
+    assert tag.children == [2, 3]
+
+
+# ---------------------------------------------------------------------------
+# Tag 404 / NotFoundError tests
+# ---------------------------------------------------------------------------
+
+async def test_get_tag_not_found(client, mock_router):
+    mock_router.get("/tags/999/").mock(return_value=Response(404, json={"detail": "Not found."}))
+    with pytest.raises(NotFoundError):
+        await client.get_tag(999)
+
+
+async def test_update_tag_not_found(client, mock_router):
+    mock_router.patch("/tags/999/").mock(return_value=Response(404, json={"detail": "Not found."}))
+    with pytest.raises(NotFoundError):
+        await client.update_tag(999, name="gone")
+
+
+async def test_delete_tag_not_found(client, mock_router):
+    mock_router.delete("/tags/999/").mock(return_value=Response(404, json={"detail": "Not found."}))
+    with pytest.raises(NotFoundError):
+        await client.delete_tag(999)
+
+
+# ---------------------------------------------------------------------------
+# create_tag – full payload with all optional parameters
+# ---------------------------------------------------------------------------
+
+async def test_create_tag_all_params(client, mock_router):
+    captured: dict = {}
+    mock_router.post("/tags/").mock(side_effect=_json_capturing_side_effect(
+        captured, TAG_DATA_FULL, status=201,
+    ))
+    perms = SetPermissions(
+        view=PermissionSet(users=[2], groups=[]),
+        change=PermissionSet(users=[], groups=[1]),
+    )
+    tag = await client.create_tag(
+        name="invoice",
+        color="#ff0000",
+        is_inbox_tag=False,
+        match="invoice",
+        matching_algorithm=MatchingAlgorithm.EXACT,
+        is_insensitive=True,
+        parent=None,
+        owner=1,
+        set_permissions=perms,
+    )
+    body = captured["body"]
+    assert body["name"] == "invoice"
+    assert body["color"] == "#ff0000"
+    assert body["is_inbox_tag"] is False
+    assert body["match"] == "invoice"
+    assert body["matching_algorithm"] == 3
+    assert body["is_insensitive"] is True
+    assert body["owner"] == 1
+    assert body["set_permissions"]["view"]["users"] == [2]
+    assert body["set_permissions"]["change"]["groups"] == [1]
+    assert isinstance(tag, Tag)
+
+
+# ---------------------------------------------------------------------------
+# update_tag – PATCH semantics (only non-None fields sent)
+# ---------------------------------------------------------------------------
+
+async def test_update_tag_only_sends_provided_fields(client, mock_router):
+    captured: dict = {}
+    mock_router.patch("/tags/1/").mock(side_effect=_json_capturing_side_effect(
+        captured, {**TAG_DATA, "name": "receipt"},
+    ))
+    await client.update_tag(1, name="receipt")
+    body = captured["body"]
+    assert body == {"name": "receipt"}
+
+
+async def test_update_tag_empty_patch(client, mock_router):
+    captured: dict = {}
+    mock_router.patch("/tags/1/").mock(side_effect=_json_capturing_side_effect(
+        captured, TAG_DATA,
+    ))
+    await client.update_tag(1)
+    assert captured["body"] == {}
+
+
+# ---------------------------------------------------------------------------
+# update_tag / delete_tag – cache invalidation
+# ---------------------------------------------------------------------------
+
+async def test_update_tag_invalidates_cache(client, mock_router):
+    mock_router.get("/tags/").mock(return_value=Response(200, json=TAG_LIST))
+    updated = {**TAG_DATA, "name": "receipt"}
+    mock_router.patch("/tags/1/").mock(return_value=Response(200, json=updated))
+    await client.list_tags()
+    await client.update_tag(1, name="receipt")
+    assert "tags" not in client._resolver._cache
+
+
+async def test_delete_tag_invalidates_cache(client, mock_router):
+    mock_router.get("/tags/").mock(return_value=Response(200, json=TAG_LIST))
+    mock_router.delete("/tags/1/").mock(return_value=Response(204))
+    await client.list_tags()
+    await client.delete_tag(1)
     assert "tags" not in client._resolver._cache
 
 

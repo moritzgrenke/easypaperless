@@ -19,7 +19,7 @@ Python developers who want to access the paperless-ngx document management syste
 | P2 | _Document Ressource: download (original, archive)_ | Implemented |
 | P2 | _Document Ressource: upload_ | Implemented |
 | P2 | _Document Ressource: bulk operations_ | Implemented |
-| P3 | _tags Ressource: CRUD_ | Partially Implemented |
+| P3 | _tags Ressource: CRUD_ | Implemented |
 | P3 | _correspondents Ressource: CRUD_ | Partially Implemented |
 | P3 | _document types Ressource: CRUD_ | Partially Implemented |
 | P3 | _custom fields Ressource: CRUD_ | Implemented |

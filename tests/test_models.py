@@ -4,12 +4,11 @@ from __future__ import annotations
 
 from datetime import date, datetime
 
-import pytest
-
-from easypaperless.models.documents import Document, Task, TaskStatus
-from easypaperless.models.tags import Tag
+from easypaperless.models._base import MatchingAlgorithm
 from easypaperless.models.correspondents import Correspondent
 from easypaperless.models.custom_fields import CustomField, FieldDataType
+from easypaperless.models.documents import Document, Task, TaskStatus
+from easypaperless.models.tags import Tag
 
 
 def _doc_data(**overrides):
@@ -75,6 +74,44 @@ def test_tag_model():
     tag = Tag.model_validate({"id": 3, "name": "invoice"})
     assert tag.id == 3
     assert tag.name == "invoice"
+
+
+def test_tag_model_all_fields():
+    tag = Tag.model_validate({
+        "id": 3,
+        "name": "invoice",
+        "slug": "invoice",
+        "color": "#ff0000",
+        "text_color": "#ffffff",
+        "match": "inv",
+        "matching_algorithm": 3,
+        "is_insensitive": True,
+        "is_inbox_tag": False,
+        "document_count": 10,
+        "owner": 1,
+        "user_can_change": True,
+        "parent": 2,
+        "children": [4, 5],
+    })
+    assert tag.slug == "invoice"
+    assert tag.color == "#ff0000"
+    assert tag.text_color == "#ffffff"
+    assert tag.match == "inv"
+    assert tag.matching_algorithm == MatchingAlgorithm.EXACT
+    assert tag.is_insensitive is True
+    assert tag.is_inbox_tag is False
+    assert tag.document_count == 10
+    assert tag.owner == 1
+    assert tag.user_can_change is True
+    assert tag.parent == 2
+    assert tag.children == [4, 5]
+
+
+def test_tag_model_ignores_extra_fields():
+    """Tag model should ignore unknown fields from the API."""
+    tag = Tag.model_validate({"id": 1, "name": "test", "unknown_field": "ignored"})
+    assert tag.id == 1
+    assert not hasattr(tag, "unknown_field")
 
 
 def test_correspondent_last_correspondence_is_date():
