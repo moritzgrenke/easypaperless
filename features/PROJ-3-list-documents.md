@@ -39,7 +39,7 @@
 
 ### Tag Filters
 - [ ] `tags: list[int | str] | None` — documents must have **all** listed tags (AND semantics → `tags__id__all`).
-- [ ] `any_tag: list[int | str] | None` — documents must have **at least one** listed tag (OR semantics → `tags__id__in`).
+- [ ] `any_tags: list[int | str] | None` — documents must have **at least one** listed tag (OR semantics → `tags__id__in`).
 - [ ] `exclude_tags: list[int | str] | None` — documents must have **none** of the listed tags (`tags__id__none`).
 - [ ] All tag parameters accept tag IDs (int) or tag names (str); names are resolved transparently via PROJ-2.
 
@@ -144,7 +144,6 @@ These filters check whether a custom field is set on the document, without regar
 ## Technical Requirements
 - No breaking changes to the `Document` model for fields not returned by the list endpoint (e.g., `metadata` remains `None`).
 - Name resolution calls are batched per-resource using PROJ-2's `resolve_list`; a single `list_documents` call must not issue more resolution requests than there are distinct FK parameters.
-- The `any_tag` parameter name is a known inconsistency with the api-conventions (which prefer `any_tags`). It is preserved for backwards compatibility in this release.
 
 ---
 <!-- Sections below are added by subsequent skills -->

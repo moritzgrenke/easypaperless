@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+from datetime import date, datetime
 
 import pytest
 import respx
@@ -543,3 +544,397 @@ async def test_list_documents_search_mode_original_filename(client, mock_router)
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured, DOC_LIST))
     await client.list_documents(search="invoice.pdf", search_mode="original_filename")
     assert captured["params"]["original_filename__icontains"] == "invoice.pdf"
+
+
+# ---------------------------------------------------------------------------
+# ids filter
+# ---------------------------------------------------------------------------
+
+async def test_list_documents_ids(client, mock_router):
+    captured: dict = {}
+    mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
+    await client.list_documents(ids=[1, 5, 10])
+    assert captured["params"]["id__in"] == "1,5,10"
+
+
+# ---------------------------------------------------------------------------
+# storage_path filters
+# ---------------------------------------------------------------------------
+
+_SPATH_RESP = {
+    "count": 2, "next": None, "previous": None,
+    "results": [{"id": 20, "name": "Archive"}, {"id": 21, "name": "Inbox"}],
+}
+
+
+async def test_list_documents_storage_path_by_id(client, mock_router):
+    captured: dict = {}
+    mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
+    await client.list_documents(storage_path=20)
+    assert captured["params"]["storage_path__id__in"] == "20"
+
+
+async def test_list_documents_storage_path_by_name(client, mock_router):
+    mock_router.get("/storage_paths/").mock(return_value=Response(200, json=_SPATH_RESP))
+    captured: dict = {}
+    mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
+    await client.list_documents(storage_path="Archive")
+    assert captured["params"]["storage_path__id__in"] == "20"
+
+
+async def test_list_documents_any_storage_paths_by_id(client, mock_router):
+    captured: dict = {}
+    mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
+    await client.list_documents(any_storage_paths=[20, 21])
+    assert captured["params"]["storage_path__id__in"] == "20,21"
+
+
+async def test_list_documents_any_storage_paths_by_name(client, mock_router):
+    mock_router.get("/storage_paths/").mock(return_value=Response(200, json=_SPATH_RESP))
+    captured: dict = {}
+    mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
+    await client.list_documents(any_storage_paths=["Archive", "Inbox"])
+    assert captured["params"]["storage_path__id__in"] == "20,21"
+
+
+async def test_list_documents_any_storage_paths_overrides_storage_path(client, mock_router):
+    captured: dict = {}
+    mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
+    await client.list_documents(storage_path=99, any_storage_paths=[20, 21])
+    assert captured["params"]["storage_path__id__in"] == "20,21"
+
+
+async def test_list_documents_exclude_storage_paths_by_id(client, mock_router):
+    captured: dict = {}
+    mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
+    await client.list_documents(exclude_storage_paths=[20])
+    assert captured["params"]["storage_path__id__none"] == "20"
+
+
+async def test_list_documents_exclude_storage_paths_by_name(client, mock_router):
+    mock_router.get("/storage_paths/").mock(return_value=Response(200, json=_SPATH_RESP))
+    captured: dict = {}
+    mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
+    await client.list_documents(exclude_storage_paths=["Archive"])
+    assert captured["params"]["storage_path__id__none"] == "20"
+
+
+# ---------------------------------------------------------------------------
+# owner filters
+# ---------------------------------------------------------------------------
+
+async def test_list_documents_owner(client, mock_router):
+    captured: dict = {}
+    mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
+    await client.list_documents(owner=42)
+    assert captured["params"]["owner__id__in"] == "42"
+
+
+async def test_list_documents_exclude_owners(client, mock_router):
+    captured: dict = {}
+    mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
+    await client.list_documents(exclude_owners=[1, 2])
+    assert captured["params"]["owner__id__none"] == "1,2"
+
+
+# ---------------------------------------------------------------------------
+# custom_fields filters
+# ---------------------------------------------------------------------------
+
+_CF_RESP = {
+    "count": 2, "next": None, "previous": None,
+    "results": [{"id": 30, "name": "Amount"}, {"id": 31, "name": "Status"}],
+}
+
+
+async def test_list_documents_custom_fields_by_id(client, mock_router):
+    captured: dict = {}
+    mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
+    await client.list_documents(custom_fields=[30, 31])
+    assert captured["params"]["custom_fields__id__all"] == "30,31"
+
+
+async def test_list_documents_custom_fields_by_name(client, mock_router):
+    mock_router.get("/custom_fields/").mock(return_value=Response(200, json=_CF_RESP))
+    captured: dict = {}
+    mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
+    await client.list_documents(custom_fields=["Amount", "Status"])
+    assert captured["params"]["custom_fields__id__all"] == "30,31"
+
+
+async def test_list_documents_any_custom_fields_by_id(client, mock_router):
+    captured: dict = {}
+    mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
+    await client.list_documents(any_custom_fields=[30])
+    assert captured["params"]["custom_fields__id__in"] == "30"
+
+
+async def test_list_documents_any_custom_fields_by_name(client, mock_router):
+    mock_router.get("/custom_fields/").mock(return_value=Response(200, json=_CF_RESP))
+    captured: dict = {}
+    mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
+    await client.list_documents(any_custom_fields=["Amount"])
+    assert captured["params"]["custom_fields__id__in"] == "30"
+
+
+async def test_list_documents_exclude_custom_fields_by_id(client, mock_router):
+    captured: dict = {}
+    mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
+    await client.list_documents(exclude_custom_fields=[30, 31])
+    assert captured["params"]["custom_fields__id__none"] == "30,31"
+
+
+async def test_list_documents_exclude_custom_fields_by_name(client, mock_router):
+    mock_router.get("/custom_fields/").mock(return_value=Response(200, json=_CF_RESP))
+    captured: dict = {}
+    mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
+    await client.list_documents(exclude_custom_fields=["Amount"])
+    assert captured["params"]["custom_fields__id__none"] == "30"
+
+
+# ---------------------------------------------------------------------------
+# custom_field_query
+# ---------------------------------------------------------------------------
+
+async def test_list_documents_custom_field_query_simple(client, mock_router):
+    captured: dict = {}
+    mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
+    query = ["Invoice Amount", "gt", 100]
+    await client.list_documents(custom_field_query=query)
+    assert captured["params"]["custom_field_query"] == json.dumps(query)
+
+
+async def test_list_documents_custom_field_query_compound(client, mock_router):
+    captured: dict = {}
+    mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
+    query = ["AND", [["Amount", "gt", 100], ["Status", "exact", "paid"]]]
+    await client.list_documents(custom_field_query=query)
+    assert captured["params"]["custom_field_query"] == json.dumps(query)
+
+
+# ---------------------------------------------------------------------------
+# archive_serial_number range filters
+# ---------------------------------------------------------------------------
+
+async def test_list_documents_archive_serial_number_from(client, mock_router):
+    captured: dict = {}
+    mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
+    await client.list_documents(archive_serial_number_from=100)
+    assert captured["params"]["archive_serial_number__gte"] == "100"
+
+
+async def test_list_documents_archive_serial_number_till(client, mock_router):
+    captured: dict = {}
+    mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
+    await client.list_documents(archive_serial_number_till=200)
+    assert captured["params"]["archive_serial_number__lte"] == "200"
+
+
+async def test_list_documents_archive_serial_number_range(client, mock_router):
+    captured: dict = {}
+    mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
+    await client.list_documents(archive_serial_number_from=100, archive_serial_number_till=200)
+    assert captured["params"]["archive_serial_number__gte"] == "100"
+    assert captured["params"]["archive_serial_number__lte"] == "200"
+
+
+# ---------------------------------------------------------------------------
+# added_from / added_until
+# ---------------------------------------------------------------------------
+
+async def test_list_documents_added_from(client, mock_router):
+    captured: dict = {}
+    mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
+    await client.list_documents(added_from="2024-01-01")
+    assert captured["params"]["added__date__gte"] == "2024-01-01"
+
+
+async def test_list_documents_added_until(client, mock_router):
+    captured: dict = {}
+    mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
+    await client.list_documents(added_until="2024-12-31")
+    assert captured["params"]["added__date__lte"] == "2024-12-31"
+
+
+# ---------------------------------------------------------------------------
+# modified_from / modified_until
+# ---------------------------------------------------------------------------
+
+async def test_list_documents_modified_from(client, mock_router):
+    captured: dict = {}
+    mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
+    await client.list_documents(modified_from="2024-03-01")
+    assert captured["params"]["modified__date__gte"] == "2024-03-01"
+
+
+async def test_list_documents_modified_until(client, mock_router):
+    captured: dict = {}
+    mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
+    await client.list_documents(modified_until="2024-09-30")
+    assert captured["params"]["modified__date__lte"] == "2024-09-30"
+
+
+# ---------------------------------------------------------------------------
+# datetime vs date distinction for added/modified filters
+# ---------------------------------------------------------------------------
+
+async def test_list_documents_added_after_with_datetime(client, mock_router):
+    """datetime objects should use added__gt (not added__date__gt)."""
+    captured: dict = {}
+    mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
+    dt = datetime(2024, 6, 15, 10, 30, 0)
+    await client.list_documents(added_after=dt)
+    assert "added__gt" in captured["params"]
+    assert "added__date__gt" not in captured["params"]
+    assert captured["params"]["added__gt"] == dt.isoformat()
+
+
+async def test_list_documents_added_after_with_date(client, mock_router):
+    """date objects should use added__date__gt (not added__gt)."""
+    captured: dict = {}
+    mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
+    d = date(2024, 6, 15)
+    await client.list_documents(added_after=d)
+    assert "added__date__gt" in captured["params"]
+    assert "added__gt" not in captured["params"]
+    assert captured["params"]["added__date__gt"] == "2024-06-15"
+
+
+async def test_list_documents_added_before_with_datetime(client, mock_router):
+    captured: dict = {}
+    mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
+    dt = datetime(2024, 12, 31, 23, 59, 59)
+    await client.list_documents(added_before=dt)
+    assert "added__lt" in captured["params"]
+    assert "added__date__lt" not in captured["params"]
+    assert captured["params"]["added__lt"] == dt.isoformat()
+
+
+async def test_list_documents_added_from_with_datetime(client, mock_router):
+    captured: dict = {}
+    mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
+    dt = datetime(2024, 1, 1, 0, 0, 0)
+    await client.list_documents(added_from=dt)
+    assert "added__gte" in captured["params"]
+    assert "added__date__gte" not in captured["params"]
+
+
+async def test_list_documents_added_until_with_datetime(client, mock_router):
+    captured: dict = {}
+    mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
+    dt = datetime(2024, 12, 31, 23, 59, 59)
+    await client.list_documents(added_until=dt)
+    assert "added__lte" in captured["params"]
+    assert "added__date__lte" not in captured["params"]
+
+
+async def test_list_documents_modified_after_with_datetime(client, mock_router):
+    captured: dict = {}
+    mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
+    dt = datetime(2024, 3, 1, 12, 0, 0)
+    await client.list_documents(modified_after=dt)
+    assert "modified__gt" in captured["params"]
+    assert "modified__date__gt" not in captured["params"]
+    assert captured["params"]["modified__gt"] == dt.isoformat()
+
+
+async def test_list_documents_modified_after_with_date(client, mock_router):
+    captured: dict = {}
+    mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
+    d = date(2024, 3, 1)
+    await client.list_documents(modified_after=d)
+    assert "modified__date__gt" in captured["params"]
+    assert "modified__gt" not in captured["params"]
+
+
+async def test_list_documents_modified_before_with_datetime(client, mock_router):
+    captured: dict = {}
+    mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
+    dt = datetime(2024, 9, 30, 18, 0, 0)
+    await client.list_documents(modified_before=dt)
+    assert "modified__lt" in captured["params"]
+    assert "modified__date__lt" not in captured["params"]
+
+
+async def test_list_documents_modified_from_with_datetime(client, mock_router):
+    captured: dict = {}
+    mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
+    dt = datetime(2024, 3, 1, 0, 0, 0)
+    await client.list_documents(modified_from=dt)
+    assert "modified__gte" in captured["params"]
+    assert "modified__date__gte" not in captured["params"]
+
+
+async def test_list_documents_modified_until_with_datetime(client, mock_router):
+    captured: dict = {}
+    mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
+    dt = datetime(2024, 9, 30, 23, 59, 59)
+    await client.list_documents(modified_until=dt)
+    assert "modified__lte" in captured["params"]
+    assert "modified__date__lte" not in captured["params"]
+
+
+# ---------------------------------------------------------------------------
+# search_mode="query"
+# ---------------------------------------------------------------------------
+
+async def test_list_documents_search_mode_query(client, mock_router):
+    captured: dict = {}
+    mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
+    await client.list_documents(search="tag:invoice date:[2024 TO *]", search_mode="query")
+    assert captured["params"]["query"] == "tag:invoice date:[2024 TO *]"
+    assert "search" not in captured["params"]
+    assert "title__icontains" not in captured["params"]
+
+
+# ---------------------------------------------------------------------------
+# on_page callback
+# ---------------------------------------------------------------------------
+
+async def test_list_documents_on_page_callback(client, mock_router):
+    """on_page callback is invoked with (fetched_so_far, total) per page."""
+    page1 = {
+        "count": 3,
+        "next": "http://paperless.test/api/documents/?page=2",
+        "previous": None,
+        "results": [
+            {"id": 1, "title": "A", "tags": []},
+            {"id": 2, "title": "B", "tags": []},
+        ],
+    }
+    page2 = {
+        "count": 3, "next": None, "previous": None,
+        "results": [{"id": 3, "title": "C", "tags": []}],
+    }
+    call_count = 0
+
+    def side_effect(request):
+        nonlocal call_count
+        call_count += 1
+        return Response(200, json=page1 if call_count == 1 else page2)
+
+    mock_router.get("/documents/").mock(side_effect=side_effect)
+
+    page_calls: list[tuple[int, int | None]] = []
+
+    def on_page(fetched: int, total: int | None) -> None:
+        page_calls.append((fetched, total))
+
+    docs = await client.list_documents(on_page=on_page)
+    assert len(docs) == 3
+    assert len(page_calls) == 2
+    assert page_calls[0] == (2, 3)
+    assert page_calls[1] == (3, 3)
+
+
+async def test_list_documents_on_page_not_called_when_page_set(client, mock_router):
+    """on_page is ignored when a specific page is requested."""
+    mock_router.get("/documents/").mock(return_value=Response(200, json=DOC_LIST))
+
+    page_calls: list[tuple[int, int | None]] = []
+
+    def on_page(fetched: int, total: int | None) -> None:
+        page_calls.append((fetched, total))
+
+    await client.list_documents(page=1, on_page=on_page)
+    assert len(page_calls) == 0
