@@ -95,9 +95,9 @@ _To be added by /architecture_
 | Coverage for `models/documents.py` | 100% |
 | Coverage for `sync_mixins/documents.py` | 100% |
 
-### Test Gaps Noted (Low Priority)
+### Test Gaps
 
-The async client tests do not have dedicated `NotFoundError` tests for `get_document` and `get_document_metadata` (the sync client does). This is not a bug since 404 handling is implemented in the HTTP layer and verified by manual testing above, but adding explicit async tests would improve completeness.
+**CLOSED** (2026-03-07): The async client now has dedicated `NotFoundError` tests for both `get_document` and `get_document_metadata` (`test_get_document_not_found`, `test_get_document_metadata_not_found` in `tests/test_client_documents.py`). Both tests pass. No remaining test gaps.
 
 ### Bugs Found
 
