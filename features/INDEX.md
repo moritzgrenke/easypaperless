@@ -12,7 +12,7 @@
 | PROJ-6 | Delete Document | QA Passed | [PROJ-6-delete-document.md](PROJ-6-delete-document.md) |
 | PROJ-7 | Download Document | In Review | [PROJ-7-download-document.md](PROJ-7-download-document.md) |
 | PROJ-8 | Upload Document | QA Passed | [PROJ-8-upload-document.md](PROJ-8-upload-document.md) |
-| PROJ-9 | Document Bulk Operations | In Review | [PROJ-9-document-bulk-operations.md](PROJ-9-document-bulk-operations.md) |
+| PROJ-9 | Document Bulk Operations | QA Passed | [PROJ-9-document-bulk-operations.md](PROJ-9-document-bulk-operations.md) |
 | PROJ-10 | Tags CRUD | Implemented | [PROJ-10-tags-crud.md](PROJ-10-tags-crud.md) |
 | PROJ-11 | Correspondents CRUD | Implemented | [PROJ-11-correspondents-crud.md](PROJ-11-correspondents-crud.md) |
 | PROJ-12 | Document Types CRUD | Implemented | [PROJ-12-document-types-crud.md](PROJ-12-document-types-crud.md) |
