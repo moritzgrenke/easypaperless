@@ -33,7 +33,7 @@ class NameResolver:
             if value.isdigit():
                 msg += (
                     f". Hint: you passed the string {value!r} which looks like an"
-                    " integer ID — use int({value}) instead of a string if you meant"
+                    f" integer ID — use int({value}) instead of a string if you meant"
                     " to pass an ID"
                 )
             raise NotFoundError(msg)
@@ -54,7 +54,8 @@ class NameResolver:
         logger.debug("Cache miss for %r — fetching from API", resource)
         items = await self._session.get_all_pages(f"/{resource}/")
         self._cache[resource] = {item["name"].lower(): item["id"] for item in items}
-        logger.debug("Cache populated for %r: %d names loaded", resource, len(self._cache[resource]))
+        count = len(self._cache[resource])
+        logger.debug("Cache populated for %r: %d names loaded", resource, count)
 
     def invalidate(self, resource: str) -> None:
         if resource in self._cache:
