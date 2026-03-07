@@ -7,7 +7,7 @@
 | PROJ-1 | HTTP Client Core | QA Passed | [PROJ-1-http-client-core.md](PROJ-1-http-client-core.md) |
 | PROJ-2 | Name-to-ID Resolver | QA Passed | [PROJ-2-name-to-id-resolver.md](PROJ-2-name-to-id-resolver.md) |
 | PROJ-3 | Document List with Filters | QA Passed | [PROJ-3-list-documents.md](PROJ-3-list-documents.md) |
-| PROJ-4 | Get Document by ID | Implemented | [PROJ-4-get-document.md](PROJ-4-get-document.md) |
+| PROJ-4 | Get Document by ID | QA Passed | [PROJ-4-get-document.md](PROJ-4-get-document.md) |
 | PROJ-5 | Update Document | Partially Implemented | [PROJ-5-update-document.md](PROJ-5-update-document.md) |
 | PROJ-6 | Delete Document | Implemented | [PROJ-6-delete-document.md](PROJ-6-delete-document.md) |
 | PROJ-7 | Download Document | Implemented | [PROJ-7-download-document.md](PROJ-7-download-document.md) |
