@@ -158,8 +158,8 @@ class HttpSession:
         *,
         max_results: int | None = None,
         on_page: Callable[[int, int | None], None] | None = None,
-    ) -> list[dict]:
-        results: list[dict] = []
+    ) -> list[dict[str, Any]]:
+        results: list[dict[str, Any]] = []
         # First page — use path relative to base_url
         if params:
             logger.debug("Fetching %s (params=%s)", path, params)
