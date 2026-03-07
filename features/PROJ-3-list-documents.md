@@ -152,111 +152,139 @@ These filters check whether a custom field is set on the document, without regar
 _To be added by /architecture_
 
 ## QA Test Results
+
+### Round 1
+**Date:** 2026-03-07
+**Tester:** QA Engineer (automated + manual code review)
+**Bugs found:** 2 (1 Medium, 1 Low)
+**Result:** Conditionally production-ready
+
+#### BUG #1 — Parameter named `any_tags` instead of spec-required `any_tag` (Medium)
+**Resolution:** Spec updated to use `any_tags` (plural), aligning with api-conventions. CLI script updated to match. Backwards compatibility note removed from spec.
+
+#### BUG #2 — Low unit test coverage for list_documents filters (Low)
+**Resolution:** 38 unit tests added in commit `6909b1f`, covering all previously untested filter parameters.
+
+---
+
+### Round 2 (Reassessment)
 **Date:** 2026-03-07
 **Tester:** QA Engineer (automated + manual code review)
 **Test environment:** Python 3.13.12, pytest 9.0.2, respx 0.22.0, Windows 11
 
-### Static Analysis
-- **Ruff (lint + format):** PASS — no issues
-- **Mypy (strict):** PASS — no issues in all 3 source files
-- **Full test suite (290 tests):** PASS — no regressions
+#### Static Analysis
+- **Ruff (lint + format on src/):** PASS — no new issues (pre-existing I001/E402 in `__init__.py`/`client.py` unrelated to PROJ-3)
+- **Mypy (strict):** PASS — no issues in 38 source files
+- **Full test suite (328 tests):** PASS — 328 passed, 39 deselected (integration), no regressions
 
-### Acceptance Criteria Results
+#### BUG #1 Reassessment — FIXED
+- [x] Spec now says `any_tags` (plural) — consistent with api-conventions
+- [x] Async mixin uses `any_tags` parameter
+- [x] Sync mixin uses `any_tags` parameter
+- [x] CLI script (`scripts/cli.py`) updated to pass `any_tags=...`
+- [x] Backwards compatibility note removed from spec Technical Requirements section
 
-#### Method Signature
+#### BUG #2 Reassessment — FIXED
+- [x] 38 new unit tests added covering all previously untested filter parameters
+- [x] Documents mixin coverage improved from 75% to 91%
+- [x] All 328 tests pass
+
+#### Acceptance Criteria Results (all 48 criteria)
+
+##### Method Signature
 - [x] `PaperlessClient.list_documents(...)` is an `async` method returning `list[Document]`.
 - [x] All parameters are keyword-only.
 
-#### Search
+##### Search
 - [x] `search` + `search_mode="title_or_text"` (default) maps to API `search` param.
 - [x] `search_mode="title"` maps to API `title__icontains`.
 - [x] `search_mode="query"` maps to API `query`.
 - [x] `search_mode="original_filename"` maps to API `original_filename__icontains`.
 - [x] When `search` is `None`, no search parameter is sent to the API.
 
-#### ID Filter
-- [x] `ids: list[int] | None` maps to `id__in`. (Code correct, no unit test covering the sent param value.)
+##### ID Filter
+- [x] `ids: list[int] | None` maps to `id__in`.
 
-#### Tag Filters
+##### Tag Filters
 - [x] `tags: list[int | str] | None` maps to `tags__id__all` (AND semantics).
-- [FAIL] `any_tag: list[int | str] | None` — **BUG #1:** Parameter is named `any_tags` (plural) in implementation, but spec requires `any_tag` (singular) for backwards compatibility. See bug below.
+- [x] `any_tags: list[int | str] | None` maps to `tags__id__in` (OR semantics).
 - [x] `exclude_tags: list[int | str] | None` maps to `tags__id__none`.
 - [x] All tag parameters accept tag IDs (int) or tag names (str); names resolved via PROJ-2.
 
-#### Correspondent Filters
+##### Correspondent Filters
 - [x] `correspondent: int | str | None` — exact match via `correspondent__id__in`.
 - [x] `any_correspondent: list[int | str] | None` — OR semantics, takes precedence over `correspondent`.
 - [x] `exclude_correspondents: list[int | str] | None` — exclusion filter via `correspondent__id__none`.
 - [x] All correspondent parameters accept IDs or names.
 
-#### Document Type Filters
+##### Document Type Filters
 - [x] `document_type: int | str | None` — exact match via `document_type`.
 - [x] `any_document_type: list[int | str] | None` — OR semantics via `document_type__id__in`, takes precedence.
 - [x] `exclude_document_types: list[int | str] | None` — exclusion via `document_type__id__none`.
 - [x] All document-type parameters accept IDs or names.
 
-#### Storage Path Filters
-- [x] `storage_path: int | str | None` — filter via `storage_path__id__in`. (Code correct, no unit test.)
-- [x] `any_storage_paths: list[int | str] | None` — OR semantics via `storage_path__id__in`, takes precedence. (Code correct, no unit test.)
-- [x] `exclude_storage_paths: list[int | str] | None` — exclusion via `storage_path__id__none`. (Code correct, no unit test.)
+##### Storage Path Filters
+- [x] `storage_path: int | str | None` — filter via `storage_path__id__in`.
+- [x] `any_storage_paths: list[int | str] | None` — OR semantics via `storage_path__id__in`, takes precedence.
+- [x] `exclude_storage_paths: list[int | str] | None` — exclusion via `storage_path__id__none`.
 - [x] All storage path parameters accept IDs or names.
 
-#### Owner Filters
-- [x] `owner: int | None` — maps to `owner__id__in`. (Code correct, no unit test for list_documents.)
-- [x] `exclude_owners: list[int] | None` — maps to `owner__id__none`. (Code correct, no unit test.)
+##### Owner Filters
+- [x] `owner: int | None` — maps to `owner__id__in`.
+- [x] `exclude_owners: list[int] | None` — maps to `owner__id__none`.
 - [x] Owner parameters accept integer user IDs only.
 
-#### Date Filters
+##### Date Filters
 - [x] `created_after` maps to `created__date__gt`.
 - [x] `created_before` maps to `created__date__lt`.
 - [x] `added_after` — maps to `added__gt` (datetime) or `added__date__gt` (date).
-- [x] `added_from` — maps to `added__gte` / `added__date__gte`. (Code correct, no unit test.)
+- [x] `added_from` — maps to `added__gte` / `added__date__gte`.
 - [x] `added_before` — maps to `added__lt` / `added__date__lt`.
-- [x] `added_until` — maps to `added__lte` / `added__date__lte`. (Code correct, no unit test.)
+- [x] `added_until` — maps to `added__lte` / `added__date__lte`.
 - [x] `modified_after` — maps to `modified__gt` / `modified__date__gt`.
-- [x] `modified_from` — maps to `modified__gte` / `modified__date__gte`. (Code correct, no unit test.)
+- [x] `modified_from` — maps to `modified__gte` / `modified__date__gte`.
 - [x] `modified_before` — maps to `modified__lt` / `modified__date__lt`.
-- [x] `modified_until` — maps to `modified__lte` / `modified__date__lte`. (Code correct, no unit test.)
+- [x] `modified_until` — maps to `modified__lte` / `modified__date__lte`.
 
-#### Custom Field Existence Filters
-- [x] `custom_fields: list[int | str] | None` maps to `custom_fields__id__all`. (Code correct, no unit test.)
-- [x] `any_custom_fields: list[int | str] | None` maps to `custom_fields__id__in`. (Code correct, no unit test.)
-- [x] `exclude_custom_fields: list[int | str] | None` maps to `custom_fields__id__none`. (Code correct, no unit test.)
+##### Custom Field Existence Filters
+- [x] `custom_fields: list[int | str] | None` maps to `custom_fields__id__all`.
+- [x] `any_custom_fields: list[int | str] | None` maps to `custom_fields__id__in`.
+- [x] `exclude_custom_fields: list[int | str] | None` maps to `custom_fields__id__none`.
 - [x] All existence filter params resolve names to IDs via PROJ-2.
 
-#### Custom Field Value Filter
-- [x] `custom_field_query: list | None` — serialized to JSON and sent as `custom_field_query` param. (Code correct, no unit test.)
+##### Custom Field Value Filter
+- [x] `custom_field_query: list | None` — serialized to JSON and sent as `custom_field_query` param.
 - [x] Simple and compound forms supported (passed through as-is to API).
 - [x] Field references passed through to API (no client-side resolution, as spec requires).
 - [x] API limit enforcement (nesting/atom count) is server-side — no client enforcement needed.
 
-#### Other Filters
+##### Other Filters
 - [x] `archive_serial_number: int | None` maps to `archive_serial_number`.
-- [x] `archive_serial_number_from: int | None` maps to `archive_serial_number__gte`. (Code correct, no unit test.)
-- [x] `archive_serial_number_till: int | None` maps to `archive_serial_number__lte`. (Code correct, no unit test.)
+- [x] `archive_serial_number_from: int | None` maps to `archive_serial_number__gte`.
+- [x] `archive_serial_number_till: int | None` maps to `archive_serial_number__lte`.
 - [x] `checksum: str | None` maps to `checksum`.
 
-#### Pagination
+##### Pagination
 - [x] `page_size: int` — default 25, correctly sent as param.
 - [x] `page: int | None` — when set, fetches only that page, disables auto-pagination.
 - [x] Auto-pagination works when `page` is `None`.
 - [x] `max_results: int | None` — stops after collecting this many documents.
-- [x] `on_page` callback invoked after each page fetch with `(fetched_so_far, total)`. (Code delegates to `get_all_pages`, no direct unit test for callback invocation in list_documents.)
+- [x] `on_page` callback invoked after each page fetch with `(fetched_so_far, total)`.
 
-#### Ordering
+##### Ordering
 - [x] `ordering: str | None` — field name to sort by.
 - [x] `descending: bool` — prepends `-` when `True`; ignored when `ordering` is `None`.
 
-#### Return Value
+##### Return Value
 - [x] Each item is a validated `Document` Pydantic model.
-- [x] `search_hit` field populated from `__search_hit__` alias in API response (verified manually).
+- [x] `search_hit` field populated from `__search_hit__` alias in API response.
 
-### Edge Cases
+#### Edge Cases
 - [x] No results: returns empty list `[]`.
 - [x] Single-page result: auto-pagination terminates after first page.
 - [x] `any_correspondent` + `correspondent` both provided: `any_correspondent` takes precedence.
 - [x] `any_document_type` + `document_type` both provided: `any_document_type` takes precedence.
-- [x] `any_storage_paths` + `storage_path` both provided: `any_storage_paths` takes precedence. (Code correct, no unit test.)
+- [x] `any_storage_paths` + `storage_path` both provided: `any_storage_paths` takes precedence.
 - [x] `max_results` smaller than `page_size`: fetches full first page, returns only `max_results`.
 - [x] Name resolution failure: raises `NotFoundError` via PROJ-2.
 - [x] Unknown `search_mode`: falls back to API `search` param.
@@ -265,27 +293,13 @@ _To be added by /architecture_
 - [x] Custom field name not found: raises `NotFoundError` via PROJ-2.
 - [x] Custom field name inside `custom_field_query`: passed through as-is (no client resolution).
 
-### Bugs Found
-
-#### BUG #1 — Parameter named `any_tags` instead of spec-required `any_tag` (Medium)
-**Severity:** Medium
-**Location:** `src/easypaperless/_internal/mixins/documents.py` line 109, `src/easypaperless/_internal/sync_mixins/documents.py` line 37
-**Description:** The spec (line 42 and line 147) explicitly states the parameter should be `any_tag` (singular) and notes: "The `any_tag` parameter name is a known inconsistency with the api-conventions (which prefer `any_tags`). It is preserved for backwards compatibility in this release." The implementation uses `any_tags` (plural), breaking backwards compatibility.
-**Impact:** The CLI script at `scripts/cli.py` line 206 calls `any_tag=...` which would raise a `TypeError` at runtime since the actual parameter is `any_tags`. Any existing code using `any_tag` would also break.
-**Steps to reproduce:**
-1. Call `client.list_documents(any_tag=["invoice"])` — raises `TypeError: list_documents() got an unexpected keyword argument 'any_tag'`.
-2. Or run `scripts/cli.py` with `--any-tag invoice` — crashes at runtime.
-
-#### BUG #2 — Low unit test coverage for list_documents filters (Low)
-**Severity:** Low
-**Description:** Many filter parameters are correctly implemented but have no dedicated unit tests verifying the exact API parameters sent. Missing coverage includes: `ids`, `storage_path`, `any_storage_paths`, `exclude_storage_paths`, `owner` (in list context), `exclude_owners`, `custom_fields`, `any_custom_fields`, `exclude_custom_fields`, `custom_field_query`, `added_from`, `added_until`, `modified_from`, `modified_until`, `archive_serial_number_from`, `archive_serial_number_till`, `on_page` callback, `search_mode="query"`, and datetime vs date distinction for added/modified filters.
-**Impact:** Regressions in these code paths would go undetected. Current coverage is 75%.
-
-### Summary
-- **Total acceptance criteria:** 48 tested — 47 passed, 1 failed
-- **Bugs found:** 2 (1 Medium, 1 Low)
+#### Summary
+- **Total acceptance criteria:** 48 tested — 48 passed, 0 failed
+- **Bugs from Round 1:** 2 found, 2 fixed
+- **Remaining bugs:** 0
 - **Security audit:** No issues — no user input is executed or injected unsafely; all FK values are resolved through the resolver or passed as query params
-- **Production-ready recommendation:** YES (conditionally) — No Critical or High bugs. The Medium bug (parameter naming) should be resolved by deciding whether to follow the spec (`any_tag`) or update the spec to match implementation (`any_tags`). The CLI script must be updated to match whichever is chosen.
+- **Test coverage:** 91% on documents mixin (up from 75%)
+- **Production-ready recommendation:** YES — All bugs fixed, all acceptance criteria pass, no Critical/High/Medium/Low bugs remaining
 
 ## Deployment
 _To be added by /deploy_
