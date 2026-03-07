@@ -9,7 +9,7 @@
 | PROJ-3 | Document List with Filters | QA Passed | [PROJ-3-list-documents.md](PROJ-3-list-documents.md) |
 | PROJ-4 | Get Document by ID | QA Passed | [PROJ-4-get-document.md](PROJ-4-get-document.md) |
 | PROJ-5 | Update Document | QA Passed | [PROJ-5-update-document.md](PROJ-5-update-document.md) |
-| PROJ-6 | Delete Document | In Review | [PROJ-6-delete-document.md](PROJ-6-delete-document.md) |
+| PROJ-6 | Delete Document | QA Passed | [PROJ-6-delete-document.md](PROJ-6-delete-document.md) |
 | PROJ-7 | Download Document | Implemented | [PROJ-7-download-document.md](PROJ-7-download-document.md) |
 | PROJ-8 | Upload Document | Implemented | [PROJ-8-upload-document.md](PROJ-8-upload-document.md) |
 | PROJ-9 | Document Bulk Operations | Implemented | [PROJ-9-document-bulk-operations.md](PROJ-9-document-bulk-operations.md) |

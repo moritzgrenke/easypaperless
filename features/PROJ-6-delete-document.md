@@ -1,6 +1,6 @@
 # PROJ-6: Delete Document
 
-## Status: Implemented
+## Status: QA Passed
 **Created:** 2026-03-06
 **Last Updated:** 2026-03-06
 
@@ -38,7 +38,7 @@ _To be added by /architecture_
 | # | Criterion | Result |
 |---|-----------|--------|
 | 1 | `PaperlessClient.delete_document(id: int) -> None` sends `DELETE /documents/{id}/` and returns `None` on success (HTTP 204) | PASS |
-| 2 | Raises `NotFoundError` when the server returns HTTP 404 | PASS (via HTTP layer; see test gap below) |
+| 2 | Raises `NotFoundError` when the server returns HTTP 404 | PASS |
 | 3 | The method is available on `SyncPaperlessClient` with the same signature (blocking wrapper) | PASS |
 
 ### Edge Cases
@@ -54,7 +54,7 @@ _To be added by /architecture_
 |------|--------|
 | Async happy path (`test_delete_document`) | Covered — mocks DELETE returning 204 |
 | Sync happy path (`test_sync_delete_document`) | Covered — sync wrapper delegates correctly |
-| Async 404 / `NotFoundError` | **GAP** — no dedicated `test_delete_document_not_found` test (other methods like `get_document`, `update_document`, `download_document` all have explicit 404 tests) |
+| Async 404 / `NotFoundError` | Covered — `test_delete_document_not_found` mocks DELETE returning 404 and asserts `NotFoundError` |
 
 ### Code Quality
 
@@ -72,13 +72,11 @@ No regressions detected. All 340 existing tests pass. Features PROJ-1 through PR
 
 ### Bugs Found
 
-| # | Severity | Description |
-|---|----------|-------------|
-| 1 | **Low** | Missing explicit `test_delete_document_not_found` test. The 404 → `NotFoundError` mapping works (verified via HTTP layer tests and consistent with all other methods), but every other document method (`get_document`, `update_document`, `download_document`) has its own dedicated 404 test. Adding one for `delete_document` would be consistent and guard against future regressions if the delete path ever diverges. |
+None.
 
 ### Production-Ready Decision
 
-**READY** — No Critical or High bugs. The single Low-severity finding is a minor test coverage gap that does not affect correctness (the underlying 404 mapping is thoroughly tested in the HTTP layer). Recommend adding the missing test before or during deployment for consistency.
+**READY** — All acceptance criteria pass, all edge cases covered, no bugs found.
 
 ## Deployment
 _To be added by /deploy_
