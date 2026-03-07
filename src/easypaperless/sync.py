@@ -43,7 +43,12 @@ class _SyncCore:
         return future.result()
 
     def close(self) -> None:
-        """Close the underlying HTTP connection pool and stop the event loop."""
+        """Close the underlying HTTP connection pool and stop the event loop.
+
+        Safe to call multiple times — subsequent calls are no-ops.
+        """
+        if self._loop.is_closed():
+            return
         self._run(self._async_client.close())
         self._loop.call_soon_threadsafe(self._loop.stop)
         self._thread.join()
