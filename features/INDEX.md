@@ -5,7 +5,7 @@
 | ID | Name | Status | File |
 |----|------|--------|------|
 | PROJ-1 | HTTP Client Core | QA Passed | [PROJ-1-http-client-core.md](PROJ-1-http-client-core.md) |
-| PROJ-2 | Name-to-ID Resolver | Implemented | [PROJ-2-name-to-id-resolver.md](PROJ-2-name-to-id-resolver.md) |
+| PROJ-2 | Name-to-ID Resolver | In Review | [PROJ-2-name-to-id-resolver.md](PROJ-2-name-to-id-resolver.md) |
 | PROJ-3 | Document List with Filters | Implemented | [PROJ-3-list-documents.md](PROJ-3-list-documents.md) |
 | PROJ-4 | Get Document by ID | Implemented | [PROJ-4-get-document.md](PROJ-4-get-document.md) |
 | PROJ-5 | Update Document | Partially Implemented | [PROJ-5-update-document.md](PROJ-5-update-document.md) |

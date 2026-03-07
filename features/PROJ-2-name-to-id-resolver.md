@@ -78,7 +78,82 @@ An internal resolver that transparently converts human-readable string names (e.
 _To be added by /architecture_
 
 ## QA Test Results
-_To be added by /qa_
+**Date:** 2026-03-07
+**Tester:** QA Engineer (Claude)
+**Test suite:** `tests/test_resolvers.py` — 10 tests, all passing
+**Code coverage:** 100% line coverage on `src/easypaperless/_internal/resolvers.py`
+
+### Acceptance Criteria Results
+
+| # | Criterion | Result |
+|---|-----------|--------|
+| 1 | `NameResolver(session)` accepts session, stores as private attr | PASS |
+| 2 | Per-resource in-memory cache `dict[str, dict[str, int]]` | PASS |
+| 3 | `resolve()` int pass-through returns unchanged | PASS |
+| 4 | `resolve()` string loads cache and returns matching ID | PASS |
+| 5 | Case-insensitive name matching | PASS |
+| 6 | `NotFoundError` with resource and missing name in message | PASS |
+| 7 | DEBUG log on successful resolution | PASS (code-verified) |
+| 8 | `resolve_list()` resolves each element, preserves order | PASS |
+| 9 | `resolve_list()` accepts mixed int/str lists | PASS |
+| 10 | `_ensure_loaded` fetches via `get_all_pages` on first call | PASS |
+| 11 | Cache built as `{name.lower(): id}` | PASS |
+| 12 | Subsequent calls use cache without API requests | PASS |
+| 13 | DEBUG log on cache miss, population, and hit | PASS (code-verified) |
+| 14 | `invalidate()` removes cached listing | PASS |
+| 15 | After invalidate, next resolve triggers fresh fetch | PASS |
+| 16 | DEBUG log on cache invalidation | PASS (code-verified) |
+| 17 | `invalidate()` no-ops silently when resource not cached | PASS |
+| 18 | `PaperlessClient.__init__` creates single shared `NameResolver` | PASS |
+| 19 | `NameResolver` not in public API / `__all__` | PASS |
+| 20 | Tags, correspondents, document_types, storage_paths resolved transparently | PASS |
+
+### Edge Cases Tested
+
+| Edge Case | Result | Notes |
+|-----------|--------|-------|
+| Integer pass-through | PASS | No cache touched |
+| Mixed int/str list | PASS | |
+| Name not found | PASS | `NotFoundError` raised with resource + name |
+| Int ID as string (e.g. `"42"`) | **BUG** | Hint message contains literal `{value}` — see Bug #1 |
+| Case sensitivity (`"Invoice"` / `"INVOICE"` / `"invoice"`) | PASS | |
+| Cache invalidation then re-lookup | PASS | |
+| Resource with zero items | PASS | Empty dict cached; any lookup raises `NotFoundError` |
+| Different resources cached separately | PASS | |
+
+### Lint / Type-Check
+
+| Tool | Result | Notes |
+|------|--------|-------|
+| mypy (strict) | PASS | No issues |
+| ruff | **BUG** | Line 57 exceeds 100 chars (101) — see Bug #2 |
+
+### Bugs Found
+
+**Bug #1 — Medium: Hint message for int-as-string has uninterpolated `{value}`**
+- **File:** `src/easypaperless/_internal/resolvers.py`, line 37
+- **Severity:** Medium
+- **Description:** The second string in the hint concatenation is a plain string, not an f-string, so `{value}` is rendered literally instead of being interpolated.
+- **Actual output:** `"... use int({value}) instead of a string ..."`
+- **Expected output:** `"... use int(42) instead of a string ..."`
+- **Steps to reproduce:** Call `await resolver.resolve("tags", "42")` when no tag named `"42"` exists.
+- **Fix:** Add the `f` prefix to the second string on line 37: `f" integer ID — use int({value}) instead..."`.
+
+**Bug #2 — Low: Ruff E501 line length violation**
+- **File:** `src/easypaperless/_internal/resolvers.py`, line 57
+- **Severity:** Low
+- **Description:** Line 57 is 101 characters, exceeding the project's 100-character limit.
+- **Steps to reproduce:** Run `ruff check src/easypaperless/_internal/resolvers.py`.
+
+### Regression Testing
+- Full test suite (290 tests, excluding integration): ALL PASSED
+- No regressions detected in related features
+
+### Summary
+- **Acceptance criteria:** 20/20 passed
+- **Edge cases:** 7/8 passed, 1 bug (medium)
+- **Bugs found:** 2 total — 1 Medium, 1 Low
+- **Production-ready:** YES (no Critical or High bugs)
 
 ## Deployment
 _To be added by /deploy_
