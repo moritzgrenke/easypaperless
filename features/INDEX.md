@@ -14,7 +14,7 @@
 | PROJ-8 | Upload Document | QA Passed | [PROJ-8-upload-document.md](PROJ-8-upload-document.md) |
 | PROJ-9 | Document Bulk Operations | QA Passed | [PROJ-9-document-bulk-operations.md](PROJ-9-document-bulk-operations.md) |
 | PROJ-10 | Tags CRUD | QA Passed | [PROJ-10-tags-crud.md](PROJ-10-tags-crud.md) |
-| PROJ-11 | Correspondents CRUD | Implemented | [PROJ-11-correspondents-crud.md](PROJ-11-correspondents-crud.md) |
+| PROJ-11 | Correspondents CRUD | QA Passed | [PROJ-11-correspondents-crud.md](PROJ-11-correspondents-crud.md) |
 | PROJ-12 | Document Types CRUD | Implemented | [PROJ-12-document-types-crud.md](PROJ-12-document-types-crud.md) |
 | PROJ-13 | Custom Fields CRUD | Implemented | [PROJ-13-custom-fields-crud.md](PROJ-13-custom-fields-crud.md) |
 | PROJ-14 | Storage Paths CRUD | Implemented | [PROJ-14-storage-paths-crud.md](PROJ-14-storage-paths-crud.md) |

@@ -278,6 +278,15 @@ def test_sync_create_correspondent():
     assert item.name == "New Corp"
 
 
+def test_sync_update_correspondent():
+    updated = {**CORRESPONDENT_DATA, "name": "ACME Inc."}
+    with respx.mock(base_url=BASE_URL + "/api", assert_all_called=False) as router:
+        router.patch("/correspondents/1/").mock(return_value=Response(200, json=updated))
+        with SyncPaperlessClient(url=BASE_URL, api_key=API_KEY) as client:
+            item = client.update_correspondent(1, name="ACME Inc.")
+    assert item.name == "ACME Inc."
+
+
 def test_sync_delete_correspondent():
     with respx.mock(base_url=BASE_URL + "/api", assert_all_called=False) as router:
         router.delete("/correspondents/1/").mock(return_value=Response(204))
