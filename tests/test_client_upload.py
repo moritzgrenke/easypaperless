@@ -205,3 +205,107 @@ async def test_upload_empty_task_response_keeps_polling(client, mock_router, tmp
 
     result = await client.upload_document(pdf, wait=True, poll_interval=0.01, poll_timeout=5.0)
     assert isinstance(result, Document)
+
+
+async def test_upload_wait_started_then_success(client, mock_router, tmp_path):
+    """STARTED status keeps polling until a terminal state is reached."""
+    pdf = tmp_path / "scan.pdf"
+    pdf.write_bytes(b"%PDF-1.4 test")
+
+    task_id = "started-task"
+    mock_router.post("/documents/post_document/").mock(
+        return_value=Response(200, text=f'"{task_id}"')
+    )
+    call_count = 0
+
+    def task_side_effect(request):
+        nonlocal call_count
+        call_count += 1
+        if call_count == 1:
+            return Response(
+                200,
+                json=[{"task_id": task_id, "status": "STARTED", "related_document": None}],
+            )
+        return Response(
+            200,
+            json=[{"task_id": task_id, "status": "SUCCESS", "related_document": "10"}],
+        )
+
+    mock_router.get("/tasks/").mock(side_effect=task_side_effect)
+    mock_router.get("/documents/10/").mock(return_value=Response(200, json=DOC_DATA))
+
+    result = await client.upload_document(pdf, wait=True, poll_interval=0.01, poll_timeout=5.0)
+    assert isinstance(result, Document)
+    assert result.id == 10
+
+
+async def test_upload_wait_retry_then_success(client, mock_router, tmp_path):
+    """RETRY status keeps polling until a terminal state is reached."""
+    pdf = tmp_path / "scan.pdf"
+    pdf.write_bytes(b"%PDF-1.4 test")
+
+    task_id = "retry-task"
+    mock_router.post("/documents/post_document/").mock(
+        return_value=Response(200, text=f'"{task_id}"')
+    )
+    call_count = 0
+
+    def task_side_effect(request):
+        nonlocal call_count
+        call_count += 1
+        if call_count == 1:
+            return Response(
+                200,
+                json=[{"task_id": task_id, "status": "RETRY", "related_document": None}],
+            )
+        return Response(
+            200,
+            json=[{"task_id": task_id, "status": "SUCCESS", "related_document": "10"}],
+        )
+
+    mock_router.get("/tasks/").mock(side_effect=task_side_effect)
+    mock_router.get("/documents/10/").mock(return_value=Response(200, json=DOC_DATA))
+
+    result = await client.upload_document(pdf, wait=True, poll_interval=0.01, poll_timeout=5.0)
+    assert isinstance(result, Document)
+    assert result.id == 10
+
+
+async def test_upload_wait_revoked_raises_upload_error(client, mock_router, tmp_path):
+    """REVOKED status is treated as a terminal failure."""
+    pdf = tmp_path / "scan.pdf"
+    pdf.write_bytes(b"%PDF-1.4 test")
+
+    task_id = "revoked-task"
+    mock_router.post("/documents/post_document/").mock(
+        return_value=Response(200, text=f'"{task_id}"')
+    )
+    mock_router.get("/tasks/").mock(
+        return_value=Response(
+            200,
+            json=[{"task_id": task_id, "status": "REVOKED", "related_document": None}],
+        )
+    )
+
+    with pytest.raises(UploadError, match="revoked"):
+        await client.upload_document(pdf, wait=True, poll_interval=0.01, poll_timeout=5.0)
+
+
+async def test_upload_wait_success_no_related_document_raises(client, mock_router, tmp_path):
+    """SUCCESS with related_document=None raises UploadError."""
+    pdf = tmp_path / "scan.pdf"
+    pdf.write_bytes(b"%PDF-1.4 test")
+
+    task_id = "no-doc-task"
+    mock_router.post("/documents/post_document/").mock(
+        return_value=Response(200, text=f'"{task_id}"')
+    )
+    mock_router.get("/tasks/").mock(
+        return_value=Response(
+            200,
+            json=[{"task_id": task_id, "status": "SUCCESS", "related_document": None}],
+        )
+    )
+
+    with pytest.raises(UploadError, match="no document ID"):
+        await client.upload_document(pdf, wait=True, poll_interval=0.01, poll_timeout=5.0)

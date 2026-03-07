@@ -129,12 +129,19 @@ class UploadMixin:
                 elapsed,
             )
             if task.status == TaskStatus.SUCCESS:
-                doc_id = int(task.related_document)  # type: ignore[arg-type]
+                if task.related_document is None:
+                    raise UploadError(
+                        f"Task {task_id!r} succeeded but returned no document ID"
+                    )
+                doc_id = int(task.related_document)
                 logger.info("Task %r succeeded, document_id=%d", task_id, doc_id)
                 return await self.get_document(doc_id)
             elif task.status == TaskStatus.FAILURE:
                 logger.warning("Task %r failed: %s", task_id, task.result)
                 raise UploadError(f"Document processing failed: {task.result}")
+            elif task.status == TaskStatus.REVOKED:
+                logger.warning("Task %r was revoked", task_id)
+                raise UploadError(f"Task {task_id!r} was revoked")
             await asyncio.sleep(poll_interval)
 
         elapsed = time.monotonic() - start

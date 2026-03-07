@@ -183,6 +183,24 @@ def test_sync_download_document():
 
 
 # ---------------------------------------------------------------------------
+# Upload methods
+# ---------------------------------------------------------------------------
+
+
+def test_sync_upload_document(tmp_path):
+    pdf = tmp_path / "scan.pdf"
+    pdf.write_bytes(b"%PDF-1.4 test")
+
+    with respx.mock(base_url=BASE_URL + "/api", assert_all_called=False) as router:
+        router.post("/documents/post_document/").mock(
+            return_value=Response(200, text='"sync-task-42"')
+        )
+        with SyncPaperlessClient(url=BASE_URL, api_key=API_KEY) as client:
+            result = client.upload_document(pdf, title="Sync Upload")
+    assert result == "sync-task-42"
+
+
+# ---------------------------------------------------------------------------
 # Tag methods
 # ---------------------------------------------------------------------------
 
