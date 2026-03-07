@@ -29,7 +29,56 @@
 _To be added by /architecture_
 
 ## QA Test Results
-_To be added by /qa_
+**Date:** 2026-03-07
+**Tester:** QA Engineer (AI)
+**Branch:** master
+
+### Acceptance Criteria
+
+| # | Criterion | Result |
+|---|-----------|--------|
+| 1 | `PaperlessClient.delete_document(id: int) -> None` sends `DELETE /documents/{id}/` and returns `None` on success (HTTP 204) | PASS |
+| 2 | Raises `NotFoundError` when the server returns HTTP 404 | PASS (via HTTP layer; see test gap below) |
+| 3 | The method is available on `SyncPaperlessClient` with the same signature (blocking wrapper) | PASS |
+
+### Edge Cases
+
+| Edge Case | Result |
+|-----------|--------|
+| Document ID does not exist → raises `NotFoundError` | PASS — HTTP layer maps 404 to `NotFoundError` automatically |
+| Already-deleted ID raises `NotFoundError` (no idempotency) | PASS — same 404 mapping applies |
+
+### Test Coverage
+
+| Area | Detail |
+|------|--------|
+| Async happy path (`test_delete_document`) | Covered — mocks DELETE returning 204 |
+| Sync happy path (`test_sync_delete_document`) | Covered — sync wrapper delegates correctly |
+| Async 404 / `NotFoundError` | **GAP** — no dedicated `test_delete_document_not_found` test (other methods like `get_document`, `update_document`, `download_document` all have explicit 404 tests) |
+
+### Code Quality
+
+| Check | Result |
+|-------|--------|
+| `mypy src/easypaperless/` (strict) | PASS — 0 errors |
+| `ruff check` (library source) | PASS — no issues in `src/` |
+| Full test suite (340 tests) | PASS — 0 failures |
+| Coverage of `documents.py` async mixin | 94% |
+| Coverage of `sync_mixins/documents.py` | 100% |
+
+### Regression
+
+No regressions detected. All 340 existing tests pass. Features PROJ-1 through PROJ-5 (QA Passed) remain stable.
+
+### Bugs Found
+
+| # | Severity | Description |
+|---|----------|-------------|
+| 1 | **Low** | Missing explicit `test_delete_document_not_found` test. The 404 → `NotFoundError` mapping works (verified via HTTP layer tests and consistent with all other methods), but every other document method (`get_document`, `update_document`, `download_document`) has its own dedicated 404 test. Adding one for `delete_document` would be consistent and guard against future regressions if the delete path ever diverges. |
+
+### Production-Ready Decision
+
+**READY** — No Critical or High bugs. The single Low-severity finding is a minor test coverage gap that does not affect correctness (the underlying 404 mapping is thoroughly tested in the HTTP layer). Recommend adding the missing test before or during deployment for consistency.
 
 ## Deployment
 _To be added by /deploy_
