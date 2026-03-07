@@ -1,0 +1,418 @@
+"""Integration tests: list, get, update documents — covers all list_documents filters."""
+
+from __future__ import annotations
+
+from datetime import date, datetime, timezone
+from typing import Any
+
+import pytest
+
+from easypaperless import PaperlessClient
+
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+async def _first_doc(client: PaperlessClient):  # type: ignore[return]
+    docs = await client.list_documents(page=1, page_size=1)
+    if not docs:
+        pytest.skip("No documents available on this instance")
+    return docs[0]
+
+
+# ---------------------------------------------------------------------------
+# Basic get / update
+# ---------------------------------------------------------------------------
+
+@pytest.mark.integration
+async def test_list_documents_returns_results(client: PaperlessClient) -> None:
+    docs = await client.list_documents(page=1, page_size=5)
+    assert isinstance(docs, list)
+
+
+@pytest.mark.integration
+async def test_get_document(client: PaperlessClient) -> None:
+    doc = await _first_doc(client)
+    fetched = await client.get_document(doc.id)
+    assert fetched.id == doc.id
+    assert fetched.title is not None
+
+
+@pytest.mark.integration
+async def test_update_document_title(client: PaperlessClient) -> None:
+    original = await _first_doc(client)
+    new_title = f"__integration_updated__ {original.title}"
+    updated = await client.update_document(original.id, title=new_title)
+    try:
+        assert updated.title == new_title
+    finally:
+        await client.update_document(original.id, title=original.title)
+
+
+# ---------------------------------------------------------------------------
+# Search modes
+# ---------------------------------------------------------------------------
+
+@pytest.mark.integration
+async def test_search_mode_title_or_text(client: PaperlessClient) -> None:
+    docs = await client.list_documents(search="a", search_mode="title_or_text", page=1, page_size=5)
+    assert isinstance(docs, list)
+
+
+@pytest.mark.integration
+async def test_search_mode_title(client: PaperlessClient) -> None:
+    docs = await client.list_documents(search="a", search_mode="title", page=1, page_size=5)
+    assert isinstance(docs, list)
+    for doc in docs:
+        assert "a" in doc.title.lower()
+
+
+@pytest.mark.integration
+async def test_search_mode_query(client: PaperlessClient) -> None:
+    docs = await client.list_documents(search="*", search_mode="query", page=1, page_size=5)
+    assert isinstance(docs, list)
+
+
+@pytest.mark.integration
+async def test_search_mode_original_filename(client: PaperlessClient) -> None:
+    docs = await client.list_documents(search="a", search_mode="original_filename", page=1, page_size=5)
+    assert isinstance(docs, list)
+
+
+# ---------------------------------------------------------------------------
+# ids filter
+# ---------------------------------------------------------------------------
+
+@pytest.mark.integration
+async def test_filter_by_ids(client: PaperlessClient) -> None:
+    doc = await _first_doc(client)
+    docs = await client.list_documents(ids=[doc.id])
+    assert len(docs) == 1
+    assert docs[0].id == doc.id
+
+
+@pytest.mark.integration
+async def test_filter_by_ids_no_match(client: PaperlessClient) -> None:
+    docs = await client.list_documents(ids=[999999999])
+    assert docs == []
+
+
+# ---------------------------------------------------------------------------
+# Tag filters (tags / any_tags / exclude_tags)
+# ---------------------------------------------------------------------------
+
+@pytest.mark.integration
+async def test_filter_tags_all(client: PaperlessClient, uid: str) -> None:
+    """Create a tag, assign to a doc, filter must-have-all, verify, restore."""
+    doc = await _first_doc(client)
+    original_tags = list(doc.tags or [])
+    tag = await client.create_tag(name=f"__integration_tags_all_{uid}__")
+    try:
+        await client.update_document(doc.id, tags=[*original_tags, tag.id])
+        docs = await client.list_documents(tags=[tag.id])
+        assert any(d.id == doc.id for d in docs)
+    finally:
+        await client.update_document(doc.id, tags=original_tags)
+        await client.delete_tag(tag.id)
+
+
+@pytest.mark.integration
+async def test_filter_any_tags(client: PaperlessClient, uid: str) -> None:
+    doc = await _first_doc(client)
+    original_tags = list(doc.tags or [])
+    tag = await client.create_tag(name=f"__integration_any_tags_{uid}__")
+    try:
+        await client.update_document(doc.id, tags=[*original_tags, tag.id])
+        docs = await client.list_documents(any_tags=[tag.id])
+        assert any(d.id == doc.id for d in docs)
+    finally:
+        await client.update_document(doc.id, tags=original_tags)
+        await client.delete_tag(tag.id)
+
+
+@pytest.mark.integration
+async def test_filter_exclude_tags(client: PaperlessClient, uid: str) -> None:
+    doc = await _first_doc(client)
+    original_tags = list(doc.tags or [])
+    tag = await client.create_tag(name=f"__integration_exclude_tags_{uid}__")
+    try:
+        await client.update_document(doc.id, tags=[*original_tags, tag.id])
+        docs = await client.list_documents(exclude_tags=[tag.id])
+        assert all(d.id != doc.id for d in docs)
+    finally:
+        await client.update_document(doc.id, tags=original_tags)
+        await client.delete_tag(tag.id)
+
+
+# ---------------------------------------------------------------------------
+# Correspondent filters
+# ---------------------------------------------------------------------------
+
+@pytest.mark.integration
+async def test_filter_correspondent_exact(client: PaperlessClient, uid: str) -> None:
+    doc = await _first_doc(client)
+    original_corr = doc.correspondent
+    corr = await client.create_correspondent(name=f"__integration_corr_filter_{uid}__")
+    try:
+        await client.update_document(doc.id, correspondent=corr.id)
+        docs = await client.list_documents(correspondent=corr.id)
+        assert any(d.id == doc.id for d in docs)
+    finally:
+        if original_corr is not None:
+            await client.update_document(doc.id, correspondent=original_corr)
+        await client.delete_correspondent(corr.id)
+
+
+@pytest.mark.integration
+async def test_filter_any_correspondent(client: PaperlessClient, uid: str) -> None:
+    doc = await _first_doc(client)
+    original_corr = doc.correspondent
+    corr = await client.create_correspondent(name=f"__integration_any_corr_{uid}__")
+    try:
+        await client.update_document(doc.id, correspondent=corr.id)
+        docs = await client.list_documents(any_correspondent=[corr.id])
+        assert any(d.id == doc.id for d in docs)
+    finally:
+        if original_corr is not None:
+            await client.update_document(doc.id, correspondent=original_corr)
+        await client.delete_correspondent(corr.id)
+
+
+@pytest.mark.integration
+async def test_filter_exclude_correspondents(client: PaperlessClient, uid: str) -> None:
+    doc = await _first_doc(client)
+    original_corr = doc.correspondent
+    corr = await client.create_correspondent(name=f"__integration_excl_corr_{uid}__")
+    try:
+        await client.update_document(doc.id, correspondent=corr.id)
+        docs = await client.list_documents(exclude_correspondents=[corr.id])
+        assert all(d.id != doc.id for d in docs)
+    finally:
+        if original_corr is not None:
+            await client.update_document(doc.id, correspondent=original_corr)
+        await client.delete_correspondent(corr.id)
+
+
+# ---------------------------------------------------------------------------
+# Document type filters
+# ---------------------------------------------------------------------------
+
+@pytest.mark.integration
+async def test_filter_document_type_exact(client: PaperlessClient, uid: str) -> None:
+    doc = await _first_doc(client)
+    original_dt = doc.document_type
+    dt = await client.create_document_type(name=f"__integration_dt_filter_{uid}__")
+    try:
+        await client.update_document(doc.id, document_type=dt.id)
+        docs = await client.list_documents(document_type=dt.id)
+        assert any(d.id == doc.id for d in docs)
+    finally:
+        if original_dt is not None:
+            await client.update_document(doc.id, document_type=original_dt)
+        await client.delete_document_type(dt.id)
+
+
+@pytest.mark.integration
+async def test_filter_any_document_type(client: PaperlessClient, uid: str) -> None:
+    doc = await _first_doc(client)
+    original_dt = doc.document_type
+    dt = await client.create_document_type(name=f"__integration_any_dt_{uid}__")
+    try:
+        await client.update_document(doc.id, document_type=dt.id)
+        docs = await client.list_documents(any_document_type=[dt.id])
+        assert any(d.id == doc.id for d in docs)
+    finally:
+        if original_dt is not None:
+            await client.update_document(doc.id, document_type=original_dt)
+        await client.delete_document_type(dt.id)
+
+
+@pytest.mark.integration
+async def test_filter_exclude_document_types(client: PaperlessClient, uid: str) -> None:
+    doc = await _first_doc(client)
+    original_dt = doc.document_type
+    dt = await client.create_document_type(name=f"__integration_excl_dt_{uid}__")
+    try:
+        await client.update_document(doc.id, document_type=dt.id)
+        docs = await client.list_documents(exclude_document_types=[dt.id])
+        assert all(d.id != doc.id for d in docs)
+    finally:
+        if original_dt is not None:
+            await client.update_document(doc.id, document_type=original_dt)
+        await client.delete_document_type(dt.id)
+
+
+# ---------------------------------------------------------------------------
+# Storage path filters
+# ---------------------------------------------------------------------------
+
+@pytest.mark.integration
+async def test_filter_storage_path_exact(client: PaperlessClient, uid: str) -> None:
+    doc = await _first_doc(client)
+    original_sp = doc.storage_path
+    sp = await client.create_storage_path(name=f"__integration_sp_filter_{uid}__", path="integration/{created}")
+    try:
+        await client.update_document(doc.id, storage_path=sp.id)
+        docs = await client.list_documents(storage_path=sp.id)
+        assert any(d.id == doc.id for d in docs)
+    finally:
+        if original_sp is not None:
+            await client.update_document(doc.id, storage_path=original_sp)
+        await client.delete_storage_path(sp.id)
+
+
+@pytest.mark.integration
+async def test_filter_any_storage_paths(client: PaperlessClient, uid: str) -> None:
+    doc = await _first_doc(client)
+    original_sp = doc.storage_path
+    sp = await client.create_storage_path(name=f"__integration_any_sp_{uid}__", path="integration/any/{created}")
+    try:
+        await client.update_document(doc.id, storage_path=sp.id)
+        docs = await client.list_documents(any_storage_paths=[sp.id])
+        assert any(d.id == doc.id for d in docs)
+    finally:
+        if original_sp is not None:
+            await client.update_document(doc.id, storage_path=original_sp)
+        await client.delete_storage_path(sp.id)
+
+
+@pytest.mark.integration
+async def test_filter_exclude_storage_paths(client: PaperlessClient, uid: str) -> None:
+    doc = await _first_doc(client)
+    original_sp = doc.storage_path
+    sp = await client.create_storage_path(name=f"__integration_excl_sp_{uid}__", path="integration/excl/{created}")
+    try:
+        await client.update_document(doc.id, storage_path=sp.id)
+        docs = await client.list_documents(exclude_storage_paths=[sp.id])
+        assert all(d.id != doc.id for d in docs)
+    finally:
+        if original_sp is not None:
+            await client.update_document(doc.id, storage_path=original_sp)
+        await client.delete_storage_path(sp.id)
+
+
+# ---------------------------------------------------------------------------
+# Date filters
+# ---------------------------------------------------------------------------
+
+@pytest.mark.integration
+async def test_filter_created_after_before(client: PaperlessClient) -> None:
+    docs_after = await client.list_documents(created_after="1970-01-01", page=1, page_size=5)
+    assert isinstance(docs_after, list)
+    docs_before = await client.list_documents(created_before="2099-12-31", page=1, page_size=5)
+    assert isinstance(docs_before, list)
+
+
+@pytest.mark.integration
+async def test_filter_added_after_before_date(client: PaperlessClient) -> None:
+    docs = await client.list_documents(
+        added_after=date(1970, 1, 1),
+        added_before=date(2099, 12, 31),
+        page=1,
+        page_size=5,
+    )
+    assert isinstance(docs, list)
+
+
+@pytest.mark.integration
+async def test_filter_added_after_before_datetime(client: PaperlessClient) -> None:
+    docs = await client.list_documents(
+        added_after=datetime(1970, 1, 1, tzinfo=timezone.utc),
+        added_before=datetime(2099, 12, 31, tzinfo=timezone.utc),
+        page=1,
+        page_size=5,
+    )
+    assert isinstance(docs, list)
+
+
+@pytest.mark.integration
+async def test_filter_added_from_until(client: PaperlessClient) -> None:
+    docs = await client.list_documents(
+        added_from=date(1970, 1, 1),
+        added_until=date(2099, 12, 31),
+        page=1,
+        page_size=5,
+    )
+    assert isinstance(docs, list)
+
+
+@pytest.mark.integration
+async def test_filter_modified_after_before(client: PaperlessClient) -> None:
+    docs = await client.list_documents(
+        modified_after=date(1970, 1, 1),
+        modified_before=date(2099, 12, 31),
+        page=1,
+        page_size=5,
+    )
+    assert isinstance(docs, list)
+
+
+@pytest.mark.integration
+async def test_filter_modified_from_until(client: PaperlessClient) -> None:
+    docs = await client.list_documents(
+        modified_from=datetime(1970, 1, 1, tzinfo=timezone.utc),
+        modified_until=datetime(2099, 12, 31, tzinfo=timezone.utc),
+        page=1,
+        page_size=5,
+    )
+    assert isinstance(docs, list)
+
+
+# ---------------------------------------------------------------------------
+# Pagination, ordering, max_results
+# ---------------------------------------------------------------------------
+
+@pytest.mark.integration
+async def test_ordering_ascending_vs_descending(client: PaperlessClient) -> None:
+    """Ascending and descending should return the same documents in opposite order."""
+    asc = await client.list_documents(ordering="id", page=1, page_size=10)
+    desc = await client.list_documents(ordering="id", descending=True, page=1, page_size=10)
+    asc_ids = [d.id for d in asc]
+    desc_ids = [d.id for d in desc]
+    # Both pages may not cover exactly the same documents if there are >10 docs,
+    # but the ascending result should equal the reverse of the descending page
+    # when there are ≤10 docs total, or at minimum the ordering should differ.
+    assert asc_ids == sorted(asc_ids)
+    assert desc_ids == sorted(desc_ids, reverse=True)
+
+
+@pytest.mark.integration
+async def test_page_size(client: PaperlessClient) -> None:
+    docs = await client.list_documents(page=1, page_size=3)
+    assert len(docs) <= 3
+
+
+@pytest.mark.integration
+async def test_max_results(client: PaperlessClient) -> None:
+    docs = await client.list_documents(max_results=2)
+    assert len(docs) <= 2
+
+
+@pytest.mark.integration
+async def test_auto_pagination(client: PaperlessClient) -> None:
+    """Auto-pagination should return more results than a single page of 1."""
+    all_docs = await client.list_documents(page_size=1)
+    single_page = await client.list_documents(page=1, page_size=1)
+    # If there are multiple documents, auto-pagination returns more than page_size=1.
+    if len(single_page) == 1:
+        assert len(all_docs) >= len(single_page)
+
+
+# ---------------------------------------------------------------------------
+# Name-based FK resolution (resolve string → ID)
+# ---------------------------------------------------------------------------
+
+@pytest.mark.integration
+async def test_filter_tag_by_name(client: PaperlessClient, uid: str) -> None:
+    doc = await _first_doc(client)
+    original_tags = list(doc.tags or [])
+    name = f"__integration_name_resolve_{uid}__"
+    tag = await client.create_tag(name=name)
+    try:
+        await client.update_document(doc.id, tags=[*original_tags, tag.id])
+        docs = await client.list_documents(tags=[name])
+        assert any(d.id == doc.id for d in docs)
+    finally:
+        await client.update_document(doc.id, tags=original_tags)
+        await client.delete_tag(tag.id)

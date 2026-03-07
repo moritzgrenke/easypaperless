@@ -109,6 +109,9 @@ hatch build
 
 # Publish to PyPI
 hatch publish
+
+# Run integration tests (requires live paperless instance + tests/.env)
+pytest tests/integration/ -m integration -v
 ```
 
 ## Product Context

@@ -45,6 +45,7 @@ dev = [
     "pytest-cov",
     "ruff>=0.4",
     "mypy>=1.10",
+    "python-dotenv>=1.0",
 ]
 
 [tool.hatch.build.targets.wheel]
@@ -52,6 +53,8 @@ packages = ["src/easypaperless"]
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
+addopts = "-m 'not integration'"
+markers = ["integration: live-server integration tests (require PAPERLESS_URL env var)"]
 
 [tool.ruff]
 line-length = 100
