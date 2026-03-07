@@ -1,6 +1,6 @@
 # PROJ-7: Download Document
 
-## Status: Implemented
+## Status: In Review
 **Created:** 2026-03-06
 **Last Updated:** 2026-03-06
 
@@ -41,7 +41,55 @@
 _To be added by /architecture_
 
 ## QA Test Results
-_To be added by /qa_
+**Date:** 2026-03-07
+**Tester:** QA Engineer (Claude)
+**Branch:** master (commit b8575fc)
+
+### Environment
+- Python 3.13.12, pytest 9.0.2, respx 0.22.0
+- mypy: strict, no errors (38 source files)
+- ruff: no issues in library source (`src/`)
+- Full test suite: 341 passed
+
+### Acceptance Criteria
+
+| # | Criterion | Result |
+|---|-----------|--------|
+| 1 | `download_document(id: int, *, original: bool = False) -> bytes` signature | **PASS** — matches spec exactly (mixins/documents.py L482) |
+| 2 | `original=False` fetches from `GET /documents/{id}/archive/` | **PASS** — verified in code (L494: `endpoint = "download" if original else "archive"`) and test `test_download_document_archive` |
+| 3 | `original=True` fetches from `GET /documents/{id}/download/` | **PASS** — verified in code and test `test_download_document_original` |
+| 4 | Return type is `bytes` — no decoding, no wrapping | **PASS** — returns `resp.content` which is raw bytes; type annotation is `-> bytes` |
+| 5 | Raises `NotFoundError` on HTTP 404 | **PASS** — `get_download` calls `_raise_for_status` which maps 404 to `NotFoundError`; tested in `test_download_document_not_found` |
+| 6 | Raises `ServerError` on HTML response (Content-Type or `<!doctype` prefix) | **PASS** — both detection paths implemented (L497); tested in `test_download_document_html_content_type` and `test_download_document_html_body_prefix` |
+| 7 | Available on `SyncPaperlessClient` with same signature | **PASS** — `SyncDocumentsMixin.download_document` delegates to async client; tested in `test_sync_download_document` |
+
+### Edge Cases
+
+| Edge Case | Result |
+|-----------|--------|
+| Document ID does not exist (404) | **PASS** — tested |
+| Auth token invalid/expired (HTML login page redirect) | **PASS** — Content-Type check and body-prefix check both raise `ServerError` |
+| No archive version (API returns 404) | **PASS** — `_raise_for_status` maps to `NotFoundError` |
+| Non-PDF original file | **PASS** — returns raw bytes regardless of MIME type |
+| Large files buffered into memory | **PASS** — no streaming; `resp.content` loads full body (documented limitation) |
+| Redirect handling preserves auth | **PASS** — `get_download` follows redirects manually with fresh requests (http.py L103-135), re-attaching the default Authorization header each hop; max 5 hops |
+
+### Additional Observations
+
+1. **Redirect loop protection:** `get_download` limits to 5 redirect hops (http.py L122), preventing infinite loops. Good.
+2. **HTML detection edge case — short body:** If the response body is fewer than 9 bytes and the Content-Type is not `text/html`, the `<!doctype` prefix check will not match (which is correct — a sub-9-byte body cannot be a valid HTML page). No bug.
+3. **`ServerError.status_code` is `None` for HTML detection:** The `ServerError` raised on HTML detection passes `status_code=None` (L498-502). This is acceptable since the HTTP status was 200 — the error is semantic, not an HTTP error. Consistent with how `ServerError` is used for timeouts.
+
+### Test Coverage
+- 6 dedicated tests for `download_document` (5 async + 1 sync)
+- All pass
+- Covers: archive download, original download, 404, HTML content-type, HTML body prefix, sync wrapper
+
+### Bugs Found
+None.
+
+### Production-Ready Decision
+**READY** — All 7 acceptance criteria pass. All documented edge cases are covered. No bugs found. No Critical or High issues.
 
 ## Deployment
 _To be added by /deploy_
