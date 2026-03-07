@@ -155,6 +155,15 @@ async def test_delete_document(client, mock_router):
     await client.delete_document(1)
 
 
+async def test_delete_document_not_found(client, mock_router):
+    """delete_document raises NotFoundError when the document ID does not exist."""
+    mock_router.delete("/documents/999/").mock(
+        return_value=Response(404, json={"detail": "Not found."})
+    )
+    with pytest.raises(NotFoundError):
+        await client.delete_document(999)
+
+
 async def test_download_document_archive(client, mock_router):
     mock_router.get("/documents/1/archive/").mock(return_value=Response(200, content=b"PDF"))
     content = await client.download_document(1)
