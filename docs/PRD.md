@@ -24,7 +24,7 @@ Python developers who want to access the paperless-ngx document management syste
 | P3 | _document types Ressource: CRUD_ | Implemented |
 | P3 | _custom fields Ressource: CRUD_ | Implemented |
 | P3 | _storage paths Ressource: CRUD_ | Implemented |
-| P3 | _non document ressources: bulk operations_ | Partially Implemented |
+| P3 | _non document ressources: bulk operations_ | Implemented |
 | P3 | _SyncPaperlessClient (sync wrapper)_ | Implemented |
 | P3 | _Document Notes: list, create, delete_ | Implemented |
 ... more to be added

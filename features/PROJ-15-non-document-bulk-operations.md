@@ -1,6 +1,6 @@
 # PROJ-15: Non-Document Bulk Operations
 
-## Status: Partially Implemented
+## Status: Implemented
 **Created:** 2026-03-06
 **Last Updated:** 2026-03-06
 
@@ -22,7 +22,7 @@
   - `"set_permissions"` — requires a `permissions` object (`{"view": {"users": [], "groups": []}, "change": {"users": [], "groups": []}}`), optional `owner` (user ID or `None`), and optional `merge` (boolean, default `False`; when `True`, new permissions are merged with existing ones rather than replacing them).
 - [ ] Invalid `object_type` or `operation` strings are forwarded to the API as-is; the server returns an error which propagates to the caller.
 
-### High-level helpers (planned)
+### High-level helpers (implemented)
 - [ ] `bulk_delete_tags(ids: list[int]) -> None`
 - [ ] `bulk_delete_correspondents(ids: list[int]) -> None`
 - [ ] `bulk_delete_document_types(ids: list[int]) -> None`
