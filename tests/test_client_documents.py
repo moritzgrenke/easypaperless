@@ -273,6 +273,125 @@ async def test_update_document_owner_and_permissions_not_sent_when_omitted(clien
     assert body == {"title": "New"}
 
 
+async def test_update_document_date_mapped_to_created(client, mock_router):
+    """date parameter is sent as 'created' in the PATCH payload."""
+    captured: dict = {}
+    mock_router.patch("/documents/1/").mock(
+        side_effect=_patch_capturing_side_effect(captured, DOC_DATA)
+    )
+    await client.update_document(1, date="2024-06-15")
+    assert captured["body"]["created"] == "2024-06-15"
+    assert "date" not in captured["body"]
+
+
+async def test_update_document_asn_mapped_to_archive_serial_number(client, mock_router):
+    """asn parameter is sent as 'archive_serial_number' in the PATCH payload."""
+    captured: dict = {}
+    mock_router.patch("/documents/1/").mock(
+        side_effect=_patch_capturing_side_effect(captured, DOC_DATA)
+    )
+    await client.update_document(1, asn=42)
+    assert captured["body"]["archive_serial_number"] == 42
+    assert "asn" not in captured["body"]
+
+
+async def test_update_document_tags_with_name_resolution(client, mock_router):
+    """tags with string names are resolved to IDs via resolve_list."""
+    tags_resp = {
+        "count": 2, "next": None, "previous": None,
+        "results": [{"id": 3, "name": "invoice"}, {"id": 7, "name": "urgent"}],
+    }
+    mock_router.get("/tags/").mock(return_value=Response(200, json=tags_resp))
+    captured: dict = {}
+    mock_router.patch("/documents/1/").mock(
+        side_effect=_patch_capturing_side_effect(captured, {**DOC_DATA, "tags": [3, 7]})
+    )
+    doc = await client.update_document(1, tags=["invoice", "urgent"])
+    assert captured["body"]["tags"] == [3, 7]
+
+
+async def test_update_document_document_type_with_name_resolution(client, mock_router):
+    """document_type with a string name is resolved to an ID."""
+    dt_resp = {
+        "count": 1, "next": None, "previous": None,
+        "results": [{"id": 10, "name": "Invoice"}],
+    }
+    mock_router.get("/document_types/").mock(return_value=Response(200, json=dt_resp))
+    captured: dict = {}
+    mock_router.patch("/documents/1/").mock(
+        side_effect=_patch_capturing_side_effect(captured, {**DOC_DATA, "document_type": 10})
+    )
+    doc = await client.update_document(1, document_type="Invoice")
+    assert captured["body"]["document_type"] == 10
+
+
+async def test_update_document_storage_path_with_name_resolution(client, mock_router):
+    """storage_path with a string name is resolved to an ID."""
+    sp_resp = {
+        "count": 1, "next": None, "previous": None,
+        "results": [{"id": 20, "name": "Archive"}],
+    }
+    mock_router.get("/storage_paths/").mock(return_value=Response(200, json=sp_resp))
+    captured: dict = {}
+    mock_router.patch("/documents/1/").mock(
+        side_effect=_patch_capturing_side_effect(captured, {**DOC_DATA, "storage_path": 20})
+    )
+    doc = await client.update_document(1, storage_path="Archive")
+    assert captured["body"]["storage_path"] == 20
+
+
+async def test_update_document_custom_fields_sent_in_payload(client, mock_router):
+    """custom_fields list is sent as-is in the PATCH payload."""
+    captured: dict = {}
+    cf = [{"field": 1, "value": "hello"}, {"field": 2, "value": 99}]
+    mock_router.patch("/documents/1/").mock(
+        side_effect=_patch_capturing_side_effect(captured, DOC_DATA)
+    )
+    await client.update_document(1, custom_fields=cf)
+    assert captured["body"]["custom_fields"] == cf
+
+
+async def test_update_document_correspondent_zero_clears(client, mock_router):
+    """Passing correspondent=0 sends 0 in the payload (not skipped as falsy)."""
+    captured: dict = {}
+    mock_router.patch("/documents/1/").mock(
+        side_effect=_patch_capturing_side_effect(captured, {**DOC_DATA, "correspondent": None})
+    )
+    await client.update_document(1, correspondent=0)
+    assert captured["body"]["correspondent"] == 0
+
+
+async def test_update_document_empty_kwargs_sends_empty_body(client, mock_router):
+    """Calling update_document with no kwargs sends an empty PATCH payload."""
+    captured: dict = {}
+    mock_router.patch("/documents/1/").mock(
+        side_effect=_patch_capturing_side_effect(captured, DOC_DATA)
+    )
+    await client.update_document(1)
+    assert captured["body"] == {}
+
+
+async def test_update_document_not_found(client, mock_router):
+    """update_document raises NotFoundError when the document ID does not exist."""
+    mock_router.patch("/documents/999/").mock(
+        return_value=Response(404, json={"detail": "Not found."})
+    )
+    with pytest.raises(NotFoundError):
+        await client.update_document(999, title="Does not matter")
+
+
+async def test_update_document_nonexistent_tag_name_raises_resolver_error(client, mock_router):
+    """Passing a tag name that does not exist raises NotFoundError before HTTP."""
+    tags_resp = {
+        "count": 1, "next": None, "previous": None,
+        "results": [{"id": 3, "name": "invoice"}],
+    }
+    mock_router.get("/tags/").mock(return_value=Response(200, json=tags_resp))
+    # No PATCH mock — the request should never be made
+    with pytest.raises(NotFoundError):
+        await client.update_document(1, tags=["nonexistent"])
+
+
 # ---------------------------------------------------------------------------
 # Shared mock data for new-parameter tests
 # ---------------------------------------------------------------------------
