@@ -120,11 +120,11 @@ _To be added by /architecture_
 
 ### Observations (Low Severity)
 
-| # | Severity | Description |
-|---|----------|-------------|
-| O1 | Low | **No payload assertion in tests.** All 20 async bulk tests mock the POST endpoint and assert success, but none verify the JSON body sent to the API. A `side_effect` or `request.content` assertion would catch payload-structure regressions (e.g., wrong parameter names like `add_custom_fields` vs `add_fields`). |
-| O2 | Low | **Sync test coverage gap.** `test_sync.py` covers `bulk_add_tag` and `bulk_delete` for the sync client, but does not cover `bulk_remove_tag`, `bulk_modify_tags`, `bulk_set_correspondent`, `bulk_set_document_type`, `bulk_set_storage_path`, `bulk_modify_custom_fields`, or `bulk_set_permissions`. The sync wrappers are thin delegation, so risk is minimal, but coverage is incomplete. |
-| O3 | Low | **`sync_mixins/document_bulk.py` coverage at 69%.** The uncovered sync methods correspond to the missing sync tests in O2 above. |
+| # | Severity | Description | Status |
+|---|----------|-------------|--------|
+| O1 | Low | **No payload assertion in tests.** All 20 async bulk tests mock the POST endpoint and assert success, but none verify the JSON body sent to the API. A `side_effect` or `request.content` assertion would catch payload-structure regressions (e.g., wrong parameter names like `add_custom_fields` vs `add_fields`). | **Fixed** — All async bulk tests now assert the full JSON payload structure via `route.calls.last.request.content`. |
+| O2 | Low | **Sync test coverage gap.** `test_sync.py` covers `bulk_add_tag` and `bulk_delete` for the sync client, but does not cover `bulk_remove_tag`, `bulk_modify_tags`, `bulk_set_correspondent`, `bulk_set_document_type`, `bulk_set_storage_path`, `bulk_modify_custom_fields`, or `bulk_set_permissions`. The sync wrappers are thin delegation, so risk is minimal, but coverage is incomplete. | **Fixed** — Added 7 new sync tests covering all missing bulk methods. |
+| O3 | Low | **`sync_mixins/document_bulk.py` coverage at 69%.** The uncovered sync methods correspond to the missing sync tests in O2 above. | **Fixed** — Coverage now at 96% (only uncovered line is `bulk_edit` which delegates directly). |
 
 ### Regression Testing
 - Full test suite: **346 passed**, 39 deselected (integration)
