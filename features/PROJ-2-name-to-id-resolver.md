@@ -1,6 +1,6 @@
 # PROJ-2: Name-to-ID Resolver
 
-## Status: Implemented
+## Status: QA Passed
 **Created:** 2026-03-06
 **Last Updated:** 2026-03-06
 
@@ -115,7 +115,7 @@ _To be added by /architecture_
 | Integer pass-through | PASS | No cache touched |
 | Mixed int/str list | PASS | |
 | Name not found | PASS | `NotFoundError` raised with resource + name |
-| Int ID as string (e.g. `"42"`) | **BUG** | Hint message contains literal `{value}` — see Bug #1 |
+| Int ID as string (e.g. `"42"`) | PASS | Hint message correctly shows `int(42)` — Bug #1 fixed |
 | Case sensitivity (`"Invoice"` / `"INVOICE"` / `"invoice"`) | PASS | |
 | Cache invalidation then re-lookup | PASS | |
 | Resource with zero items | PASS | Empty dict cached; any lookup raises `NotFoundError` |
@@ -126,34 +126,28 @@ _To be added by /architecture_
 | Tool | Result | Notes |
 |------|--------|-------|
 | mypy (strict) | PASS | No issues |
-| ruff | **BUG** | Line 57 exceeds 100 chars (101) — see Bug #2 |
+| ruff | PASS | No issues — Bug #2 fixed |
 
-### Bugs Found
+### Bugs Found (Previous Round)
 
-**Bug #1 — Medium: Hint message for int-as-string has uninterpolated `{value}`**
-- **File:** `src/easypaperless/_internal/resolvers.py`, line 37
-- **Severity:** Medium
-- **Description:** The second string in the hint concatenation is a plain string, not an f-string, so `{value}` is rendered literally instead of being interpolated.
-- **Actual output:** `"... use int({value}) instead of a string ..."`
-- **Expected output:** `"... use int(42) instead of a string ..."`
-- **Steps to reproduce:** Call `await resolver.resolve("tags", "42")` when no tag named `"42"` exists.
-- **Fix:** Add the `f` prefix to the second string on line 37: `f" integer ID — use int({value}) instead..."`.
+**Bug #1 — FIXED** (commit `0ff10b3`)
+Hint message for int-as-string had uninterpolated `{value}`. Now correctly shows e.g. `int(42)`.
 
-**Bug #2 — Low: Ruff E501 line length violation**
-- **File:** `src/easypaperless/_internal/resolvers.py`, line 57
-- **Severity:** Low
-- **Description:** Line 57 is 101 characters, exceeding the project's 100-character limit.
-- **Steps to reproduce:** Run `ruff check src/easypaperless/_internal/resolvers.py`.
+**Bug #2 — FIXED** (commit `0ff10b3`)
+Ruff E501 line length violation on line 57. Line has been refactored to comply.
 
 ### Regression Testing
 - Full test suite (290 tests, excluding integration): ALL PASSED
 - No regressions detected in related features
 
-### Summary
+### Reassessment Summary (2026-03-07)
 - **Acceptance criteria:** 20/20 passed
-- **Edge cases:** 7/8 passed, 1 bug (medium)
-- **Bugs found:** 2 total — 1 Medium, 1 Low
-- **Production-ready:** YES (no Critical or High bugs)
+- **Edge cases:** 8/8 passed (all bugs from previous round fixed)
+- **Bugs found:** 0 remaining
+- **Code coverage:** 100% line coverage
+- **mypy:** Clean
+- **ruff:** Clean
+- **Production-ready:** YES — all previous bugs fixed, 100% coverage
 
 ## Deployment
 _To be added by /deploy_
