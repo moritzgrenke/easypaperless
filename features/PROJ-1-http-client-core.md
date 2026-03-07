@@ -1,8 +1,8 @@
 # PROJ-1: HTTP Client Core
 
-## Status: Implemented
+## Status: QA Passed
 **Created:** 2026-03-06
-**Last Updated:** 2026-03-06
+**Last Updated:** 2026-03-07
 
 ## Dependencies
 - None
@@ -60,9 +60,9 @@ Internal HTTP session with token authentication, error mapping, pagination, and 
 _To be added by /architecture_
 
 ## QA Test Results
-**QA Date:** 2026-03-07
+**QA Date:** 2026-03-07 (reassessed after bug fixes)
 **Tester:** QA Engineer (automated + manual)
-**Overall Verdict:** READY (with 1 Low bug)
+**Overall Verdict:** READY — all previous bugs fixed, full coverage achieved
 
 ### Acceptance Criteria Results
 
@@ -74,10 +74,10 @@ _To be added by /architecture_
 | 3 | All requests include `Authorization: Token {api_key}` header | PASS | Verified via `_get_client().headers` inspection |
 | 4 | `close()` closes the underlying HTTP connection pool | PASS | Verified: sets `_client` to `None`, idempotent (double-close safe) |
 | 5 | `request(method, path, *, params, json, data, files, timeout)` — generic request with per-call timeout | PASS | Signature verified; per-call timeout forwarded to httpx |
-| 6 | Convenience methods: `get()`, `post()`, `patch()`, `delete()` | PASS | All four present, delegate to `request()` |
+| 6 | Convenience methods: `get()`, `post()`, `patch()`, `delete()` | PASS | All four present, delegate to `request()`; each has dedicated unit test |
 | 7 | `post()` exposes a `timeout` parameter | PASS | Signature: `post(self, path, *, json, data, files, timeout)` |
-| 8 | `get_download()` follows redirects manually, re-attaching auth header (up to 5 hops) | PASS | Code review: uses `follow_redirects=False`, loops with `hops < 5`, re-issues via `client.request` which includes default auth headers |
-| 9 | `get_all_pages(path, params, *, max_results, on_page)` — paginated fetch with cap and callback | PASS | Signature verified; behavior tested in 6 unit tests |
+| 8 | `get_download()` follows redirects manually, re-attaching auth header (up to 5 hops) | PASS | Fully tested: simple download, redirect with auth verification, 5-hop abort, timeout/error on initial and redirect hops |
+| 9 | `get_all_pages(path, params, *, max_results, on_page)` — paginated fetch with cap and callback | PASS | Signature verified; behavior tested in 10 unit tests including on_page callback and transport errors |
 
 **HttpSession total: 9/9 PASS**
 
@@ -88,7 +88,7 @@ _To be added by /architecture_
 | 2 | `AuthError` — raised on 401 or 403 | PASS | Tested via parametrized error mapping |
 | 3 | `NotFoundError` — raised on 404 | PASS | Tested |
 | 4 | `ValidationError` — raised on 422 | PASS | Tested |
-| 5 | `ServerError` — raised on 5xx and transport errors | PASS | 500/503 tested; transport error mapping in code (TimeoutException, HTTPError -> ServerError) |
+| 5 | `ServerError` — raised on 5xx and transport errors | PASS | 500/503 tested; transport errors tested (TimeoutException, HTTPError -> ServerError) |
 | 6 | `UploadError` — raised on task FAILURE | PASS | Class exists, tested in `test_exceptions.py` and `test_client_upload.py` |
 | 7 | `TaskTimeoutError` — status_code always None | PASS | `__init__` hardcodes `status_code=None`; tested |
 | 8 | All exceptions carry originating HTTP status code | PASS | Verified for all subclasses |
@@ -100,50 +100,50 @@ _To be added by /architecture_
 | # | Edge Case | Result | Notes |
 |---|-----------|--------|-------|
 | 1 | Trailing slash in base URL stripped before `/api` append | PASS | Multiple trailing slashes handled correctly |
-| 2 | Non-JSON error responses — fallback to raw text | PASS | Code: `except Exception: detail = response.text` (line 49-50). Not unit-tested but code-reviewed as correct |
-| 3 | Redirect strips auth header — `get_download()` re-issues requests | PASS | Uses `follow_redirects=False` + manual loop through `client.request()` which carries default headers |
-| 4 | Redirect loop — aborts after 5 hops | PASS | `while resp.is_redirect and hops < 5` |
-| 5 | Transport errors — TimeoutException and HTTPError caught as ServerError | PASS | Present in `request()`, `get_download()`, and `get_all_pages()` next-page fetcher |
+| 2 | Non-JSON error responses — fallback to raw text | PASS | Tested in `test_error_non_json_body_fallback` |
+| 3 | Redirect strips auth header — `get_download()` re-issues requests | PASS | Tested in `test_get_download_follows_redirects` (asserts auth header on every hop) |
+| 4 | Redirect loop — aborts after 5 hops | PASS | Tested in `test_get_download_aborts_after_5_hops` (verifies 6 total calls, status 302) |
+| 5 | Transport errors — TimeoutException and HTTPError caught as ServerError | PASS | Tested in `request()`, `get_download()` (initial + redirect), and `get_all_pages()` next-page |
 | 6 | `max_results` across pages — truncates to exact count | PASS | 4 dedicated tests covering single-page trim, exact-page-size, cross-page, and no-limit |
 | 7 | Per-call timeout on `post()` | PASS | Forwarded via `request(..., timeout=timeout)` |
 
 **Edge Cases total: 7/7 PASS**
 
-### Additional Findings (identified by QA)
+### Previous Findings — Resolution Status
 
-| # | Finding | Notes |
-|---|---------|-------|
-| 1 | `get_download()` has zero unit test coverage | Lines 112-135 are entirely uncovered. Redirect logic, transport error handling within download, and the 5-hop limit are tested only by code review. |
-| 2 | `post()`, `patch()`, `delete()` convenience methods have zero direct unit test coverage | Lines 146, 149, 152 uncovered. They are trivial delegations to `request()` and are exercised indirectly by higher-level tests. |
-| 3 | Transport error paths in `request()` have zero unit test coverage | Lines 88-95 (TimeoutException, HTTPError catch blocks) are uncovered. |
-| 4 | Non-JSON error body fallback has zero unit test coverage | Lines 49-50. |
-| 5 | `on_page` callback in `get_all_pages()` is never tested | No test verifies the callback is invoked with correct `(fetched_count, total_count)` values. |
+| # | Previous Finding | Status | Resolution |
+|---|-----------------|--------|------------|
+| 1 | `get_download()` had zero unit test coverage | FIXED | 7 new tests: simple, redirect+auth, 5-hop abort, timeout (initial+redirect), HTTPError (initial+redirect) |
+| 2 | `post()`, `patch()`, `delete()` had zero direct unit test coverage | FIXED | 3 new tests: `test_post_delegates_to_request`, `test_patch_delegates_to_request`, `test_delete_delegates_to_request` |
+| 3 | Transport error paths in `request()` had zero unit test coverage | FIXED | 2 new tests: `test_request_timeout_raises_server_error`, `test_request_http_error_raises_server_error` |
+| 4 | Non-JSON error body fallback had zero unit test coverage | FIXED | 1 new test: `test_error_non_json_body_fallback` |
+| 5 | `on_page` callback in `get_all_pages()` was never tested | FIXED | 2 new tests: single-page and multi-page callback verification |
 
-### Bugs Found
+### Previous Bugs — Resolution Status
 
-| # | Severity | Description | Location | Steps to Reproduce |
-|---|----------|-------------|----------|-------------------|
-| 1 | **Low** | Mypy strict-mode errors: `list[dict]` should be `list[dict[str, Any]]` | `src/easypaperless/_internal/http.py` lines 161, 162 | Run `mypy src/easypaperless/_internal/http.py` — reports 2 `[type-arg]` errors |
+| # | Severity | Description | Status | Resolution |
+|---|----------|-------------|--------|------------|
+| 1 | **Low** | Mypy strict-mode errors: `list[dict]` should be `list[dict[str, Any]]` | FIXED | Corrected in commit `4959310` — mypy now passes cleanly |
 
 ### Test Coverage Summary
-- `exceptions.py`: **100%** coverage
-- `_internal/http.py`: **67%** coverage (39 statements missed)
-- Key untested areas: `get_download()`, transport error handling, non-JSON error fallback, `on_page` callback, convenience methods
+- `exceptions.py`: **100%** coverage (unchanged)
+- `_internal/http.py`: **100%** coverage (up from 67% — all 39 previously missed statements now covered)
+- Total PROJ-1 tests: **40** (33 in `test_http.py`, 7 in `test_exceptions.py`)
 
 ### Regression Testing
-- Full test suite (272 tests): **ALL PASSED**
-- Ruff lint: **PASSED** (no issues)
-- Mypy: **FAILED** (2 low-severity type-arg errors on http.py)
+- Full test suite (290 tests): **ALL PASSED**
+- Ruff lint (PROJ-1 files): **PASSED** (no issues)
+- Mypy (PROJ-1 files): **PASSED** (no issues)
 
 ### Security Audit
 - Auth header correctly attached to all requests via httpx default headers
-- `get_download()` correctly re-attaches auth on cross-host redirects (security-positive design)
-- Redirect loop protection in place (5-hop limit)
+- `get_download()` correctly re-attaches auth on cross-host redirects (security-positive design; now unit-tested)
+- Redirect loop protection in place (5-hop limit; now unit-tested)
 - No secrets logged (only status codes and paths in log messages)
 - No hardcoded credentials found
 
 ### Production-Ready Decision
-**READY** — No Critical or High severity bugs. The single Low bug (mypy type annotation) does not affect runtime behavior. Test coverage gaps exist but the untested code paths are straightforward delegations or have been verified by code review.
+**READY** — All previously reported bugs are fixed. All acceptance criteria pass. All edge cases are tested. Test coverage is 100% on both PROJ-1 source files. No Critical, High, Medium, or Low bugs remaining.
 
 ## Deployment
 _To be added by /deploy_
