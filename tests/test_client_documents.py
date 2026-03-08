@@ -637,7 +637,7 @@ async def test_list_documents_checksum(client, mock_router):
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured, DOC_LIST))
     await client.list_documents(checksum="abc123")
-    assert captured["params"]["checksum"] == "abc123"
+    assert captured["params"]["checksum__iexact"] == "abc123"
 
 
 async def test_list_documents_ordering_asc(client, mock_router):

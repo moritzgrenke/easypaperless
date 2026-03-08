@@ -391,7 +391,7 @@ class DocumentsMixin:
             params[key] = self._format_date_value(modified_until)
 
         if checksum is not None:
-            params["checksum"] = checksum
+            params["checksum__iexact"] = checksum
 
         if ordering is not None:
             params["ordering"] = f"-{ordering}" if descending else ordering
