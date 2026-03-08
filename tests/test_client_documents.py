@@ -1019,6 +1019,97 @@ async def test_list_documents_modified_until_with_datetime(client, mock_router):
 
 
 # ---------------------------------------------------------------------------
+# ISO datetime strings for added/modified filters
+# ---------------------------------------------------------------------------
+
+async def test_list_documents_added_after_with_iso_datetime_string(client, mock_router):
+    """ISO datetime string should use added__gt (not added__date__gt)."""
+    captured: dict = {}
+    mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
+    await client.list_documents(added_after="2026-02-22T16:25:00+00:00")
+    assert "added__gt" in captured["params"]
+    assert "added__date__gt" not in captured["params"]
+    assert captured["params"]["added__gt"] == "2026-02-22T16:25:00+00:00"
+
+
+async def test_list_documents_added_after_with_iso_date_string(client, mock_router):
+    """Plain ISO date string should use added__date__gt (not added__gt)."""
+    captured: dict = {}
+    mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
+    await client.list_documents(added_after="2026-02-22")
+    assert "added__date__gt" in captured["params"]
+    assert "added__gt" not in captured["params"]
+    assert captured["params"]["added__date__gt"] == "2026-02-22"
+
+
+async def test_list_documents_added_before_with_iso_datetime_string(client, mock_router):
+    captured: dict = {}
+    mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
+    await client.list_documents(added_before="2026-02-22T23:59:59Z")
+    assert "added__lt" in captured["params"]
+    assert "added__date__lt" not in captured["params"]
+
+
+async def test_list_documents_added_from_with_iso_datetime_string(client, mock_router):
+    captured: dict = {}
+    mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
+    await client.list_documents(added_from="2026-01-01T00:00:00+00:00")
+    assert "added__gte" in captured["params"]
+    assert "added__date__gte" not in captured["params"]
+
+
+async def test_list_documents_added_until_with_iso_datetime_string(client, mock_router):
+    captured: dict = {}
+    mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
+    await client.list_documents(added_until="2026-12-31T23:59:59+00:00")
+    assert "added__lte" in captured["params"]
+    assert "added__date__lte" not in captured["params"]
+
+
+async def test_list_documents_modified_after_with_iso_datetime_string(client, mock_router):
+    """ISO datetime string should use modified__gt (not modified__date__gt)."""
+    captured: dict = {}
+    mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
+    await client.list_documents(modified_after="2026-02-22T16:25:00+00:00")
+    assert "modified__gt" in captured["params"]
+    assert "modified__date__gt" not in captured["params"]
+    assert captured["params"]["modified__gt"] == "2026-02-22T16:25:00+00:00"
+
+
+async def test_list_documents_modified_after_with_iso_date_string(client, mock_router):
+    """Plain ISO date string should use modified__date__gt (not modified__gt)."""
+    captured: dict = {}
+    mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
+    await client.list_documents(modified_after="2026-02-22")
+    assert "modified__date__gt" in captured["params"]
+    assert "modified__gt" not in captured["params"]
+
+
+async def test_list_documents_modified_before_with_iso_datetime_string(client, mock_router):
+    captured: dict = {}
+    mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
+    await client.list_documents(modified_before="2026-02-22T16:25:00+00:00")
+    assert "modified__lt" in captured["params"]
+    assert "modified__date__lt" not in captured["params"]
+
+
+async def test_list_documents_modified_from_with_iso_datetime_string(client, mock_router):
+    captured: dict = {}
+    mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
+    await client.list_documents(modified_from="2026-01-01T00:00:00+00:00")
+    assert "modified__gte" in captured["params"]
+    assert "modified__date__gte" not in captured["params"]
+
+
+async def test_list_documents_modified_until_with_iso_datetime_string(client, mock_router):
+    captured: dict = {}
+    mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
+    await client.list_documents(modified_until="2026-12-31T23:59:59+00:00")
+    assert "modified__lte" in captured["params"]
+    assert "modified__date__lte" not in captured["params"]
+
+
+# ---------------------------------------------------------------------------
 # search_mode="query"
 # ---------------------------------------------------------------------------
 

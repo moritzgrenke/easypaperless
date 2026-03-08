@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import re
 from datetime import date, datetime
 from typing import TYPE_CHECKING, Any, Callable
 
@@ -17,6 +18,8 @@ if TYPE_CHECKING:
     from easypaperless._internal.resolvers import NameResolver
 
 logger = logging.getLogger(__name__)
+
+_DATETIME_STR_RE = re.compile(r"^\d{4}-\d{2}-\d{2}T")
 
 _SEARCH_MODE_MAP = {
     "title": "title__icontains",
@@ -96,8 +99,17 @@ class DocumentsMixin:
 
     @staticmethod
     def _is_datetime(value: date | datetime | str) -> bool:
-        """Return True if value is a datetime (not a plain date or str)."""
-        return isinstance(value, datetime)
+        """Return True if value represents a datetime (not a plain date).
+
+        Handles ``datetime`` objects and ISO-8601 datetime strings
+        (e.g. ``"2026-02-22T16:25:00+00:00"``).  Plain date strings
+        (``"2026-02-22"``) and ``date`` objects return ``False``.
+        """
+        if isinstance(value, datetime):
+            return True
+        if isinstance(value, str):
+            return bool(_DATETIME_STR_RE.match(value))
+        return False
 
     async def list_documents(
         self,

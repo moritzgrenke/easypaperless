@@ -359,6 +359,70 @@ async def test_filter_modified_from_until(client: PaperlessClient) -> None:
     assert isinstance(docs, list)
 
 
+@pytest.mark.integration
+async def test_filter_added_after_iso_datetime_string(client: PaperlessClient) -> None:
+    """ISO datetime string for added_after should use the datetime (not date) API param."""
+    docs = await client.list_documents(
+        added_after="1970-01-01T00:00:00+00:00",
+        page=1,
+        page_size=5,
+    )
+    assert isinstance(docs, list)
+
+
+@pytest.mark.integration
+async def test_filter_added_before_iso_datetime_string(client: PaperlessClient) -> None:
+    docs = await client.list_documents(
+        added_before="2099-12-31T23:59:59+00:00",
+        page=1,
+        page_size=5,
+    )
+    assert isinstance(docs, list)
+
+
+@pytest.mark.integration
+async def test_filter_modified_after_iso_datetime_string(client: PaperlessClient) -> None:
+    """ISO datetime string for modified_after should use the datetime (not date) API param."""
+    docs = await client.list_documents(
+        modified_after="1970-01-01T00:00:00+00:00",
+        page=1,
+        page_size=5,
+    )
+    assert isinstance(docs, list)
+
+
+@pytest.mark.integration
+async def test_filter_modified_before_iso_datetime_string(client: PaperlessClient) -> None:
+    docs = await client.list_documents(
+        modified_before="2099-12-31T23:59:59+00:00",
+        page=1,
+        page_size=5,
+    )
+    assert isinstance(docs, list)
+
+
+@pytest.mark.integration
+async def test_filter_added_from_until_iso_datetime_strings(client: PaperlessClient) -> None:
+    docs = await client.list_documents(
+        added_from="1970-01-01T00:00:00+00:00",
+        added_until="2099-12-31T23:59:59+00:00",
+        page=1,
+        page_size=5,
+    )
+    assert isinstance(docs, list)
+
+
+@pytest.mark.integration
+async def test_filter_modified_from_until_iso_datetime_strings(client: PaperlessClient) -> None:
+    docs = await client.list_documents(
+        modified_from="1970-01-01T00:00:00+00:00",
+        modified_until="2099-12-31T23:59:59+00:00",
+        page=1,
+        page_size=5,
+    )
+    assert isinstance(docs, list)
+
+
 # ---------------------------------------------------------------------------
 # Pagination, ordering, max_results
 # ---------------------------------------------------------------------------
