@@ -325,6 +325,15 @@ def test_sync_create_document_type():
     assert item.name == "Contract"
 
 
+def test_sync_update_document_type():
+    updated = {**DOCTYPE_DATA, "name": "Receipt"}
+    with respx.mock(base_url=BASE_URL + "/api", assert_all_called=False) as router:
+        router.patch("/document_types/1/").mock(return_value=Response(200, json=updated))
+        with SyncPaperlessClient(url=BASE_URL, api_key=API_KEY) as client:
+            item = client.update_document_type(1, name="Receipt")
+    assert item.name == "Receipt"
+
+
 def test_sync_delete_document_type():
     with respx.mock(base_url=BASE_URL + "/api", assert_all_called=False) as router:
         router.delete("/document_types/1/").mock(return_value=Response(204))
@@ -363,6 +372,15 @@ def test_sync_create_storage_path():
     assert item.name == "backup"
 
 
+def test_sync_update_storage_path():
+    updated = {**STORAGE_PATH_DATA, "name": "updated-archive", "path": "/updated/{title}"}
+    with respx.mock(base_url=BASE_URL + "/api", assert_all_called=False) as router:
+        router.patch("/storage_paths/1/").mock(return_value=Response(200, json=updated))
+        with SyncPaperlessClient(url=BASE_URL, api_key=API_KEY) as client:
+            item = client.update_storage_path(1, name="updated-archive")
+    assert item.name == "updated-archive"
+
+
 def test_sync_delete_storage_path():
     with respx.mock(base_url=BASE_URL + "/api", assert_all_called=False) as router:
         router.delete("/storage_paths/1/").mock(return_value=Response(204))
@@ -399,6 +417,15 @@ def test_sync_create_custom_field():
         with SyncPaperlessClient(url=BASE_URL, api_key=API_KEY) as client:
             item = client.create_custom_field(name="Total", data_type="string")
     assert item.name == "Total"
+
+
+def test_sync_update_custom_field():
+    updated = {**CUSTOM_FIELD_DATA, "name": "Total Amount"}
+    with respx.mock(base_url=BASE_URL + "/api", assert_all_called=False) as router:
+        router.patch("/custom_fields/1/").mock(return_value=Response(200, json=updated))
+        with SyncPaperlessClient(url=BASE_URL, api_key=API_KEY) as client:
+            item = client.update_custom_field(1, name="Total Amount")
+    assert item.name == "Total Amount"
 
 
 def test_sync_delete_custom_field():
@@ -533,6 +560,61 @@ def test_sync_bulk_delete_correspondents():
         router.post("/bulk_edit_objects/").mock(return_value=Response(200, json="OK"))
         with SyncPaperlessClient(url=BASE_URL, api_key=API_KEY) as client:
             client.bulk_delete_correspondents([1, 2])
+
+
+def test_sync_bulk_delete_document_types():
+    with respx.mock(base_url=BASE_URL + "/api", assert_all_called=False) as router:
+        router.post("/bulk_edit_objects/").mock(return_value=Response(200, json="OK"))
+        with SyncPaperlessClient(url=BASE_URL, api_key=API_KEY) as client:
+            client.bulk_delete_document_types([1, 2])
+
+
+def test_sync_bulk_delete_storage_paths():
+    with respx.mock(base_url=BASE_URL + "/api", assert_all_called=False) as router:
+        router.post("/bulk_edit_objects/").mock(return_value=Response(200, json="OK"))
+        with SyncPaperlessClient(url=BASE_URL, api_key=API_KEY) as client:
+            client.bulk_delete_storage_paths([1, 2])
+
+
+def test_sync_bulk_edit_objects():
+    with respx.mock(base_url=BASE_URL + "/api", assert_all_called=False) as router:
+        router.post("/bulk_edit_objects/").mock(return_value=Response(200, json="OK"))
+        with SyncPaperlessClient(url=BASE_URL, api_key=API_KEY) as client:
+            client.bulk_edit_objects("tags", [1, 2], "delete")
+
+
+def test_sync_bulk_set_permissions_tags():
+    from easypaperless.models.permissions import PermissionSet, SetPermissions
+
+    with respx.mock(base_url=BASE_URL + "/api", assert_all_called=False) as router:
+        router.post("/bulk_edit_objects/").mock(return_value=Response(200, json="OK"))
+        perms = SetPermissions(
+            view=PermissionSet(users=[1], groups=[]),
+            change=PermissionSet(users=[1], groups=[]),
+        )
+        with SyncPaperlessClient(url=BASE_URL, api_key=API_KEY) as client:
+            client.bulk_set_permissions_tags([1, 2], set_permissions=perms, owner=1)
+
+
+def test_sync_bulk_set_permissions_correspondents():
+    with respx.mock(base_url=BASE_URL + "/api", assert_all_called=False) as router:
+        router.post("/bulk_edit_objects/").mock(return_value=Response(200, json="OK"))
+        with SyncPaperlessClient(url=BASE_URL, api_key=API_KEY) as client:
+            client.bulk_set_permissions_correspondents([1, 2], owner=2, merge=True)
+
+
+def test_sync_bulk_set_permissions_document_types():
+    with respx.mock(base_url=BASE_URL + "/api", assert_all_called=False) as router:
+        router.post("/bulk_edit_objects/").mock(return_value=Response(200, json="OK"))
+        with SyncPaperlessClient(url=BASE_URL, api_key=API_KEY) as client:
+            client.bulk_set_permissions_document_types([1], owner=3)
+
+
+def test_sync_bulk_set_permissions_storage_paths():
+    with respx.mock(base_url=BASE_URL + "/api", assert_all_called=False) as router:
+        router.post("/bulk_edit_objects/").mock(return_value=Response(200, json="OK"))
+        with SyncPaperlessClient(url=BASE_URL, api_key=API_KEY) as client:
+            client.bulk_set_permissions_storage_paths([1, 2], merge=True)
 
 
 # ---------------------------------------------------------------------------

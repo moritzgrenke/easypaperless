@@ -1141,6 +1141,13 @@ async def test_list_document_types_page_size_ordering(client, mock_router):
     assert captured["params"]["ordering"] == "id"
 
 
+async def test_list_document_types_descending(client, mock_router):
+    captured: dict = {}
+    mock_router.get("/document_types/").mock(side_effect=_capturing_side_effect(captured, DT_LIST))
+    await client.list_document_types(ordering="name", descending=True)
+    assert captured["params"]["ordering"] == "-name"
+
+
 async def test_list_storage_paths_page_size_ordering(client, mock_router):
     captured: dict = {}
     mock_router.get("/storage_paths/").mock(side_effect=_capturing_side_effect(captured, SP_LIST))

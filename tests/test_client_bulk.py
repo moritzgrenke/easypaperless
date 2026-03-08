@@ -219,5 +219,86 @@ async def test_bulk_set_permissions_merge(client, mock_router):
 
 
 async def test_bulk_edit_objects(client, mock_router):
-    mock_router.post("/bulk_edit_objects/").mock(return_value=Response(200, json={}))
+    route = mock_router.post("/bulk_edit_objects/").mock(return_value=Response(200, json={}))
     await client.bulk_edit_objects("tags", [1, 2], "delete")
+    body = _payload(route)
+    assert body == {"objects": [1, 2], "object_type": "tags", "operation": "delete"}
+
+
+async def test_bulk_delete_tags(client, mock_router):
+    route = mock_router.post("/bulk_edit_objects/").mock(return_value=Response(200, json={}))
+    await client.bulk_delete_tags([1, 2])
+    body = _payload(route)
+    assert body["object_type"] == "tags"
+    assert body["objects"] == [1, 2]
+    assert body["operation"] == "delete"
+
+
+async def test_bulk_delete_correspondents(client, mock_router):
+    route = mock_router.post("/bulk_edit_objects/").mock(return_value=Response(200, json={}))
+    await client.bulk_delete_correspondents([3, 4])
+    body = _payload(route)
+    assert body["object_type"] == "correspondents"
+    assert body["objects"] == [3, 4]
+    assert body["operation"] == "delete"
+
+
+async def test_bulk_delete_document_types(client, mock_router):
+    route = mock_router.post("/bulk_edit_objects/").mock(return_value=Response(200, json={}))
+    await client.bulk_delete_document_types([5, 6])
+    body = _payload(route)
+    assert body["object_type"] == "document_types"
+    assert body["objects"] == [5, 6]
+    assert body["operation"] == "delete"
+
+
+async def test_bulk_delete_storage_paths(client, mock_router):
+    route = mock_router.post("/bulk_edit_objects/").mock(return_value=Response(200, json={}))
+    await client.bulk_delete_storage_paths([7, 8])
+    body = _payload(route)
+    assert body["object_type"] == "storage_paths"
+    assert body["objects"] == [7, 8]
+    assert body["operation"] == "delete"
+
+
+async def test_bulk_set_permissions_tags(client, mock_router):
+    route = mock_router.post("/bulk_edit_objects/").mock(return_value=Response(200, json={}))
+    perms = SetPermissions(
+        view=PermissionSet(users=[1], groups=[]),
+        change=PermissionSet(users=[1], groups=[]),
+    )
+    await client.bulk_set_permissions_tags([1, 2], set_permissions=perms, owner=1)
+    body = _payload(route)
+    assert body["object_type"] == "tags"
+    assert body["objects"] == [1, 2]
+    assert body["operation"] == "set_permissions"
+    assert body["owner"] == 1
+    assert body["merge"] is False
+
+
+async def test_bulk_set_permissions_correspondents(client, mock_router):
+    route = mock_router.post("/bulk_edit_objects/").mock(return_value=Response(200, json={}))
+    await client.bulk_set_permissions_correspondents([1, 2], owner=2, merge=True)
+    body = _payload(route)
+    assert body["object_type"] == "correspondents"
+    assert body["operation"] == "set_permissions"
+    assert body["owner"] == 2
+    assert body["merge"] is True
+
+
+async def test_bulk_set_permissions_document_types(client, mock_router):
+    route = mock_router.post("/bulk_edit_objects/").mock(return_value=Response(200, json={}))
+    await client.bulk_set_permissions_document_types([3], owner=5)
+    body = _payload(route)
+    assert body["object_type"] == "document_types"
+    assert body["operation"] == "set_permissions"
+    assert body["owner"] == 5
+
+
+async def test_bulk_set_permissions_storage_paths(client, mock_router):
+    route = mock_router.post("/bulk_edit_objects/").mock(return_value=Response(200, json={}))
+    await client.bulk_set_permissions_storage_paths([4, 5], merge=True)
+    body = _payload(route)
+    assert body["object_type"] == "storage_paths"
+    assert body["operation"] == "set_permissions"
+    assert body["merge"] is True
