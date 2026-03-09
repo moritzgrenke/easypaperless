@@ -165,7 +165,7 @@ with SyncPaperlessClient(url="http://localhost:8000", api_key="YOUR_TOKEN") as c
 
 ## 📚 Documentation
 
-See the 👉 Full API Reference (pdoc)
+See the 👉 [Full API Reference (pdoc)](https://tastymojito.github.io/easypaperless/)
 
 ## 🤝 Contributing
 
