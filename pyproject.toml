@@ -10,7 +10,7 @@ readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.11"
 authors = [
-    { name = "Moritz Grenke", email = "your@email.com" },
+    { name = "Moritz Grenke", email = "info@360mix.de" },
 ]
 keywords = ["paperless", "paperless-ngx", "api", "wrapper", "document management"]
 classifiers = [
