@@ -6,7 +6,6 @@ import json
 from datetime import date, datetime
 
 import pytest
-import respx
 from httpx import Response
 
 from easypaperless.exceptions import NotFoundError, ServerError
@@ -38,7 +37,7 @@ META_DATA = {
 
 async def test_get_document(client, mock_router):
     mock_router.get("/documents/1/").mock(return_value=Response(200, json=DOC_DATA))
-    doc = await client.get_document(1)
+    doc = await client.documents.get(1)
     assert isinstance(doc, Document)
     assert doc.id == 1
     assert doc.title == "Test Document"
@@ -48,14 +47,14 @@ async def test_get_document(client, mock_router):
 async def test_get_document_without_metadata_does_not_call_metadata_endpoint(client, mock_router):
     mock_router.get("/documents/1/").mock(return_value=Response(200, json=DOC_DATA))
     # metadata endpoint is NOT registered — would raise if called
-    doc = await client.get_document(1)
+    doc = await client.documents.get(1)
     assert doc.metadata is None
 
 
 async def test_get_document_with_metadata(client, mock_router):
     mock_router.get("/documents/1/").mock(return_value=Response(200, json=DOC_DATA))
     mock_router.get("/documents/1/metadata/").mock(return_value=Response(200, json=META_DATA))
-    doc = await client.get_document(1, include_metadata=True)
+    doc = await client.documents.get(1, include_metadata=True)
     assert isinstance(doc, Document)
     assert doc.metadata is not None
     assert isinstance(doc.metadata, DocumentMetadata)
@@ -71,7 +70,7 @@ async def test_get_document_with_metadata(client, mock_router):
 
 async def test_get_document_metadata_standalone(client, mock_router):
     mock_router.get("/documents/1/metadata/").mock(return_value=Response(200, json=META_DATA))
-    meta = await client.get_document_metadata(1)
+    meta = await client.documents.get_metadata(1)
     assert isinstance(meta, DocumentMetadata)
     assert meta.original_checksum == "abc123"
     assert meta.archive_checksum == "def456"
@@ -88,7 +87,7 @@ async def test_get_document_metadata_no_archive_version(client, mock_router):
         "archive_metadata": None,
     }
     mock_router.get("/documents/1/metadata/").mock(return_value=Response(200, json=no_archive))
-    meta = await client.get_document_metadata(1)
+    meta = await client.documents.get_metadata(1)
     assert meta.has_archive_version is False
     assert meta.archive_checksum is None
     assert meta.archive_size is None
@@ -100,7 +99,7 @@ async def test_get_document_not_found(client, mock_router):
         return_value=Response(404, json={"detail": "Not found."})
     )
     with pytest.raises(NotFoundError):
-        await client.get_document(999)
+        await client.documents.get(999)
 
 
 async def test_get_document_metadata_not_found(client, mock_router):
@@ -108,37 +107,37 @@ async def test_get_document_metadata_not_found(client, mock_router):
         return_value=Response(404, json={"detail": "Not found."})
     )
     with pytest.raises(NotFoundError):
-        await client.get_document_metadata(999)
+        await client.documents.get_metadata(999)
 
 
 async def test_list_documents(client, mock_router):
     mock_router.get("/documents/").mock(return_value=Response(200, json=DOC_LIST))
-    docs = await client.list_documents()
+    docs = await client.documents.list()
     assert len(docs) == 1
     assert docs[0].id == 1
 
 
 async def test_list_documents_with_search(client, mock_router):
     mock_router.get("/documents/").mock(return_value=Response(200, json=DOC_LIST))
-    docs = await client.list_documents(search="invoice", search_mode="title")
+    docs = await client.documents.list(search="invoice", search_mode="title")
     assert len(docs) == 1
 
 
 async def test_list_documents_with_title_or_text_search(client, mock_router):
     mock_router.get("/documents/").mock(return_value=Response(200, json=DOC_LIST))
-    docs = await client.list_documents(search="invoice")  # default mode
+    docs = await client.documents.list(search="invoice")  # default mode
     assert len(docs) == 1
 
 
 async def test_list_documents_with_asn(client, mock_router):
     mock_router.get("/documents/").mock(return_value=Response(200, json=DOC_LIST))
-    docs = await client.list_documents(archive_serial_number=42)
+    docs = await client.documents.list(archive_serial_number=42)
     assert len(docs) == 1
 
 
 async def test_list_documents_with_date_range(client, mock_router):
     mock_router.get("/documents/").mock(return_value=Response(200, json=DOC_LIST))
-    docs = await client.list_documents(created_after="2024-01-01", created_before="2024-12-31")
+    docs = await client.documents.list(created_after="2024-01-01", created_before="2024-12-31")
     assert len(docs) == 1
 
 
@@ -146,13 +145,13 @@ async def test_update_document(client, mock_router):
     mock_router.patch("/documents/1/").mock(
         return_value=Response(200, json={**DOC_DATA, "title": "Updated"})
     )
-    doc = await client.update_document(1, title="Updated")
+    doc = await client.documents.update(1, title="Updated")
     assert doc.title == "Updated"
 
 
 async def test_delete_document(client, mock_router):
     mock_router.delete("/documents/1/").mock(return_value=Response(204))
-    await client.delete_document(1)
+    await client.documents.delete(1)
 
 
 async def test_delete_document_not_found(client, mock_router):
@@ -161,18 +160,18 @@ async def test_delete_document_not_found(client, mock_router):
         return_value=Response(404, json={"detail": "Not found."})
     )
     with pytest.raises(NotFoundError):
-        await client.delete_document(999)
+        await client.documents.delete(999)
 
 
 async def test_download_document_archive(client, mock_router):
     mock_router.get("/documents/1/archive/").mock(return_value=Response(200, content=b"PDF"))
-    content = await client.download_document(1)
+    content = await client.documents.download(1)
     assert content == b"PDF"
 
 
 async def test_download_document_original(client, mock_router):
     mock_router.get("/documents/1/download/").mock(return_value=Response(200, content=b"ORIG"))
-    content = await client.download_document(1, original=True)
+    content = await client.documents.download(1, original=True)
     assert content == b"ORIG"
 
 
@@ -181,7 +180,7 @@ async def test_download_document_not_found(client, mock_router):
         return_value=Response(404, json={"detail": "Not found."})
     )
     with pytest.raises(NotFoundError):
-        await client.download_document(999)
+        await client.documents.download(999)
 
 
 async def test_download_document_html_content_type(client, mock_router):
@@ -194,7 +193,7 @@ async def test_download_document_html_content_type(client, mock_router):
         )
     )
     with pytest.raises(ServerError, match="HTML page"):
-        await client.download_document(1)
+        await client.documents.download(1)
 
 
 async def test_download_document_html_body_prefix(client, mock_router):
@@ -207,21 +206,26 @@ async def test_download_document_html_body_prefix(client, mock_router):
         )
     )
     with pytest.raises(ServerError, match="HTML page"):
-        await client.download_document(1)
+        await client.documents.download(1)
 
 
 async def test_list_documents_with_tag_id(client, mock_router):
     mock_router.get("/documents/").mock(return_value=Response(200, json=DOC_LIST))
-    docs = await client.list_documents(tags=[3])
+    docs = await client.documents.list(tags=[3])
     assert len(docs) == 1
 
 
 async def test_list_documents_with_tag_name(client, mock_router):
     # Resolver will fetch tags list first
-    tags_resp = {"count": 1, "next": None, "previous": None, "results": [{"id": 3, "name": "invoice"}]}
+    tags_resp = {
+        "count": 1,
+        "next": None,
+        "previous": None,
+        "results": [{"id": 3, "name": "invoice"}],
+    }
     mock_router.get("/tags/").mock(return_value=Response(200, json=tags_resp))
     mock_router.get("/documents/").mock(return_value=Response(200, json=DOC_LIST))
-    docs = await client.list_documents(tags=["invoice"])
+    docs = await client.documents.list(tags=["invoice"])
     assert len(docs) == 1
 
 
@@ -231,15 +235,17 @@ async def test_update_document_with_correspondent_name(client, mock_router):
     mock_router.patch("/documents/1/").mock(
         return_value=Response(200, json={**DOC_DATA, "correspondent": 5})
     )
-    doc = await client.update_document(1, correspondent="ACME")
+    doc = await client.documents.update(1, correspondent="ACME")
     assert doc.correspondent == 5
 
 
 def _patch_capturing_side_effect(captured: dict, response_data: dict = DOC_DATA):
     """Return a respx side-effect that stores the request JSON body."""
+
     def _side_effect(request):
         captured["body"] = json.loads(request.content)
         return Response(200, json=response_data)
+
     return _side_effect
 
 
@@ -248,7 +254,7 @@ async def test_update_document_with_owner(client, mock_router):
     mock_router.patch("/documents/1/").mock(
         side_effect=_patch_capturing_side_effect(captured, {**DOC_DATA, "owner": 42})
     )
-    doc = await client.update_document(1, owner=42)
+    doc = await client.documents.update(1, owner=42)
     assert doc.owner == 42
     assert captured["body"]["owner"] == 42
 
@@ -262,7 +268,7 @@ async def test_update_document_with_set_permissions(client, mock_router):
         view=PermissionSet(users=[1, 2], groups=[]),
         change=PermissionSet(users=[1], groups=[3]),
     )
-    await client.update_document(1, set_permissions=perms)
+    await client.documents.update(1, set_permissions=perms)
     body = captured["body"]
     assert body["set_permissions"] == {
         "view": {"users": [1, 2], "groups": []},
@@ -275,7 +281,7 @@ async def test_update_document_owner_and_permissions_not_sent_when_omitted(clien
     mock_router.patch("/documents/1/").mock(
         side_effect=_patch_capturing_side_effect(captured, {**DOC_DATA, "title": "New"})
     )
-    await client.update_document(1, title="New")
+    await client.documents.update(1, title="New")
     body = captured["body"]
     assert "owner" not in body
     assert "set_permissions" not in body
@@ -288,7 +294,7 @@ async def test_update_document_date_mapped_to_created(client, mock_router):
     mock_router.patch("/documents/1/").mock(
         side_effect=_patch_capturing_side_effect(captured, DOC_DATA)
     )
-    await client.update_document(1, date="2024-06-15")
+    await client.documents.update(1, date="2024-06-15")
     assert captured["body"]["created"] == "2024-06-15"
     assert "date" not in captured["body"]
 
@@ -299,7 +305,7 @@ async def test_update_document_asn_mapped_to_archive_serial_number(client, mock_
     mock_router.patch("/documents/1/").mock(
         side_effect=_patch_capturing_side_effect(captured, DOC_DATA)
     )
-    await client.update_document(1, asn=42)
+    await client.documents.update(1, asn=42)
     assert captured["body"]["archive_serial_number"] == 42
     assert "asn" not in captured["body"]
 
@@ -307,7 +313,9 @@ async def test_update_document_asn_mapped_to_archive_serial_number(client, mock_
 async def test_update_document_tags_with_name_resolution(client, mock_router):
     """tags with string names are resolved to IDs via resolve_list."""
     tags_resp = {
-        "count": 2, "next": None, "previous": None,
+        "count": 2,
+        "next": None,
+        "previous": None,
         "results": [{"id": 3, "name": "invoice"}, {"id": 7, "name": "urgent"}],
     }
     mock_router.get("/tags/").mock(return_value=Response(200, json=tags_resp))
@@ -315,14 +323,16 @@ async def test_update_document_tags_with_name_resolution(client, mock_router):
     mock_router.patch("/documents/1/").mock(
         side_effect=_patch_capturing_side_effect(captured, {**DOC_DATA, "tags": [3, 7]})
     )
-    doc = await client.update_document(1, tags=["invoice", "urgent"])
+    await client.documents.update(1, tags=["invoice", "urgent"])
     assert captured["body"]["tags"] == [3, 7]
 
 
 async def test_update_document_document_type_with_name_resolution(client, mock_router):
     """document_type with a string name is resolved to an ID."""
     dt_resp = {
-        "count": 1, "next": None, "previous": None,
+        "count": 1,
+        "next": None,
+        "previous": None,
         "results": [{"id": 10, "name": "Invoice"}],
     }
     mock_router.get("/document_types/").mock(return_value=Response(200, json=dt_resp))
@@ -330,14 +340,16 @@ async def test_update_document_document_type_with_name_resolution(client, mock_r
     mock_router.patch("/documents/1/").mock(
         side_effect=_patch_capturing_side_effect(captured, {**DOC_DATA, "document_type": 10})
     )
-    doc = await client.update_document(1, document_type="Invoice")
+    await client.documents.update(1, document_type="Invoice")
     assert captured["body"]["document_type"] == 10
 
 
 async def test_update_document_storage_path_with_name_resolution(client, mock_router):
     """storage_path with a string name is resolved to an ID."""
     sp_resp = {
-        "count": 1, "next": None, "previous": None,
+        "count": 1,
+        "next": None,
+        "previous": None,
         "results": [{"id": 20, "name": "Archive"}],
     }
     mock_router.get("/storage_paths/").mock(return_value=Response(200, json=sp_resp))
@@ -345,7 +357,7 @@ async def test_update_document_storage_path_with_name_resolution(client, mock_ro
     mock_router.patch("/documents/1/").mock(
         side_effect=_patch_capturing_side_effect(captured, {**DOC_DATA, "storage_path": 20})
     )
-    doc = await client.update_document(1, storage_path="Archive")
+    await client.documents.update(1, storage_path="Archive")
     assert captured["body"]["storage_path"] == 20
 
 
@@ -356,7 +368,7 @@ async def test_update_document_custom_fields_sent_in_payload(client, mock_router
     mock_router.patch("/documents/1/").mock(
         side_effect=_patch_capturing_side_effect(captured, DOC_DATA)
     )
-    await client.update_document(1, custom_fields=cf)
+    await client.documents.update(1, custom_fields=cf)
     assert captured["body"]["custom_fields"] == cf
 
 
@@ -366,7 +378,7 @@ async def test_update_document_correspondent_zero_clears(client, mock_router):
     mock_router.patch("/documents/1/").mock(
         side_effect=_patch_capturing_side_effect(captured, {**DOC_DATA, "correspondent": None})
     )
-    await client.update_document(1, correspondent=0)
+    await client.documents.update(1, correspondent=0)
     assert captured["body"]["correspondent"] == 0
 
 
@@ -376,7 +388,7 @@ async def test_update_document_empty_kwargs_sends_empty_body(client, mock_router
     mock_router.patch("/documents/1/").mock(
         side_effect=_patch_capturing_side_effect(captured, DOC_DATA)
     )
-    await client.update_document(1)
+    await client.documents.update(1)
     assert captured["body"] == {}
 
 
@@ -386,19 +398,21 @@ async def test_update_document_not_found(client, mock_router):
         return_value=Response(404, json={"detail": "Not found."})
     )
     with pytest.raises(NotFoundError):
-        await client.update_document(999, title="Does not matter")
+        await client.documents.update(999, title="Does not matter")
 
 
 async def test_update_document_nonexistent_tag_name_raises_resolver_error(client, mock_router):
     """Passing a tag name that does not exist raises NotFoundError before HTTP."""
     tags_resp = {
-        "count": 1, "next": None, "previous": None,
+        "count": 1,
+        "next": None,
+        "previous": None,
         "results": [{"id": 3, "name": "invoice"}],
     }
     mock_router.get("/tags/").mock(return_value=Response(200, json=tags_resp))
     # No PATCH mock — the request should never be made
     with pytest.raises(NotFoundError):
-        await client.update_document(1, tags=["nonexistent"])
+        await client.documents.update(1, tags=["nonexistent"])
 
 
 # ---------------------------------------------------------------------------
@@ -406,20 +420,26 @@ async def test_update_document_nonexistent_tag_name_raises_resolver_error(client
 # ---------------------------------------------------------------------------
 
 _CORR_RESP = {
-    "count": 2, "next": None, "previous": None,
+    "count": 2,
+    "next": None,
+    "previous": None,
     "results": [{"id": 5, "name": "ACME"}, {"id": 6, "name": "Bank"}],
 }
 _DOCTYPE_RESP = {
-    "count": 2, "next": None, "previous": None,
+    "count": 2,
+    "next": None,
+    "previous": None,
     "results": [{"id": 10, "name": "Invoice"}, {"id": 11, "name": "Receipt"}],
 }
 
 
 def _capturing_side_effect(captured: dict, response_data: dict = DOC_LIST):
     """Return a respx side-effect that stores the request URL params."""
+
     def _side_effect(request):
         captured["params"] = dict(request.url.params)
         return Response(200, json=response_data)
+
     return _side_effect
 
 
@@ -427,10 +447,11 @@ def _capturing_side_effect(captured: dict, response_data: dict = DOC_LIST):
 # any_correspondent
 # ---------------------------------------------------------------------------
 
+
 async def test_list_documents_any_correspondent_by_id(client, mock_router):
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
-    await client.list_documents(any_correspondent=[5, 6])
+    await client.documents.list(any_correspondent=[5, 6])
     assert captured["params"]["correspondent__id__in"] == "5,6"
 
 
@@ -438,7 +459,7 @@ async def test_list_documents_any_correspondent_by_name(client, mock_router):
     mock_router.get("/correspondents/").mock(return_value=Response(200, json=_CORR_RESP))
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
-    await client.list_documents(any_correspondent=["ACME", "Bank"])
+    await client.documents.list(any_correspondent=["ACME", "Bank"])
     assert captured["params"]["correspondent__id__in"] == "5,6"
 
 
@@ -446,7 +467,7 @@ async def test_list_documents_any_correspondent_overrides_correspondent(client, 
     """When both are given, any_correspondent takes precedence."""
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
-    await client.list_documents(correspondent=99, any_correspondent=[5, 6])
+    await client.documents.list(correspondent=99, any_correspondent=[5, 6])
     assert captured["params"]["correspondent__id__in"] == "5,6"
 
 
@@ -454,10 +475,11 @@ async def test_list_documents_any_correspondent_overrides_correspondent(client, 
 # exclude_correspondents
 # ---------------------------------------------------------------------------
 
+
 async def test_list_documents_exclude_correspondents_by_id(client, mock_router):
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
-    await client.list_documents(exclude_correspondents=[5, 6])
+    await client.documents.list(exclude_correspondents=[5, 6])
     assert captured["params"]["correspondent__id__none"] == "5,6"
 
 
@@ -465,7 +487,7 @@ async def test_list_documents_exclude_correspondents_by_name(client, mock_router
     mock_router.get("/correspondents/").mock(return_value=Response(200, json=_CORR_RESP))
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
-    await client.list_documents(exclude_correspondents=["ACME"])
+    await client.documents.list(exclude_correspondents=["ACME"])
     assert captured["params"]["correspondent__id__none"] == "5"
 
 
@@ -473,10 +495,11 @@ async def test_list_documents_exclude_correspondents_by_name(client, mock_router
 # any_document_type
 # ---------------------------------------------------------------------------
 
+
 async def test_list_documents_any_document_type_by_id(client, mock_router):
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
-    await client.list_documents(any_document_type=[10, 11])
+    await client.documents.list(any_document_type=[10, 11])
     assert captured["params"]["document_type__id__in"] == "10,11"
 
 
@@ -484,7 +507,7 @@ async def test_list_documents_any_document_type_by_name(client, mock_router):
     mock_router.get("/document_types/").mock(return_value=Response(200, json=_DOCTYPE_RESP))
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
-    await client.list_documents(any_document_type=["Invoice", "Receipt"])
+    await client.documents.list(any_document_type=["Invoice", "Receipt"])
     assert captured["params"]["document_type__id__in"] == "10,11"
 
 
@@ -492,7 +515,7 @@ async def test_list_documents_any_document_type_overrides_document_type(client, 
     """When both are given, any_document_type takes precedence."""
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
-    await client.list_documents(document_type=99, any_document_type=[10, 11])
+    await client.documents.list(document_type=99, any_document_type=[10, 11])
     assert captured["params"]["document_type__id__in"] == "10,11"
     assert "document_type" not in captured["params"]
 
@@ -501,10 +524,11 @@ async def test_list_documents_any_document_type_overrides_document_type(client, 
 # exclude_document_types
 # ---------------------------------------------------------------------------
 
+
 async def test_list_documents_exclude_document_types_by_id(client, mock_router):
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
-    await client.list_documents(exclude_document_types=[10, 11])
+    await client.documents.list(exclude_document_types=[10, 11])
     assert captured["params"]["document_type__id__none"] == "10,11"
 
 
@@ -512,7 +536,7 @@ async def test_list_documents_exclude_document_types_by_name(client, mock_router
     mock_router.get("/document_types/").mock(return_value=Response(200, json=_DOCTYPE_RESP))
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
-    await client.list_documents(exclude_document_types=["Invoice"])
+    await client.documents.list(exclude_document_types=["Invoice"])
     assert captured["params"]["document_type__id__none"] == "10"
 
 
@@ -520,10 +544,11 @@ async def test_list_documents_exclude_document_types_by_name(client, mock_router
 # added_after / added_before
 # ---------------------------------------------------------------------------
 
+
 async def test_list_documents_added_date_range(client, mock_router):
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
-    await client.list_documents(added_after="2024-01-01", added_before="2024-12-31")
+    await client.documents.list(added_after="2024-01-01", added_before="2024-12-31")
     assert captured["params"]["added__date__gt"] == "2024-01-01"
     assert captured["params"]["added__date__lt"] == "2024-12-31"
 
@@ -531,7 +556,7 @@ async def test_list_documents_added_date_range(client, mock_router):
 async def test_list_documents_added_after_only(client, mock_router):
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
-    await client.list_documents(added_after="2024-06-01")
+    await client.documents.list(added_after="2024-06-01")
     assert captured["params"]["added__date__gt"] == "2024-06-01"
     assert "added__date__lt" not in captured["params"]
 
@@ -540,10 +565,11 @@ async def test_list_documents_added_after_only(client, mock_router):
 # modified_after / modified_before
 # ---------------------------------------------------------------------------
 
+
 async def test_list_documents_modified_date_range(client, mock_router):
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
-    await client.list_documents(modified_after="2024-03-01", modified_before="2024-09-30")
+    await client.documents.list(modified_after="2024-03-01", modified_before="2024-09-30")
     assert captured["params"]["modified__date__gt"] == "2024-03-01"
     assert captured["params"]["modified__date__lt"] == "2024-09-30"
 
@@ -552,17 +578,18 @@ async def test_list_documents_modified_date_range(client, mock_router):
 # page_size
 # ---------------------------------------------------------------------------
 
+
 async def test_list_documents_default_page_size(client, mock_router):
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
-    await client.list_documents()
+    await client.documents.list()
     assert captured["params"]["page_size"] == "25"
 
 
 async def test_list_documents_custom_page_size(client, mock_router):
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
-    await client.list_documents(page_size=100)
+    await client.documents.list(page_size=100)
     assert captured["params"]["page_size"] == "100"
 
 
@@ -570,14 +597,17 @@ async def test_list_documents_custom_page_size(client, mock_router):
 # max_results
 # ---------------------------------------------------------------------------
 
+
 async def test_list_documents_max_results_within_first_page(client, mock_router):
     """max_results smaller than the page — returns only that many docs."""
     many = {
-        "count": 5, "next": None, "previous": None,
+        "count": 5,
+        "next": None,
+        "previous": None,
         "results": [{"id": i, "title": f"Doc{i}", "tags": []} for i in range(1, 6)],
     }
     mock_router.get("/documents/").mock(return_value=Response(200, json=many))
-    docs = await client.list_documents(max_results=3)
+    docs = await client.documents.list(max_results=3)
     assert len(docs) == 3
     assert [d.id for d in docs] == [1, 2, 3]
 
@@ -591,7 +621,9 @@ async def test_list_documents_max_results_stops_pagination(client, mock_router):
         "results": [{"id": 1, "title": "A", "tags": []}, {"id": 2, "title": "B", "tags": []}],
     }
     page2 = {
-        "count": 4, "next": None, "previous": None,
+        "count": 4,
+        "next": None,
+        "previous": None,
         "results": [{"id": 3, "title": "C", "tags": []}, {"id": 4, "title": "D", "tags": []}],
     }
     call_count = 0
@@ -602,7 +634,7 @@ async def test_list_documents_max_results_stops_pagination(client, mock_router):
         return Response(200, json=page1 if call_count == 1 else page2)
 
     mock_router.get("/documents/").mock(side_effect=side_effect)
-    docs = await client.list_documents(max_results=3)
+    docs = await client.documents.list(max_results=3)
     assert len(docs) == 3
     assert [d.id for d in docs] == [1, 2, 3]
     assert call_count == 2
@@ -624,7 +656,7 @@ async def test_list_documents_max_results_exact_first_page(client, mock_router):
         return Response(200, json=page1)
 
     mock_router.get("/documents/").mock(side_effect=side_effect)
-    docs = await client.list_documents(max_results=2)
+    docs = await client.documents.list(max_results=2)
     assert len(docs) == 2
     assert call_count == 1
 
@@ -633,31 +665,32 @@ async def test_list_documents_max_results_exact_first_page(client, mock_router):
 # checksum / page / ordering / search_mode=original_filename
 # ---------------------------------------------------------------------------
 
+
 async def test_list_documents_checksum(client, mock_router):
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured, DOC_LIST))
-    await client.list_documents(checksum="abc123")
+    await client.documents.list(checksum="abc123")
     assert captured["params"]["checksum__iexact"] == "abc123"
 
 
 async def test_list_documents_ordering_asc(client, mock_router):
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured, DOC_LIST))
-    await client.list_documents(ordering="created")
+    await client.documents.list(ordering="created")
     assert captured["params"]["ordering"] == "created"
 
 
 async def test_list_documents_ordering_desc(client, mock_router):
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured, DOC_LIST))
-    await client.list_documents(ordering="created", descending=True)
+    await client.documents.list(ordering="created", descending=True)
     assert captured["params"]["ordering"] == "-created"
 
 
 async def test_list_documents_page(client, mock_router):
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured, DOC_LIST))
-    docs = await client.list_documents(page=2)
+    docs = await client.documents.list(page=2)
     assert captured["params"]["page"] == "2"
     assert len(docs) == 1
 
@@ -678,7 +711,7 @@ async def test_list_documents_page_suppresses_autopagination(client, mock_router
         return Response(200, json=page_resp)
 
     mock_router.get("/documents/").mock(side_effect=side_effect)
-    docs = await client.list_documents(page=2)
+    docs = await client.documents.list(page=2)
     assert call_count == 1
     assert len(docs) == 1
 
@@ -686,7 +719,7 @@ async def test_list_documents_page_suppresses_autopagination(client, mock_router
 async def test_list_documents_search_mode_original_filename(client, mock_router):
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured, DOC_LIST))
-    await client.list_documents(search="invoice.pdf", search_mode="original_filename")
+    await client.documents.list(search="invoice.pdf", search_mode="original_filename")
     assert captured["params"]["original_filename__icontains"] == "invoice.pdf"
 
 
@@ -694,10 +727,11 @@ async def test_list_documents_search_mode_original_filename(client, mock_router)
 # ids filter
 # ---------------------------------------------------------------------------
 
+
 async def test_list_documents_ids(client, mock_router):
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
-    await client.list_documents(ids=[1, 5, 10])
+    await client.documents.list(ids=[1, 5, 10])
     assert captured["params"]["id__in"] == "1,5,10"
 
 
@@ -706,7 +740,9 @@ async def test_list_documents_ids(client, mock_router):
 # ---------------------------------------------------------------------------
 
 _SPATH_RESP = {
-    "count": 2, "next": None, "previous": None,
+    "count": 2,
+    "next": None,
+    "previous": None,
     "results": [{"id": 20, "name": "Archive"}, {"id": 21, "name": "Inbox"}],
 }
 
@@ -714,7 +750,7 @@ _SPATH_RESP = {
 async def test_list_documents_storage_path_by_id(client, mock_router):
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
-    await client.list_documents(storage_path=20)
+    await client.documents.list(storage_path=20)
     assert captured["params"]["storage_path__id__in"] == "20"
 
 
@@ -722,14 +758,14 @@ async def test_list_documents_storage_path_by_name(client, mock_router):
     mock_router.get("/storage_paths/").mock(return_value=Response(200, json=_SPATH_RESP))
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
-    await client.list_documents(storage_path="Archive")
+    await client.documents.list(storage_path="Archive")
     assert captured["params"]["storage_path__id__in"] == "20"
 
 
 async def test_list_documents_any_storage_paths_by_id(client, mock_router):
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
-    await client.list_documents(any_storage_paths=[20, 21])
+    await client.documents.list(any_storage_paths=[20, 21])
     assert captured["params"]["storage_path__id__in"] == "20,21"
 
 
@@ -737,21 +773,21 @@ async def test_list_documents_any_storage_paths_by_name(client, mock_router):
     mock_router.get("/storage_paths/").mock(return_value=Response(200, json=_SPATH_RESP))
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
-    await client.list_documents(any_storage_paths=["Archive", "Inbox"])
+    await client.documents.list(any_storage_paths=["Archive", "Inbox"])
     assert captured["params"]["storage_path__id__in"] == "20,21"
 
 
 async def test_list_documents_any_storage_paths_overrides_storage_path(client, mock_router):
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
-    await client.list_documents(storage_path=99, any_storage_paths=[20, 21])
+    await client.documents.list(storage_path=99, any_storage_paths=[20, 21])
     assert captured["params"]["storage_path__id__in"] == "20,21"
 
 
 async def test_list_documents_exclude_storage_paths_by_id(client, mock_router):
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
-    await client.list_documents(exclude_storage_paths=[20])
+    await client.documents.list(exclude_storage_paths=[20])
     assert captured["params"]["storage_path__id__none"] == "20"
 
 
@@ -759,7 +795,7 @@ async def test_list_documents_exclude_storage_paths_by_name(client, mock_router)
     mock_router.get("/storage_paths/").mock(return_value=Response(200, json=_SPATH_RESP))
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
-    await client.list_documents(exclude_storage_paths=["Archive"])
+    await client.documents.list(exclude_storage_paths=["Archive"])
     assert captured["params"]["storage_path__id__none"] == "20"
 
 
@@ -767,17 +803,18 @@ async def test_list_documents_exclude_storage_paths_by_name(client, mock_router)
 # owner filters
 # ---------------------------------------------------------------------------
 
+
 async def test_list_documents_owner(client, mock_router):
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
-    await client.list_documents(owner=42)
+    await client.documents.list(owner=42)
     assert captured["params"]["owner__id__in"] == "42"
 
 
 async def test_list_documents_exclude_owners(client, mock_router):
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
-    await client.list_documents(exclude_owners=[1, 2])
+    await client.documents.list(exclude_owners=[1, 2])
     assert captured["params"]["owner__id__none"] == "1,2"
 
 
@@ -786,7 +823,9 @@ async def test_list_documents_exclude_owners(client, mock_router):
 # ---------------------------------------------------------------------------
 
 _CF_RESP = {
-    "count": 2, "next": None, "previous": None,
+    "count": 2,
+    "next": None,
+    "previous": None,
     "results": [{"id": 30, "name": "Amount"}, {"id": 31, "name": "Status"}],
 }
 
@@ -794,7 +833,7 @@ _CF_RESP = {
 async def test_list_documents_custom_fields_by_id(client, mock_router):
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
-    await client.list_documents(custom_fields=[30, 31])
+    await client.documents.list(custom_fields=[30, 31])
     assert captured["params"]["custom_fields__id__all"] == "30,31"
 
 
@@ -802,14 +841,14 @@ async def test_list_documents_custom_fields_by_name(client, mock_router):
     mock_router.get("/custom_fields/").mock(return_value=Response(200, json=_CF_RESP))
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
-    await client.list_documents(custom_fields=["Amount", "Status"])
+    await client.documents.list(custom_fields=["Amount", "Status"])
     assert captured["params"]["custom_fields__id__all"] == "30,31"
 
 
 async def test_list_documents_any_custom_fields_by_id(client, mock_router):
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
-    await client.list_documents(any_custom_fields=[30])
+    await client.documents.list(any_custom_fields=[30])
     assert captured["params"]["custom_fields__id__in"] == "30"
 
 
@@ -817,14 +856,14 @@ async def test_list_documents_any_custom_fields_by_name(client, mock_router):
     mock_router.get("/custom_fields/").mock(return_value=Response(200, json=_CF_RESP))
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
-    await client.list_documents(any_custom_fields=["Amount"])
+    await client.documents.list(any_custom_fields=["Amount"])
     assert captured["params"]["custom_fields__id__in"] == "30"
 
 
 async def test_list_documents_exclude_custom_fields_by_id(client, mock_router):
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
-    await client.list_documents(exclude_custom_fields=[30, 31])
+    await client.documents.list(exclude_custom_fields=[30, 31])
     assert captured["params"]["custom_fields__id__none"] == "30,31"
 
 
@@ -832,7 +871,7 @@ async def test_list_documents_exclude_custom_fields_by_name(client, mock_router)
     mock_router.get("/custom_fields/").mock(return_value=Response(200, json=_CF_RESP))
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
-    await client.list_documents(exclude_custom_fields=["Amount"])
+    await client.documents.list(exclude_custom_fields=["Amount"])
     assert captured["params"]["custom_fields__id__none"] == "30"
 
 
@@ -840,11 +879,12 @@ async def test_list_documents_exclude_custom_fields_by_name(client, mock_router)
 # custom_field_query
 # ---------------------------------------------------------------------------
 
+
 async def test_list_documents_custom_field_query_simple(client, mock_router):
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
     query = ["Invoice Amount", "gt", 100]
-    await client.list_documents(custom_field_query=query)
+    await client.documents.list(custom_field_query=query)
     assert captured["params"]["custom_field_query"] == json.dumps(query)
 
 
@@ -852,7 +892,7 @@ async def test_list_documents_custom_field_query_compound(client, mock_router):
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
     query = ["AND", [["Amount", "gt", 100], ["Status", "exact", "paid"]]]
-    await client.list_documents(custom_field_query=query)
+    await client.documents.list(custom_field_query=query)
     assert captured["params"]["custom_field_query"] == json.dumps(query)
 
 
@@ -860,24 +900,25 @@ async def test_list_documents_custom_field_query_compound(client, mock_router):
 # archive_serial_number range filters
 # ---------------------------------------------------------------------------
 
+
 async def test_list_documents_archive_serial_number_from(client, mock_router):
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
-    await client.list_documents(archive_serial_number_from=100)
+    await client.documents.list(archive_serial_number_from=100)
     assert captured["params"]["archive_serial_number__gte"] == "100"
 
 
 async def test_list_documents_archive_serial_number_till(client, mock_router):
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
-    await client.list_documents(archive_serial_number_till=200)
+    await client.documents.list(archive_serial_number_till=200)
     assert captured["params"]["archive_serial_number__lte"] == "200"
 
 
 async def test_list_documents_archive_serial_number_range(client, mock_router):
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
-    await client.list_documents(archive_serial_number_from=100, archive_serial_number_till=200)
+    await client.documents.list(archive_serial_number_from=100, archive_serial_number_till=200)
     assert captured["params"]["archive_serial_number__gte"] == "100"
     assert captured["params"]["archive_serial_number__lte"] == "200"
 
@@ -886,17 +927,18 @@ async def test_list_documents_archive_serial_number_range(client, mock_router):
 # added_from / added_until
 # ---------------------------------------------------------------------------
 
+
 async def test_list_documents_added_from(client, mock_router):
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
-    await client.list_documents(added_from="2024-01-01")
+    await client.documents.list(added_from="2024-01-01")
     assert captured["params"]["added__date__gte"] == "2024-01-01"
 
 
 async def test_list_documents_added_until(client, mock_router):
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
-    await client.list_documents(added_until="2024-12-31")
+    await client.documents.list(added_until="2024-12-31")
     assert captured["params"]["added__date__lte"] == "2024-12-31"
 
 
@@ -904,17 +946,18 @@ async def test_list_documents_added_until(client, mock_router):
 # modified_from / modified_until
 # ---------------------------------------------------------------------------
 
+
 async def test_list_documents_modified_from(client, mock_router):
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
-    await client.list_documents(modified_from="2024-03-01")
+    await client.documents.list(modified_from="2024-03-01")
     assert captured["params"]["modified__date__gte"] == "2024-03-01"
 
 
 async def test_list_documents_modified_until(client, mock_router):
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
-    await client.list_documents(modified_until="2024-09-30")
+    await client.documents.list(modified_until="2024-09-30")
     assert captured["params"]["modified__date__lte"] == "2024-09-30"
 
 
@@ -922,12 +965,13 @@ async def test_list_documents_modified_until(client, mock_router):
 # datetime vs date distinction for added/modified filters
 # ---------------------------------------------------------------------------
 
+
 async def test_list_documents_added_after_with_datetime(client, mock_router):
     """datetime objects should use added__gt (not added__date__gt)."""
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
     dt = datetime(2024, 6, 15, 10, 30, 0)
-    await client.list_documents(added_after=dt)
+    await client.documents.list(added_after=dt)
     assert "added__gt" in captured["params"]
     assert "added__date__gt" not in captured["params"]
     assert captured["params"]["added__gt"] == dt.isoformat()
@@ -938,7 +982,7 @@ async def test_list_documents_added_after_with_date(client, mock_router):
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
     d = date(2024, 6, 15)
-    await client.list_documents(added_after=d)
+    await client.documents.list(added_after=d)
     assert "added__date__gt" in captured["params"]
     assert "added__gt" not in captured["params"]
     assert captured["params"]["added__date__gt"] == "2024-06-15"
@@ -948,7 +992,7 @@ async def test_list_documents_added_before_with_datetime(client, mock_router):
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
     dt = datetime(2024, 12, 31, 23, 59, 59)
-    await client.list_documents(added_before=dt)
+    await client.documents.list(added_before=dt)
     assert "added__lt" in captured["params"]
     assert "added__date__lt" not in captured["params"]
     assert captured["params"]["added__lt"] == dt.isoformat()
@@ -958,7 +1002,7 @@ async def test_list_documents_added_from_with_datetime(client, mock_router):
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
     dt = datetime(2024, 1, 1, 0, 0, 0)
-    await client.list_documents(added_from=dt)
+    await client.documents.list(added_from=dt)
     assert "added__gte" in captured["params"]
     assert "added__date__gte" not in captured["params"]
 
@@ -967,7 +1011,7 @@ async def test_list_documents_added_until_with_datetime(client, mock_router):
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
     dt = datetime(2024, 12, 31, 23, 59, 59)
-    await client.list_documents(added_until=dt)
+    await client.documents.list(added_until=dt)
     assert "added__lte" in captured["params"]
     assert "added__date__lte" not in captured["params"]
 
@@ -976,7 +1020,7 @@ async def test_list_documents_modified_after_with_datetime(client, mock_router):
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
     dt = datetime(2024, 3, 1, 12, 0, 0)
-    await client.list_documents(modified_after=dt)
+    await client.documents.list(modified_after=dt)
     assert "modified__gt" in captured["params"]
     assert "modified__date__gt" not in captured["params"]
     assert captured["params"]["modified__gt"] == dt.isoformat()
@@ -986,7 +1030,7 @@ async def test_list_documents_modified_after_with_date(client, mock_router):
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
     d = date(2024, 3, 1)
-    await client.list_documents(modified_after=d)
+    await client.documents.list(modified_after=d)
     assert "modified__date__gt" in captured["params"]
     assert "modified__gt" not in captured["params"]
 
@@ -995,7 +1039,7 @@ async def test_list_documents_modified_before_with_datetime(client, mock_router)
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
     dt = datetime(2024, 9, 30, 18, 0, 0)
-    await client.list_documents(modified_before=dt)
+    await client.documents.list(modified_before=dt)
     assert "modified__lt" in captured["params"]
     assert "modified__date__lt" not in captured["params"]
 
@@ -1004,7 +1048,7 @@ async def test_list_documents_modified_from_with_datetime(client, mock_router):
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
     dt = datetime(2024, 3, 1, 0, 0, 0)
-    await client.list_documents(modified_from=dt)
+    await client.documents.list(modified_from=dt)
     assert "modified__gte" in captured["params"]
     assert "modified__date__gte" not in captured["params"]
 
@@ -1013,7 +1057,7 @@ async def test_list_documents_modified_until_with_datetime(client, mock_router):
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
     dt = datetime(2024, 9, 30, 23, 59, 59)
-    await client.list_documents(modified_until=dt)
+    await client.documents.list(modified_until=dt)
     assert "modified__lte" in captured["params"]
     assert "modified__date__lte" not in captured["params"]
 
@@ -1022,11 +1066,12 @@ async def test_list_documents_modified_until_with_datetime(client, mock_router):
 # ISO datetime strings for added/modified filters
 # ---------------------------------------------------------------------------
 
+
 async def test_list_documents_added_after_with_iso_datetime_string(client, mock_router):
     """ISO datetime string should use added__gt (not added__date__gt)."""
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
-    await client.list_documents(added_after="2026-02-22T16:25:00+00:00")
+    await client.documents.list(added_after="2026-02-22T16:25:00+00:00")
     assert "added__gt" in captured["params"]
     assert "added__date__gt" not in captured["params"]
     assert captured["params"]["added__gt"] == "2026-02-22T16:25:00+00:00"
@@ -1036,7 +1081,7 @@ async def test_list_documents_added_after_with_iso_date_string(client, mock_rout
     """Plain ISO date string should use added__date__gt (not added__gt)."""
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
-    await client.list_documents(added_after="2026-02-22")
+    await client.documents.list(added_after="2026-02-22")
     assert "added__date__gt" in captured["params"]
     assert "added__gt" not in captured["params"]
     assert captured["params"]["added__date__gt"] == "2026-02-22"
@@ -1045,7 +1090,7 @@ async def test_list_documents_added_after_with_iso_date_string(client, mock_rout
 async def test_list_documents_added_before_with_iso_datetime_string(client, mock_router):
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
-    await client.list_documents(added_before="2026-02-22T23:59:59Z")
+    await client.documents.list(added_before="2026-02-22T23:59:59Z")
     assert "added__lt" in captured["params"]
     assert "added__date__lt" not in captured["params"]
 
@@ -1053,7 +1098,7 @@ async def test_list_documents_added_before_with_iso_datetime_string(client, mock
 async def test_list_documents_added_from_with_iso_datetime_string(client, mock_router):
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
-    await client.list_documents(added_from="2026-01-01T00:00:00+00:00")
+    await client.documents.list(added_from="2026-01-01T00:00:00+00:00")
     assert "added__gte" in captured["params"]
     assert "added__date__gte" not in captured["params"]
 
@@ -1061,7 +1106,7 @@ async def test_list_documents_added_from_with_iso_datetime_string(client, mock_r
 async def test_list_documents_added_until_with_iso_datetime_string(client, mock_router):
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
-    await client.list_documents(added_until="2026-12-31T23:59:59+00:00")
+    await client.documents.list(added_until="2026-12-31T23:59:59+00:00")
     assert "added__lte" in captured["params"]
     assert "added__date__lte" not in captured["params"]
 
@@ -1070,7 +1115,7 @@ async def test_list_documents_modified_after_with_iso_datetime_string(client, mo
     """ISO datetime string should use modified__gt (not modified__date__gt)."""
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
-    await client.list_documents(modified_after="2026-02-22T16:25:00+00:00")
+    await client.documents.list(modified_after="2026-02-22T16:25:00+00:00")
     assert "modified__gt" in captured["params"]
     assert "modified__date__gt" not in captured["params"]
     assert captured["params"]["modified__gt"] == "2026-02-22T16:25:00+00:00"
@@ -1080,7 +1125,7 @@ async def test_list_documents_modified_after_with_iso_date_string(client, mock_r
     """Plain ISO date string should use modified__date__gt (not modified__gt)."""
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
-    await client.list_documents(modified_after="2026-02-22")
+    await client.documents.list(modified_after="2026-02-22")
     assert "modified__date__gt" in captured["params"]
     assert "modified__gt" not in captured["params"]
 
@@ -1088,7 +1133,7 @@ async def test_list_documents_modified_after_with_iso_date_string(client, mock_r
 async def test_list_documents_modified_before_with_iso_datetime_string(client, mock_router):
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
-    await client.list_documents(modified_before="2026-02-22T16:25:00+00:00")
+    await client.documents.list(modified_before="2026-02-22T16:25:00+00:00")
     assert "modified__lt" in captured["params"]
     assert "modified__date__lt" not in captured["params"]
 
@@ -1096,7 +1141,7 @@ async def test_list_documents_modified_before_with_iso_datetime_string(client, m
 async def test_list_documents_modified_from_with_iso_datetime_string(client, mock_router):
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
-    await client.list_documents(modified_from="2026-01-01T00:00:00+00:00")
+    await client.documents.list(modified_from="2026-01-01T00:00:00+00:00")
     assert "modified__gte" in captured["params"]
     assert "modified__date__gte" not in captured["params"]
 
@@ -1104,7 +1149,7 @@ async def test_list_documents_modified_from_with_iso_datetime_string(client, moc
 async def test_list_documents_modified_until_with_iso_datetime_string(client, mock_router):
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
-    await client.list_documents(modified_until="2026-12-31T23:59:59+00:00")
+    await client.documents.list(modified_until="2026-12-31T23:59:59+00:00")
     assert "modified__lte" in captured["params"]
     assert "modified__date__lte" not in captured["params"]
 
@@ -1113,10 +1158,11 @@ async def test_list_documents_modified_until_with_iso_datetime_string(client, mo
 # search_mode="query"
 # ---------------------------------------------------------------------------
 
+
 async def test_list_documents_search_mode_query(client, mock_router):
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
-    await client.list_documents(search="tag:invoice date:[2024 TO *]", search_mode="query")
+    await client.documents.list(search="tag:invoice date:[2024 TO *]", search_mode="query")
     assert captured["params"]["query"] == "tag:invoice date:[2024 TO *]"
     assert "search" not in captured["params"]
     assert "title__icontains" not in captured["params"]
@@ -1125,6 +1171,7 @@ async def test_list_documents_search_mode_query(client, mock_router):
 # ---------------------------------------------------------------------------
 # on_page callback
 # ---------------------------------------------------------------------------
+
 
 async def test_list_documents_on_page_callback(client, mock_router):
     """on_page callback is invoked with (fetched_so_far, total) per page."""
@@ -1138,7 +1185,9 @@ async def test_list_documents_on_page_callback(client, mock_router):
         ],
     }
     page2 = {
-        "count": 3, "next": None, "previous": None,
+        "count": 3,
+        "next": None,
+        "previous": None,
         "results": [{"id": 3, "title": "C", "tags": []}],
     }
     call_count = 0
@@ -1155,7 +1204,7 @@ async def test_list_documents_on_page_callback(client, mock_router):
     def on_page(fetched: int, total: int | None) -> None:
         page_calls.append((fetched, total))
 
-    docs = await client.list_documents(on_page=on_page)
+    docs = await client.documents.list(on_page=on_page)
     assert len(docs) == 3
     assert len(page_calls) == 2
     assert page_calls[0] == (2, 3)
@@ -1171,5 +1220,5 @@ async def test_list_documents_on_page_not_called_when_page_set(client, mock_rout
     def on_page(fetched: int, total: int | None) -> None:
         page_calls.append((fetched, total))
 
-    await client.list_documents(page=1, on_page=on_page)
+    await client.documents.list(page=1, on_page=on_page)
     assert len(page_calls) == 0

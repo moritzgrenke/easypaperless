@@ -21,5 +21,5 @@
 | 0015 | Feature | Non-Document Bulk Operations | QA Passed | [0015-non-document-bulk-operations.md](0015-non-document-bulk-operations.md) |
 | 0016 | Feature | SyncPaperlessClient | QA Passed | [0016-sync-client.md](0016-sync-client.md) |
 | 0017 | Feature | Document Notes | QA Passed | [0017-document-notes.md](0017-document-notes.md) |
-| 0018 | Refactoring | Resource-Based Client API | OPEN | [018-refactoring-resource_based_client_api.md](018-refactoring-resource_based_client_api.md) |
+| 0018 | Refactoring | Resource-Based Client API | Implemented | [018-refactoring-resource_based_client_api.md](018-refactoring-resource_based_client_api.md) |
 | 0019 | Bug | None Cannot Express Explicit Null in Update/List Methods | OPEN | [0019-bug-update_document_nullable_fields_unresettable.md](0019-bug-update_document_nullable_fields_unresettable.md) |

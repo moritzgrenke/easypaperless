@@ -48,6 +48,7 @@ async def test_upload_and_cleanup(client: PaperlessClient, uid: str) -> None:
         )
         # upload_document with wait=True returns a Document
         from easypaperless import Document  # noqa: PLC0415
+
         assert isinstance(result, Document)
         doc = result
         assert doc.id is not None

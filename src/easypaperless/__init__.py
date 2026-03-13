@@ -16,7 +16,6 @@ from easypaperless.exceptions import (
     ValidationError,
 )
 from easypaperless.models import (
-    MatchingAlgorithm,
     Correspondent,
     CustomField,
     CustomFieldValue,
@@ -26,6 +25,7 @@ from easypaperless.models import (
     DocumentType,
     FieldDataType,
     FileMetadataEntry,
+    MatchingAlgorithm,
     PermissionSet,
     SearchHit,
     SetPermissions,

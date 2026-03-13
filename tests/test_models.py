@@ -60,11 +60,13 @@ def test_task_status_enum():
 
 
 def test_task_model():
-    task = Task.model_validate({
-        "task_id": "abc-123",
-        "status": "SUCCESS",
-        "related_document": "7",
-    })
+    task = Task.model_validate(
+        {
+            "task_id": "abc-123",
+            "status": "SUCCESS",
+            "related_document": "7",
+        }
+    )
     assert task.task_id == "abc-123"
     assert task.status == TaskStatus.SUCCESS
     assert task.related_document == "7"
@@ -77,22 +79,24 @@ def test_tag_model():
 
 
 def test_tag_model_all_fields():
-    tag = Tag.model_validate({
-        "id": 3,
-        "name": "invoice",
-        "slug": "invoice",
-        "color": "#ff0000",
-        "text_color": "#ffffff",
-        "match": "inv",
-        "matching_algorithm": 3,
-        "is_insensitive": True,
-        "is_inbox_tag": False,
-        "document_count": 10,
-        "owner": 1,
-        "user_can_change": True,
-        "parent": 2,
-        "children": [4, 5],
-    })
+    tag = Tag.model_validate(
+        {
+            "id": 3,
+            "name": "invoice",
+            "slug": "invoice",
+            "color": "#ff0000",
+            "text_color": "#ffffff",
+            "match": "inv",
+            "matching_algorithm": 3,
+            "is_insensitive": True,
+            "is_inbox_tag": False,
+            "document_count": 10,
+            "owner": 1,
+            "user_can_change": True,
+            "parent": 2,
+            "children": [4, 5],
+        }
+    )
     assert tag.slug == "invoice"
     assert tag.color == "#ff0000"
     assert tag.text_color == "#ffffff"
@@ -125,5 +129,15 @@ def test_custom_field_data_type_enum():
 
 
 def test_field_data_type_all_values():
-    for val in ("string", "boolean", "integer", "float", "monetary", "date", "url", "documentlink", "select"):
+    for val in (
+        "string",
+        "boolean",
+        "integer",
+        "float",
+        "monetary",
+        "date",
+        "url",
+        "documentlink",
+        "select",
+    ):
         assert FieldDataType(val).value == val

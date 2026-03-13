@@ -25,7 +25,7 @@ NOTE_DATA_NESTED_USER = {
 
 async def test_get_notes(client, mock_router):
     mock_router.get("/documents/42/notes/").mock(return_value=Response(200, json=[NOTE_DATA]))
-    notes = await client.get_notes(42)
+    notes = await client.documents.notes.list(42)
     assert len(notes) == 1
     assert isinstance(notes[0], DocumentNote)
     assert notes[0].id == 1
@@ -35,13 +35,13 @@ async def test_get_notes(client, mock_router):
 
 async def test_get_notes_empty(client, mock_router):
     mock_router.get("/documents/42/notes/").mock(return_value=Response(200, json=[]))
-    notes = await client.get_notes(42)
+    notes = await client.documents.notes.list(42)
     assert notes == []
 
 
 async def test_create_note(client, mock_router):
     mock_router.post("/documents/42/notes/").mock(return_value=Response(200, json=NOTE_DATA))
-    note = await client.create_note(42, note="Needs review")
+    note = await client.documents.notes.create(42, note="Needs review")
     assert isinstance(note, DocumentNote)
     assert note.id == 1
     assert note.note == "Needs review"
@@ -52,7 +52,7 @@ async def test_get_notes_nested_user(client, mock_router):
     mock_router.get("/documents/42/notes/").mock(
         return_value=Response(200, json=[NOTE_DATA_NESTED_USER])
     )
-    notes = await client.get_notes(42)
+    notes = await client.documents.notes.list(42)
     assert notes[0].user == 1
 
 
@@ -65,7 +65,7 @@ async def test_delete_note(client, mock_router):
         return Response(200, json=[])
 
     mock_router.delete("/documents/42/notes/").mock(side_effect=_capture)
-    result = await client.delete_note(42, 1)
+    result = await client.documents.notes.delete(42, 1)
     assert result is None
     assert captured["params"]["id"] == "1"
 
@@ -75,7 +75,7 @@ async def test_get_notes_not_found(client, mock_router):
         return_value=Response(404, json={"detail": "Not found."})
     )
     with pytest.raises(NotFoundError):
-        await client.get_notes(999)
+        await client.documents.notes.list(999)
 
 
 async def test_create_note_not_found(client, mock_router):
@@ -83,7 +83,7 @@ async def test_create_note_not_found(client, mock_router):
         return_value=Response(404, json={"detail": "Not found."})
     )
     with pytest.raises(NotFoundError):
-        await client.create_note(999, note="Test")
+        await client.documents.notes.create(999, note="Test")
 
 
 async def test_delete_note_not_found(client, mock_router):
@@ -91,7 +91,7 @@ async def test_delete_note_not_found(client, mock_router):
         return_value=Response(404, json={"detail": "Not found."})
     )
     with pytest.raises(NotFoundError):
-        await client.delete_note(42, 999)
+        await client.documents.notes.delete(42, 999)
 
 
 async def test_create_note_list_response(client, mock_router):
@@ -101,7 +101,7 @@ async def test_create_note_list_response(client, mock_router):
     mock_router.post("/documents/42/notes/").mock(
         return_value=Response(200, json=[existing, new_note])
     )
-    note = await client.create_note(42, note="Needs review")
+    note = await client.documents.notes.create(42, note="Needs review")
     assert isinstance(note, DocumentNote)
     assert note.id == 2
     assert note.note == "Needs review"

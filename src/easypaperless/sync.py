@@ -11,18 +11,6 @@ import threading
 from collections.abc import Coroutine
 from typing import Any, TypeVar
 
-from easypaperless._internal.sync_mixins import (
-    SyncCorrespondentsMixin,
-    SyncCustomFieldsMixin,
-    SyncDocumentBulkMixin,
-    SyncDocumentsMixin,
-    SyncDocumentTypesMixin,
-    SyncNonDocumentBulkMixin,
-    SyncNotesMixin,
-    SyncStoragePathsMixin,
-    SyncTagsMixin,
-    SyncUploadMixin,
-)
 from easypaperless.client import PaperlessClient
 
 _T = TypeVar("_T")
@@ -36,6 +24,24 @@ class _SyncCore:
         self._thread = threading.Thread(target=self._loop.run_forever, daemon=True)
         self._thread.start()
         self._async_client = PaperlessClient(url, api_key, **kwargs)
+
+        from easypaperless._internal.sync_resources.correspondents import SyncCorrespondentsResource
+        from easypaperless._internal.sync_resources.custom_fields import SyncCustomFieldsResource
+        from easypaperless._internal.sync_resources.document_types import SyncDocumentTypesResource
+        from easypaperless._internal.sync_resources.documents import SyncDocumentsResource
+        from easypaperless._internal.sync_resources.storage_paths import SyncStoragePathsResource
+        from easypaperless._internal.sync_resources.tags import SyncTagsResource
+
+        self.documents = SyncDocumentsResource(self._async_client.documents, self._run)
+        self.tags = SyncTagsResource(self._async_client.tags, self._run)
+        self.correspondents = SyncCorrespondentsResource(
+            self._async_client.correspondents, self._run
+        )
+        self.document_types = SyncDocumentTypesResource(
+            self._async_client.document_types, self._run
+        )
+        self.storage_paths = SyncStoragePathsResource(self._async_client.storage_paths, self._run)
+        self.custom_fields = SyncCustomFieldsResource(self._async_client.custom_fields, self._run)
 
     def _run(self, coro: Coroutine[Any, Any, _T]) -> _T:
         """Submit a coroutine to the background event loop and block until done."""
@@ -61,27 +67,20 @@ class _SyncCore:
         self.close()
 
 
-class SyncPaperlessClient(
-    SyncDocumentsMixin,
-    SyncNotesMixin,
-    SyncUploadMixin,
-    SyncDocumentBulkMixin,
-    SyncNonDocumentBulkMixin,
-    SyncTagsMixin,
-    SyncCorrespondentsMixin,
-    SyncDocumentTypesMixin,
-    SyncStoragePathsMixin,
-    SyncCustomFieldsMixin,
-    _SyncCore,
-):
+class SyncPaperlessClient(_SyncCore):
     """Synchronous interface to paperless-ngx.
 
-    Exposes the same methods as
-    :class:`~easypaperless.client.PaperlessClient` but runs them
-    synchronously, making it suitable for scripts and REPL sessions that do
-    not use ``asyncio``.
+    Resources are accessible as attributes:
 
-    All methods have identical signatures to their async counterparts on
+    * ``client.documents`` — document CRUD, bulk ops, upload, notes
+    * ``client.documents.notes`` — document notes
+    * ``client.tags`` — tag CRUD + bulk ops
+    * ``client.correspondents`` — correspondent CRUD + bulk ops
+    * ``client.document_types`` — document type CRUD + bulk ops
+    * ``client.storage_paths`` — storage path CRUD + bulk ops
+    * ``client.custom_fields`` — custom field CRUD
+
+    All methods are synchronous wrappers around the async
     :class:`~easypaperless.client.PaperlessClient`.  Operations run on a
     dedicated background event loop thread so that the httpx connection pool
     is reused across calls and cleanup works correctly.
@@ -90,80 +89,14 @@ class SyncPaperlessClient(
 
     Example:
         with SyncPaperlessClient(url="http://localhost:8000", api_key="abc") as client:
-            tags = client.list_tags()
-            docs = client.list_documents(search="invoice")
+            tags = client.tags.list()
+            docs = client.documents.list(search="invoice")
 
     Note:
         Cannot be used inside an already-running event loop (e.g. Jupyter
         notebooks).  Use :class:`~easypaperless.client.PaperlessClient`
         directly in those environments.
     """
-
-    # Explicit assignments so pdoc documents these inherited methods.
-    # Documents
-    list_documents = SyncDocumentsMixin.list_documents
-    get_document = SyncDocumentsMixin.get_document
-    get_document_metadata = SyncDocumentsMixin.get_document_metadata
-    update_document = SyncDocumentsMixin.update_document
-    delete_document = SyncDocumentsMixin.delete_document
-    download_document = SyncDocumentsMixin.download_document
-    # Notes
-    get_notes = SyncNotesMixin.get_notes
-    create_note = SyncNotesMixin.create_note
-    delete_note = SyncNotesMixin.delete_note
-    # Upload
-    upload_document = SyncUploadMixin.upload_document
-    # Document bulk operations
-    bulk_edit = SyncDocumentBulkMixin.bulk_edit
-    bulk_add_tag = SyncDocumentBulkMixin.bulk_add_tag
-    bulk_remove_tag = SyncDocumentBulkMixin.bulk_remove_tag
-    bulk_modify_tags = SyncDocumentBulkMixin.bulk_modify_tags
-    bulk_delete = SyncDocumentBulkMixin.bulk_delete
-    bulk_set_correspondent = SyncDocumentBulkMixin.bulk_set_correspondent
-    bulk_set_document_type = SyncDocumentBulkMixin.bulk_set_document_type
-    bulk_set_storage_path = SyncDocumentBulkMixin.bulk_set_storage_path
-    bulk_modify_custom_fields = SyncDocumentBulkMixin.bulk_modify_custom_fields
-    bulk_set_permissions = SyncDocumentBulkMixin.bulk_set_permissions
-    # Non-document bulk operations
-    bulk_edit_objects = SyncNonDocumentBulkMixin.bulk_edit_objects
-    bulk_delete_tags = SyncNonDocumentBulkMixin.bulk_delete_tags
-    bulk_delete_correspondents = SyncNonDocumentBulkMixin.bulk_delete_correspondents
-    bulk_delete_document_types = SyncNonDocumentBulkMixin.bulk_delete_document_types
-    bulk_delete_storage_paths = SyncNonDocumentBulkMixin.bulk_delete_storage_paths
-    bulk_set_permissions_tags = SyncNonDocumentBulkMixin.bulk_set_permissions_tags
-    bulk_set_permissions_correspondents = SyncNonDocumentBulkMixin.bulk_set_permissions_correspondents
-    bulk_set_permissions_document_types = SyncNonDocumentBulkMixin.bulk_set_permissions_document_types
-    bulk_set_permissions_storage_paths = SyncNonDocumentBulkMixin.bulk_set_permissions_storage_paths
-    # Tags
-    list_tags = SyncTagsMixin.list_tags
-    get_tag = SyncTagsMixin.get_tag
-    create_tag = SyncTagsMixin.create_tag
-    update_tag = SyncTagsMixin.update_tag
-    delete_tag = SyncTagsMixin.delete_tag
-    # Correspondents
-    list_correspondents = SyncCorrespondentsMixin.list_correspondents
-    get_correspondent = SyncCorrespondentsMixin.get_correspondent
-    create_correspondent = SyncCorrespondentsMixin.create_correspondent
-    update_correspondent = SyncCorrespondentsMixin.update_correspondent
-    delete_correspondent = SyncCorrespondentsMixin.delete_correspondent
-    # Document types
-    list_document_types = SyncDocumentTypesMixin.list_document_types
-    get_document_type = SyncDocumentTypesMixin.get_document_type
-    create_document_type = SyncDocumentTypesMixin.create_document_type
-    update_document_type = SyncDocumentTypesMixin.update_document_type
-    delete_document_type = SyncDocumentTypesMixin.delete_document_type
-    # Storage paths
-    list_storage_paths = SyncStoragePathsMixin.list_storage_paths
-    get_storage_path = SyncStoragePathsMixin.get_storage_path
-    create_storage_path = SyncStoragePathsMixin.create_storage_path
-    update_storage_path = SyncStoragePathsMixin.update_storage_path
-    delete_storage_path = SyncStoragePathsMixin.delete_storage_path
-    # Custom fields
-    list_custom_fields = SyncCustomFieldsMixin.list_custom_fields
-    get_custom_field = SyncCustomFieldsMixin.get_custom_field
-    create_custom_field = SyncCustomFieldsMixin.create_custom_field
-    update_custom_field = SyncCustomFieldsMixin.update_custom_field
-    delete_custom_field = SyncCustomFieldsMixin.delete_custom_field
 
     def __init__(self, url: str, api_key: str, **kwargs: Any) -> None:
         """Create a synchronous paperless-ngx client.
@@ -179,9 +112,24 @@ class SyncPaperlessClient(
         """
         super().__init__(url, api_key, **kwargs)
 
+    def bulk_edit_objects(
+        self,
+        object_type: str,
+        object_ids: list[int],
+        operation: str,
+        **parameters: Any,
+    ) -> None:
+        """Execute a bulk operation on non-document objects.
+
+        Low-level helper.  Prefer resource-level methods such as
+        ``client.tags.bulk_delete()`` where available.
+        """
+        return self._run(
+            self._async_client.bulk_edit_objects(object_type, object_ids, operation, **parameters)
+        )
+
     def __enter__(self) -> SyncPaperlessClient:
         return self
 
     def __exit__(self, *args: Any) -> None:
         self.close()
-

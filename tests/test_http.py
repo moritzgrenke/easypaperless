@@ -26,14 +26,17 @@ async def session():
     await s.close()
 
 
-@pytest.mark.parametrize("status_code,exc_class", [
-    (401, AuthError),
-    (403, AuthError),
-    (404, NotFoundError),
-    (422, ValidationError),
-    (500, ServerError),
-    (503, ServerError),
-])
+@pytest.mark.parametrize(
+    "status_code,exc_class",
+    [
+        (401, AuthError),
+        (403, AuthError),
+        (404, NotFoundError),
+        (422, ValidationError),
+        (500, ServerError),
+        (503, ServerError),
+    ],
+)
 async def test_error_mapping(session, status_code, exc_class):
     with respx.mock(base_url=BASE_URL + "/api", assert_all_called=False) as router:
         router.get("/test/").mock(return_value=Response(status_code, json={"detail": "error"}))
@@ -104,6 +107,7 @@ async def test_status_code_stored_on_error(session):
 # ---------------------------------------------------------------------------
 # get_all_pages — max_results
 # ---------------------------------------------------------------------------
+
 
 async def test_get_all_pages_max_results_trims_single_page(session):
     """max_results smaller than one page — trims result, does not follow next."""
@@ -214,6 +218,7 @@ async def test_get_all_pages_no_max_results_fetches_all(session):
 # ---------------------------------------------------------------------------
 # get_download
 # ---------------------------------------------------------------------------
+
 
 async def test_get_download_simple(session):
     """get_download returns response for a non-redirected download."""
@@ -326,6 +331,7 @@ async def test_get_download_redirect_http_error_raises_server_error(session):
 # Transport error paths in request()
 # ---------------------------------------------------------------------------
 
+
 async def test_request_timeout_raises_server_error(session):
     """request() wraps httpx.TimeoutException as ServerError."""
     with respx.mock(base_url=BASE_URL + "/api", assert_all_called=False) as router:
@@ -346,6 +352,7 @@ async def test_request_http_error_raises_server_error(session):
 # Non-JSON error body fallback
 # ---------------------------------------------------------------------------
 
+
 async def test_error_non_json_body_fallback(session):
     """_raise_for_status falls back to response.text when body is not JSON."""
     with respx.mock(base_url=BASE_URL + "/api", assert_all_called=False) as router:
@@ -359,6 +366,7 @@ async def test_error_non_json_body_fallback(session):
 # ---------------------------------------------------------------------------
 # on_page callback in get_all_pages
 # ---------------------------------------------------------------------------
+
 
 async def test_get_all_pages_on_page_callback_single_page(session):
     """on_page is called with (fetched_count, total_count) on a single page."""
@@ -395,6 +403,7 @@ async def test_get_all_pages_on_page_callback_multiple_pages(session):
 # Convenience methods: post, patch, delete
 # ---------------------------------------------------------------------------
 
+
 async def test_post_delegates_to_request(session):
     """post() delegates to request() correctly."""
     with respx.mock(base_url=BASE_URL + "/api", assert_all_called=False) as router:
@@ -426,6 +435,7 @@ async def test_delete_delegates_to_request(session):
 # ---------------------------------------------------------------------------
 # get_all_pages — transport errors on next-page fetch
 # ---------------------------------------------------------------------------
+
 
 async def test_get_all_pages_next_page_timeout(session):
     """get_all_pages wraps TimeoutException on next-page fetch as ServerError."""

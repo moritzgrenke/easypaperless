@@ -18,7 +18,7 @@ async def test_upload_returns_task_id(client, mock_router, tmp_path):
     mock_router.post("/documents/post_document/").mock(
         return_value=Response(200, text='"abc-task-123"')
     )
-    result = await client.upload_document(pdf, wait=False)
+    result = await client.documents.upload(pdf, wait=False)
     assert result == "abc-task-123"
 
 
@@ -46,14 +46,14 @@ async def test_upload_wait_true_polls_and_returns_document(client, mock_router, 
     mock_router.get("/tasks/").mock(side_effect=task_side_effect)
     mock_router.get("/documents/10/").mock(return_value=Response(200, json=DOC_DATA))
 
-    result = await client.upload_document(pdf, wait=True, poll_interval=0.01, poll_timeout=5.0)
+    result = await client.documents.upload(pdf, wait=True, poll_interval=0.01, poll_timeout=5.0)
     assert isinstance(result, Document)
     assert result.id == 10
 
 
 async def test_upload_file_not_found_raises(client):
     with pytest.raises(FileNotFoundError):
-        await client.upload_document("/nonexistent/path/doc.pdf")
+        await client.documents.upload("/nonexistent/path/doc.pdf")
 
 
 async def test_upload_sends_metadata_fields(client, mock_router, tmp_path):
@@ -63,7 +63,7 @@ async def test_upload_sends_metadata_fields(client, mock_router, tmp_path):
     route = mock_router.post("/documents/post_document/").mock(
         return_value=Response(200, text='"meta-task"')
     )
-    result = await client.upload_document(
+    result = await client.documents.upload(
         pdf,
         title="My Doc",
         created="2024-01-15",
@@ -107,7 +107,7 @@ async def test_upload_resolves_names(client, mock_router, tmp_path):
         return_value=Response(200, text='"resolve-task"')
     )
 
-    result = await client.upload_document(
+    result = await client.documents.upload(
         pdf,
         correspondent="Acme",
         document_type="Invoice",
@@ -133,7 +133,7 @@ async def test_upload_omits_none_metadata(client, mock_router, tmp_path):
     route = mock_router.post("/documents/post_document/").mock(
         return_value=Response(200, text='"none-task"')
     )
-    await client.upload_document(pdf, title="Only Title")
+    await client.documents.upload(pdf, title="Only Title")
 
     request = route.calls.last.request
     body = request.content.decode("utf-8", errors="replace")
@@ -160,7 +160,7 @@ async def test_upload_wait_true_failure_raises_upload_error(client, mock_router,
     mock_router.get("/tasks/").mock(return_value=Response(200, json=task_failure))
 
     with pytest.raises(UploadError):
-        await client.upload_document(pdf, wait=True, poll_interval=0.01, poll_timeout=5.0)
+        await client.documents.upload(pdf, wait=True, poll_interval=0.01, poll_timeout=5.0)
 
 
 async def test_upload_wait_timeout_raises_task_timeout_error(client, mock_router, tmp_path):
@@ -176,7 +176,7 @@ async def test_upload_wait_timeout_raises_task_timeout_error(client, mock_router
     mock_router.get("/tasks/").mock(return_value=Response(200, json=task_pending))
 
     with pytest.raises(TaskTimeoutError):
-        await client.upload_document(pdf, wait=True, poll_interval=0.01, poll_timeout=0.05)
+        await client.documents.upload(pdf, wait=True, poll_interval=0.01, poll_timeout=0.05)
 
 
 async def test_upload_empty_task_response_keeps_polling(client, mock_router, tmp_path):
@@ -203,7 +203,7 @@ async def test_upload_empty_task_response_keeps_polling(client, mock_router, tmp
     mock_router.get("/tasks/").mock(side_effect=task_side_effect)
     mock_router.get("/documents/10/").mock(return_value=Response(200, json=DOC_DATA))
 
-    result = await client.upload_document(pdf, wait=True, poll_interval=0.01, poll_timeout=5.0)
+    result = await client.documents.upload(pdf, wait=True, poll_interval=0.01, poll_timeout=5.0)
     assert isinstance(result, Document)
 
 
@@ -234,7 +234,7 @@ async def test_upload_wait_started_then_success(client, mock_router, tmp_path):
     mock_router.get("/tasks/").mock(side_effect=task_side_effect)
     mock_router.get("/documents/10/").mock(return_value=Response(200, json=DOC_DATA))
 
-    result = await client.upload_document(pdf, wait=True, poll_interval=0.01, poll_timeout=5.0)
+    result = await client.documents.upload(pdf, wait=True, poll_interval=0.01, poll_timeout=5.0)
     assert isinstance(result, Document)
     assert result.id == 10
 
@@ -266,7 +266,7 @@ async def test_upload_wait_retry_then_success(client, mock_router, tmp_path):
     mock_router.get("/tasks/").mock(side_effect=task_side_effect)
     mock_router.get("/documents/10/").mock(return_value=Response(200, json=DOC_DATA))
 
-    result = await client.upload_document(pdf, wait=True, poll_interval=0.01, poll_timeout=5.0)
+    result = await client.documents.upload(pdf, wait=True, poll_interval=0.01, poll_timeout=5.0)
     assert isinstance(result, Document)
     assert result.id == 10
 
@@ -288,7 +288,7 @@ async def test_upload_wait_revoked_raises_upload_error(client, mock_router, tmp_
     )
 
     with pytest.raises(UploadError, match="revoked"):
-        await client.upload_document(pdf, wait=True, poll_interval=0.01, poll_timeout=5.0)
+        await client.documents.upload(pdf, wait=True, poll_interval=0.01, poll_timeout=5.0)
 
 
 async def test_upload_wait_success_no_related_document_raises(client, mock_router, tmp_path):
@@ -308,4 +308,4 @@ async def test_upload_wait_success_no_related_document_raises(client, mock_route
     )
 
     with pytest.raises(UploadError, match="no document ID"):
-        await client.upload_document(pdf, wait=True, poll_interval=0.01, poll_timeout=5.0)
+        await client.documents.upload(pdf, wait=True, poll_interval=0.01, poll_timeout=5.0)
