@@ -5,6 +5,9 @@ Across multiple client methods, `None` serves dual duty as both the default "not
 1. **Clear a nullable field** in update/create/upload methods (e.g. remove the owner from a document).
 2. **Filter for records with no value set** in list methods (e.g. list documents that have no owner).
 
+fields to consider: in all resources: owner, in documents: archive_serial_number, correspondent, document_type, storage_path
+
+
 ---
 
 ## Environment

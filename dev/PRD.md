@@ -8,10 +8,11 @@ Python developers who want to access the paperless-ngx document management syste
 
 ## Core Features
 
-* Async Client and Sync Client 
+* Async Client and Sync Client
 * Connects to a paperless-ngx instance via token.
 * resources based wrapper that covers most of the functionality of the api
 * custom error hierarchy
+* `UNSET` sentinel for distinguishing "not provided" from explicit `None` (null) in optional parameters — enables clearing nullable fields and filtering for unset values
 
 ## Success Metrics
 GitHub projects building upon easypaperless.

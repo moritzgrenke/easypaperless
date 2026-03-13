@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, List, cast
 
+from easypaperless._internal.sentinel import UNSET, _Unset
 from easypaperless.models.custom_fields import CustomField
 from easypaperless.models.permissions import SetPermissions
 
@@ -68,7 +69,7 @@ class CustomFieldsResource:
         name: str,
         data_type: str,
         extra_data: Any | None = None,
-        owner: int | None = None,
+        owner: int | None | _Unset = UNSET,
         set_permissions: SetPermissions | None = None,
     ) -> CustomField:
         """Create a new custom field.
@@ -102,8 +103,8 @@ class CustomFieldsResource:
         self,
         id: int,
         *,
-        name: str | None = None,
-        extra_data: Any | None = None,
+        name: str | None | _Unset = UNSET,
+        extra_data: Any | None | _Unset = UNSET,
     ) -> CustomField:
         """Partially update a custom field (PATCH semantics).
 

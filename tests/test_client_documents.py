@@ -1222,3 +1222,159 @@ async def test_list_documents_on_page_not_called_when_page_set(client, mock_rout
 
     await client.documents.list(page=1, on_page=on_page)
     assert len(page_calls) == 0
+
+
+# ---------------------------------------------------------------------------
+# UNSET / None sentinel regression tests (issue #0019)
+# ---------------------------------------------------------------------------
+
+def _list_capturing_side_effect(captured: dict, response_data: dict):
+    """Store query params from a list request."""
+
+    def _side_effect(request):
+        captured["params"] = dict(request.url.params)
+        return Response(200, json=response_data)
+
+    return _side_effect
+
+
+async def test_update_document_omitting_nullable_field_does_not_send_it(client, mock_router):
+    """Omitting a nullable field (UNSET default) must NOT include it in the payload."""
+    captured: dict = {}
+    mock_router.patch("/documents/1/").mock(
+        side_effect=_patch_capturing_side_effect(captured, DOC_DATA)
+    )
+    await client.documents.update(1, title="Only title")
+    body = captured["body"]
+    assert body == {"title": "Only title"}
+    assert "correspondent" not in body
+    assert "document_type" not in body
+    assert "storage_path" not in body
+    assert "owner" not in body
+    assert "archive_serial_number" not in body
+
+
+async def test_update_document_none_correspondent_sends_null(client, mock_router):
+    """Passing correspondent=None must send null in the payload to clear the field."""
+    captured: dict = {}
+    mock_router.patch("/documents/1/").mock(
+        side_effect=_patch_capturing_side_effect(captured, DOC_DATA)
+    )
+    await client.documents.update(1, correspondent=None)
+    assert "correspondent" in captured["body"]
+    assert captured["body"]["correspondent"] is None
+
+
+async def test_update_document_none_document_type_sends_null(client, mock_router):
+    """Passing document_type=None must send null in the payload."""
+    captured: dict = {}
+    mock_router.patch("/documents/1/").mock(
+        side_effect=_patch_capturing_side_effect(captured, DOC_DATA)
+    )
+    await client.documents.update(1, document_type=None)
+    assert captured["body"]["document_type"] is None
+
+
+async def test_update_document_none_storage_path_sends_null(client, mock_router):
+    """Passing storage_path=None must send null in the payload."""
+    captured: dict = {}
+    mock_router.patch("/documents/1/").mock(
+        side_effect=_patch_capturing_side_effect(captured, DOC_DATA)
+    )
+    await client.documents.update(1, storage_path=None)
+    assert captured["body"]["storage_path"] is None
+
+
+async def test_update_document_none_owner_sends_null(client, mock_router):
+    """Passing owner=None must send null in the payload to clear the owner."""
+    captured: dict = {}
+    mock_router.patch("/documents/1/").mock(
+        side_effect=_patch_capturing_side_effect(captured, DOC_DATA)
+    )
+    await client.documents.update(1, owner=None)
+    assert "owner" in captured["body"]
+    assert captured["body"]["owner"] is None
+
+
+async def test_update_document_none_asn_sends_null(client, mock_router):
+    """Passing asn=None must send null in the payload to clear the ASN."""
+    captured: dict = {}
+    mock_router.patch("/documents/1/").mock(
+        side_effect=_patch_capturing_side_effect(captured, DOC_DATA)
+    )
+    await client.documents.update(1, asn=None)
+    assert "archive_serial_number" in captured["body"]
+    assert captured["body"]["archive_serial_number"] is None
+
+
+async def test_list_documents_none_owner_filters_no_owner(client, mock_router):
+    """Passing owner=None to list must add owner__isnull=true to the query params."""
+    captured: dict = {}
+    mock_router.get("/documents/").mock(
+        side_effect=_list_capturing_side_effect(captured, DOC_LIST)
+    )
+    await client.documents.list(owner=None)
+    assert captured["params"].get("owner__isnull") == "true"
+    assert "owner__id__in" not in captured["params"]
+
+
+async def test_list_documents_owner_id_filters_by_id(client, mock_router):
+    """Passing owner=5 must add owner__id__in=5 (not isnull)."""
+    captured: dict = {}
+    mock_router.get("/documents/").mock(
+        side_effect=_list_capturing_side_effect(captured, DOC_LIST)
+    )
+    await client.documents.list(owner=5)
+    assert captured["params"].get("owner__id__in") == "5"
+    assert "owner__isnull" not in captured["params"]
+
+
+async def test_list_documents_omitting_owner_applies_no_owner_filter(client, mock_router):
+    """Omitting owner must not add any owner filter to the query params."""
+    captured: dict = {}
+    mock_router.get("/documents/").mock(
+        side_effect=_list_capturing_side_effect(captured, DOC_LIST)
+    )
+    await client.documents.list()
+    assert "owner__isnull" not in captured["params"]
+    assert "owner__id__in" not in captured["params"]
+
+
+async def test_list_documents_none_correspondent_filters_no_correspondent(client, mock_router):
+    """Passing correspondent=None must add correspondent__isnull=true to params."""
+    captured: dict = {}
+    mock_router.get("/documents/").mock(
+        side_effect=_list_capturing_side_effect(captured, DOC_LIST)
+    )
+    await client.documents.list(correspondent=None)
+    assert captured["params"].get("correspondent__isnull") == "true"
+
+
+async def test_list_documents_none_document_type_filters_no_type(client, mock_router):
+    """Passing document_type=None must add document_type__isnull=true to params."""
+    captured: dict = {}
+    mock_router.get("/documents/").mock(
+        side_effect=_list_capturing_side_effect(captured, DOC_LIST)
+    )
+    await client.documents.list(document_type=None)
+    assert captured["params"].get("document_type__isnull") == "true"
+
+
+async def test_list_documents_none_storage_path_filters_no_path(client, mock_router):
+    """Passing storage_path=None must add storage_path__isnull=true to params."""
+    captured: dict = {}
+    mock_router.get("/documents/").mock(
+        side_effect=_list_capturing_side_effect(captured, DOC_LIST)
+    )
+    await client.documents.list(storage_path=None)
+    assert captured["params"].get("storage_path__isnull") == "true"
+
+
+async def test_list_documents_none_archive_serial_number_filters_no_asn(client, mock_router):
+    """Passing archive_serial_number=None must add archive_serial_number__isnull=true."""
+    captured: dict = {}
+    mock_router.get("/documents/").mock(
+        side_effect=_list_capturing_side_effect(captured, DOC_LIST)
+    )
+    await client.documents.list(archive_serial_number=None)
+    assert captured["params"].get("archive_serial_number__isnull") == "true"

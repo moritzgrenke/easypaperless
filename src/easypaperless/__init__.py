@@ -5,6 +5,8 @@ import logging
 
 __version__: str = importlib.metadata.version("easypaperless")
 
+from easypaperless import resources as resources  # noqa: F401
+from easypaperless._internal.sentinel import UNSET
 from easypaperless.client import PaperlessClient
 from easypaperless.exceptions import (
     AuthError,
@@ -35,7 +37,6 @@ from easypaperless.models import (
     TaskStatus,
 )
 from easypaperless.sync import SyncPaperlessClient
-from easypaperless import resources as resources  # noqa: F401
 
 logging.getLogger("easypaperless").addHandler(logging.NullHandler())
 
@@ -44,6 +45,8 @@ __all__ = [
     # Clients
     "PaperlessClient",
     "SyncPaperlessClient",
+    # Sentinel
+    "UNSET",
     # Models
     "MatchingAlgorithm",
     "Correspondent",

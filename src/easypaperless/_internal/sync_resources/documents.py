@@ -7,6 +7,7 @@ from datetime import date, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, List, cast
 
+from easypaperless._internal.sentinel import UNSET, _Unset
 from easypaperless.models.documents import Document, DocumentMetadata, DocumentNote
 from easypaperless.models.permissions import SetPermissions
 
@@ -81,22 +82,22 @@ class SyncDocumentsResource:
         tags: List[int | str] | None = None,
         any_tags: List[int | str] | None = None,
         exclude_tags: List[int | str] | None = None,
-        correspondent: int | str | None = None,
+        correspondent: int | str | None | _Unset = UNSET,
         any_correspondent: List[int | str] | None = None,
         exclude_correspondents: List[int | str] | None = None,
-        document_type: int | str | None = None,
+        document_type: int | str | None | _Unset = UNSET,
         any_document_type: List[int | str] | None = None,
         exclude_document_types: List[int | str] | None = None,
-        storage_path: int | str | None = None,
+        storage_path: int | str | None | _Unset = UNSET,
         any_storage_paths: List[int | str] | None = None,
         exclude_storage_paths: List[int | str] | None = None,
-        owner: int | None = None,
+        owner: int | None | _Unset = UNSET,
         exclude_owners: List[int] | None = None,
         custom_fields: List[int | str] | None = None,
         any_custom_fields: List[int | str] | None = None,
         exclude_custom_fields: List[int | str] | None = None,
         custom_field_query: List[Any] | None = None,
-        archive_serial_number: int | None = None,
+        archive_serial_number: int | None | _Unset = UNSET,
         archive_serial_number_from: int | None = None,
         archive_serial_number_till: int | None = None,
         created_after: date | str | None = None,
@@ -175,17 +176,17 @@ class SyncDocumentsResource:
         self,
         id: int,
         *,
-        title: str | None = None,
-        content: str | None = None,
-        date: str | None = None,
-        correspondent: int | str | None = None,
-        document_type: int | str | None = None,
-        storage_path: int | str | None = None,
-        tags: List[int | str] | None = None,
-        asn: int | None = None,
-        custom_fields: List[dict[str, Any]] | None = None,
-        owner: int | None = None,
-        set_permissions: SetPermissions | None = None,
+        title: str | None | _Unset = UNSET,
+        content: str | None | _Unset = UNSET,
+        date: str | None | _Unset = UNSET,
+        correspondent: int | str | None | _Unset = UNSET,
+        document_type: int | str | None | _Unset = UNSET,
+        storage_path: int | str | None | _Unset = UNSET,
+        tags: List[int | str] | None | _Unset = UNSET,
+        asn: int | None | _Unset = UNSET,
+        custom_fields: List[dict[str, Any]] | None | _Unset = UNSET,
+        owner: int | None | _Unset = UNSET,
+        set_permissions: SetPermissions | None | _Unset = UNSET,
     ) -> Document:
         """Partially update a document.
         

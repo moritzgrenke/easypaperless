@@ -13,6 +13,7 @@ from easypaperless._internal.resources.document_types import DocumentTypesResour
 from easypaperless._internal.resources.documents import DocumentsResource
 from easypaperless._internal.resources.storage_paths import StoragePathsResource
 from easypaperless._internal.resources.tags import TagsResource
+from easypaperless._internal.sentinel import UNSET, _Unset
 from easypaperless.models.permissions import SetPermissions
 
 logger = logging.getLogger(__name__)
@@ -81,13 +82,14 @@ class _ClientCore:
         resource: str,
         model_class: type[Any],
         *,
-        owner: int | None = None,
+        owner: int | None | _Unset = UNSET,
         set_permissions: SetPermissions | None = None,
         **kwargs: Any,
     ) -> Any:
         logger.debug("Creating %s resource", resource)
-        payload = {k: v for k, v in kwargs.items() if v is not None}
-        payload["owner"] = owner  # always send, even as null
+        payload = {k: v for k, v in kwargs.items() if not isinstance(v, _Unset)}
+        if not isinstance(owner, _Unset):
+            payload["owner"] = owner
         payload["set_permissions"] = (
             set_permissions if set_permissions is not None else SetPermissions()
         ).model_dump()
@@ -99,7 +101,7 @@ class _ClientCore:
         self, resource: str, id: int, model_class: type[Any], **kwargs: Any
     ) -> Any:
         logger.debug("Updating %s resource id=%d", resource, id)
-        payload = {k: v for k, v in kwargs.items() if v is not None}
+        payload = {k: v for k, v in kwargs.items() if not isinstance(v, _Unset)}
         resp = await self._session.patch(f"/{resource}/{id}/", json=payload)
         self._resolver.invalidate(resource)
         return model_class.model_validate(resp.json())

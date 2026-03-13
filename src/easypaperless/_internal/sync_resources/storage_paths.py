@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, List, cast
 
+from easypaperless._internal.sentinel import UNSET, _Unset
 from easypaperless.models._base import MatchingAlgorithm
 from easypaperless.models.permissions import SetPermissions
 from easypaperless.models.storage_paths import StoragePath
@@ -66,7 +67,7 @@ class SyncStoragePathsResource:
         match: str | None = None,
         matching_algorithm: MatchingAlgorithm | None = None,
         is_insensitive: bool | None = None,
-        owner: int | None = None,
+        owner: int | None | _Unset = UNSET,
         set_permissions: SetPermissions | None = None,
     ) -> StoragePath:
         """Create a new storage path.
@@ -93,11 +94,12 @@ class SyncStoragePathsResource:
         self,
         id: int,
         *,
-        name: str | None = None,
-        path: str | None = None,
-        match: str | None = None,
-        matching_algorithm: MatchingAlgorithm | None = None,
-        is_insensitive: bool | None = None,
+        name: str | None | _Unset = UNSET,
+        path: str | None | _Unset = UNSET,
+        match: str | None | _Unset = UNSET,
+        matching_algorithm: MatchingAlgorithm | None | _Unset = UNSET,
+        is_insensitive: bool | None | _Unset = UNSET,
+        owner: int | None | _Unset = UNSET,
     ) -> StoragePath:
         """Partially update a storage path.
         
@@ -114,6 +116,7 @@ class SyncStoragePathsResource:
                     match=match,
                     matching_algorithm=matching_algorithm,
                     is_insensitive=is_insensitive,
+                    owner=owner,
                 )
             ),
         )

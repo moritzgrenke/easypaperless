@@ -12,6 +12,7 @@ from datetime import date, datetime
 from pathlib import Path
 from typing import TYPE_CHECKING, Any, List
 
+from easypaperless._internal.sentinel import UNSET, _Unset
 from easypaperless.exceptions import ServerError, TaskTimeoutError, UploadError
 from easypaperless.models.documents import (
     Document,
@@ -177,22 +178,22 @@ class DocumentsResource:
         tags: List[int | str] | None = None,
         any_tags: List[int | str] | None = None,
         exclude_tags: List[int | str] | None = None,
-        correspondent: int | str | None = None,
+        correspondent: int | str | None | _Unset = UNSET,
         any_correspondent: List[int | str] | None = None,
         exclude_correspondents: List[int | str] | None = None,
-        document_type: int | str | None = None,
+        document_type: int | str | None | _Unset = UNSET,
         any_document_type: List[int | str] | None = None,
         exclude_document_types: List[int | str] | None = None,
-        storage_path: int | str | None = None,
+        storage_path: int | str | None | _Unset = UNSET,
         any_storage_paths: List[int | str] | None = None,
         exclude_storage_paths: List[int | str] | None = None,
-        owner: int | None = None,
+        owner: int | None | _Unset = UNSET,
         exclude_owners: List[int] | None = None,
         custom_fields: List[int | str] | None = None,
         any_custom_fields: List[int | str] | None = None,
         exclude_custom_fields: List[int | str] | None = None,
         custom_field_query: List[Any] | None = None,
-        archive_serial_number: int | None = None,
+        archive_serial_number: int | None | _Unset = UNSET,
         archive_serial_number_from: int | None = None,
         archive_serial_number_till: int | None = None,
         created_after: date | str | None = None,
@@ -228,21 +229,31 @@ class DocumentsResource:
             any_tags: Documents must have **at least one** of these tags.
             exclude_tags: Documents must have **none** of these tags.
             correspondent: Filter to documents assigned to this correspondent.
+                Pass ``None`` to return only documents with no correspondent set.
+                Omit (or pass :data:`~easypaperless.UNSET`) to apply no filter.
             any_correspondent: Filter to documents assigned to any of these.
             exclude_correspondents: Exclude documents assigned to any of these.
             document_type: Filter to documents of exactly this type.
+                Pass ``None`` to return only documents with no document type set.
+                Omit (or pass :data:`~easypaperless.UNSET`) to apply no filter.
             any_document_type: Filter to documents whose type is any of these.
             exclude_document_types: Exclude documents whose type is any of these.
             storage_path: Filter to documents assigned to this storage path.
+                Pass ``None`` to return only documents with no storage path set.
+                Omit (or pass :data:`~easypaperless.UNSET`) to apply no filter.
             any_storage_paths: Filter to documents assigned to any of these paths.
             exclude_storage_paths: Exclude documents assigned to any of these paths.
             owner: Filter to documents owned by this user ID.
+                Pass ``None`` to return only documents with no owner set.
+                Omit (or pass :data:`~easypaperless.UNSET`) to apply no filter.
             exclude_owners: Exclude documents owned by any of these user IDs.
             custom_fields: Documents must have **all** of these custom fields set.
             any_custom_fields: Documents must have **at least one** of these fields.
             exclude_custom_fields: Documents must have **none** of these fields.
             custom_field_query: Filter documents by custom field values.
             archive_serial_number: Filter by exact archive serial number.
+                Pass ``None`` to return only documents with no ASN set.
+                Omit (or pass :data:`~easypaperless.UNSET`) to apply no filter.
             archive_serial_number_from: Filter by ASN >= this value.
             archive_serial_number_till: Filter by ASN <= this value.
             created_after: Only documents created after this date.
@@ -291,9 +302,12 @@ class DocumentsResource:
         if any_correspondent is not None:
             resolved = await resolver.resolve_list("correspondents", any_correspondent)
             params["correspondent__id__in"] = ",".join(str(c) for c in resolved)
-        elif correspondent is not None:
-            resolved_id = await resolver.resolve("correspondents", correspondent)
-            params["correspondent__id__in"] = resolved_id
+        elif not isinstance(correspondent, _Unset):
+            if correspondent is None:
+                params["correspondent__isnull"] = "true"
+            else:
+                resolved_id = await resolver.resolve("correspondents", correspondent)
+                params["correspondent__id__in"] = resolved_id
 
         if exclude_correspondents is not None:
             resolved = await resolver.resolve_list("correspondents", exclude_correspondents)
@@ -302,9 +316,12 @@ class DocumentsResource:
         if any_document_type is not None:
             resolved = await resolver.resolve_list("document_types", any_document_type)
             params["document_type__id__in"] = ",".join(str(d) for d in resolved)
-        elif document_type is not None:
-            resolved_id = await resolver.resolve("document_types", document_type)
-            params["document_type"] = resolved_id
+        elif not isinstance(document_type, _Unset):
+            if document_type is None:
+                params["document_type__isnull"] = "true"
+            else:
+                resolved_id = await resolver.resolve("document_types", document_type)
+                params["document_type"] = resolved_id
 
         if exclude_document_types is not None:
             resolved = await resolver.resolve_list("document_types", exclude_document_types)
@@ -313,16 +330,22 @@ class DocumentsResource:
         if any_storage_paths is not None:
             resolved = await resolver.resolve_list("storage_paths", any_storage_paths)
             params["storage_path__id__in"] = ",".join(str(s) for s in resolved)
-        elif storage_path is not None:
-            resolved_id = await resolver.resolve("storage_paths", storage_path)
-            params["storage_path__id__in"] = resolved_id
+        elif not isinstance(storage_path, _Unset):
+            if storage_path is None:
+                params["storage_path__isnull"] = "true"
+            else:
+                resolved_id = await resolver.resolve("storage_paths", storage_path)
+                params["storage_path__id__in"] = resolved_id
 
         if exclude_storage_paths is not None:
             resolved = await resolver.resolve_list("storage_paths", exclude_storage_paths)
             params["storage_path__id__none"] = ",".join(str(s) for s in resolved)
 
-        if owner is not None:
-            params["owner__id__in"] = owner
+        if not isinstance(owner, _Unset):
+            if owner is None:
+                params["owner__isnull"] = "true"
+            else:
+                params["owner__id__in"] = owner
 
         if exclude_owners is not None:
             params["owner__id__none"] = ",".join(str(o) for o in exclude_owners)
@@ -342,8 +365,11 @@ class DocumentsResource:
         if custom_field_query is not None:
             params["custom_field_query"] = json.dumps(custom_field_query)
 
-        if archive_serial_number is not None:
-            params["archive_serial_number"] = archive_serial_number
+        if not isinstance(archive_serial_number, _Unset):
+            if archive_serial_number is None:
+                params["archive_serial_number__isnull"] = "true"
+            else:
+                params["archive_serial_number"] = archive_serial_number
 
         if archive_serial_number_from is not None:
             params["archive_serial_number__gte"] = archive_serial_number_from
@@ -412,17 +438,17 @@ class DocumentsResource:
         self,
         id: int,
         *,
-        title: str | None = None,
-        content: str | None = None,
-        date: str | None = None,
-        correspondent: int | str | None = None,
-        document_type: int | str | None = None,
-        storage_path: int | str | None = None,
-        tags: List[int | str] | None = None,
-        asn: int | None = None,
-        custom_fields: List[dict[str, Any]] | None = None,
-        owner: int | None = None,
-        set_permissions: SetPermissions | None = None,
+        title: str | None | _Unset = UNSET,
+        content: str | None | _Unset = UNSET,
+        date: str | None | _Unset = UNSET,
+        correspondent: int | str | None | _Unset = UNSET,
+        document_type: int | str | None | _Unset = UNSET,
+        storage_path: int | str | None | _Unset = UNSET,
+        tags: List[int | str] | None | _Unset = UNSET,
+        asn: int | None | _Unset = UNSET,
+        custom_fields: List[dict[str, Any]] | None | _Unset = UNSET,
+        owner: int | None | _Unset = UNSET,
+        set_permissions: SetPermissions | None | _Unset = UNSET,
     ) -> Document:
         """Partially update a document (PATCH semantics).
 
@@ -432,12 +458,22 @@ class DocumentsResource:
             content: OCR text content of the document.
             date: Creation date as an ISO-8601 string (``"YYYY-MM-DD"``).
             correspondent: Correspondent to assign, as an ID or name.
+                Pass ``None`` to clear the correspondent.
+                Omit (or pass :data:`~easypaperless.UNSET`) to leave unchanged.
             document_type: Document type to assign, as an ID or name.
+                Pass ``None`` to clear the document type.
+                Omit (or pass :data:`~easypaperless.UNSET`) to leave unchanged.
             storage_path: Storage path to assign, as an ID or name.
+                Pass ``None`` to clear the storage path.
+                Omit (or pass :data:`~easypaperless.UNSET`) to leave unchanged.
             tags: Full replacement list of tags (IDs or names).
             asn: Archive serial number to assign.
+                Pass ``None`` to clear the archive serial number.
+                Omit (or pass :data:`~easypaperless.UNSET`) to leave unchanged.
             custom_fields: List of ``{"field": <field_id>, "value": ...}`` dicts.
             owner: Numeric user ID to assign as document owner.
+                Pass ``None`` to clear the owner.
+                Omit (or pass :data:`~easypaperless.UNSET`) to leave unchanged.
             set_permissions: Explicit view/change permission sets.
 
         Returns:
@@ -447,28 +483,40 @@ class DocumentsResource:
         resolver = self._core._resolver
         payload: dict[str, Any] = {}
 
-        if title is not None:
+        if not isinstance(title, _Unset):
             payload["title"] = title
-        if content is not None:
+        if not isinstance(content, _Unset):
             payload["content"] = content
-        if date is not None:
+        if not isinstance(date, _Unset):
             payload["created"] = date
-        if correspondent is not None:
-            payload["correspondent"] = await resolver.resolve("correspondents", correspondent)
-        if document_type is not None:
-            payload["document_type"] = await resolver.resolve("document_types", document_type)
-        if storage_path is not None:
-            payload["storage_path"] = await resolver.resolve("storage_paths", storage_path)
-        if tags is not None:
-            payload["tags"] = await resolver.resolve_list("tags", tags)
-        if asn is not None:
+        if not isinstance(correspondent, _Unset):
+            payload["correspondent"] = (
+                None
+                if correspondent is None
+                else await resolver.resolve("correspondents", correspondent)
+            )
+        if not isinstance(document_type, _Unset):
+            payload["document_type"] = (
+                None
+                if document_type is None
+                else await resolver.resolve("document_types", document_type)
+            )
+        if not isinstance(storage_path, _Unset):
+            payload["storage_path"] = (
+                None
+                if storage_path is None
+                else await resolver.resolve("storage_paths", storage_path)
+            )
+        if not isinstance(tags, _Unset):
+            payload["tags"] = await resolver.resolve_list("tags", tags or [])
+        if not isinstance(asn, _Unset):
             payload["archive_serial_number"] = asn
-        if custom_fields is not None:
+        if not isinstance(custom_fields, _Unset):
             payload["custom_fields"] = custom_fields
-        if owner is not None:
+        if not isinstance(owner, _Unset):
             payload["owner"] = owner
-        if set_permissions is not None:
-            payload["set_permissions"] = set_permissions.model_dump()
+        if not isinstance(set_permissions, _Unset):
+            payload["set_permissions"] = (set_permissions or SetPermissions()).model_dump()
 
         resp = await self._core._session.patch(f"/documents/{id}/", json=payload)
         return Document.model_validate(resp.json())
