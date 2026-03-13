@@ -30,7 +30,11 @@ class SyncCorrespondentsResource:
         ordering: str | None = None,
         descending: bool = False,
     ) -> List[Correspondent]:
-        """Return correspondents defined in paperless-ngx."""
+        """Return correspondents defined in paperless-ngx.
+        
+        This is a sync wrapper for the async method with exactly the same parameters.
+        See: `easypaperless.CorrespondentsResource.list` 
+        """
         return cast(
             List[Correspondent],
             self._run(
@@ -47,7 +51,11 @@ class SyncCorrespondentsResource:
         )
 
     def get(self, id: int) -> Correspondent:
-        """Fetch a single correspondent by its ID."""
+        """Fetch a single correspondent by its ID.
+        
+        This is a sync wrapper for the async method with exactly the same parameters.
+        See: `easypaperless.CorrespondentsResource.get` 
+        """
         return cast(Correspondent, self._run(self._async_correspondents.get(id)))
 
     def create(
@@ -60,7 +68,11 @@ class SyncCorrespondentsResource:
         owner: int | None = None,
         set_permissions: SetPermissions | None = None,
     ) -> Correspondent:
-        """Create a new correspondent."""
+        """Create a new correspondent.
+        
+        This is a sync wrapper for the async method with exactly the same parameters.
+        See: `easypaperless.CorrespondentsResource.create` 
+        """
         return cast(
             Correspondent,
             self._run(
@@ -84,7 +96,11 @@ class SyncCorrespondentsResource:
         matching_algorithm: MatchingAlgorithm | None = None,
         is_insensitive: bool | None = None,
     ) -> Correspondent:
-        """Partially update a correspondent."""
+        """Partially update a correspondent.
+        
+        This is a sync wrapper for the async method with exactly the same parameters.
+        See: `easypaperless.CorrespondentsResource.update` 
+        """
         return cast(
             Correspondent,
             self._run(
@@ -99,11 +115,19 @@ class SyncCorrespondentsResource:
         )
 
     def delete(self, id: int) -> None:
-        """Delete a correspondent."""
+        """Delete a correspondent.
+        
+        This is a sync wrapper for the async method with exactly the same parameters.
+        See: `easypaperless.CorrespondentsResource.delete` 
+        """
         self._run(self._async_correspondents.delete(id))
 
     def bulk_delete(self, ids: List[int]) -> None:
-        """Permanently delete multiple correspondents."""
+        """Permanently delete multiple correspondents.
+        
+        This is a sync wrapper for the async method with exactly the same parameters.
+        See: `easypaperless.CorrespondentsResource.bulk_delete` 
+        """
         self._run(self._async_correspondents.bulk_delete(ids))
 
     def bulk_set_permissions(
@@ -114,7 +138,11 @@ class SyncCorrespondentsResource:
         owner: int | None = None,
         merge: bool = False,
     ) -> None:
-        """Set permissions and/or owner on multiple correspondents."""
+        """Set permissions and/or owner on multiple correspondents.
+        
+        This is a sync wrapper for the async method with exactly the same parameters.
+        See: `easypaperless.CorrespondentsResource.bulk_set_permissions` 
+        """
         self._run(
             self._async_correspondents.bulk_set_permissions(
                 ids, set_permissions=set_permissions, owner=owner, merge=merge

@@ -30,7 +30,11 @@ class SyncDocumentTypesResource:
         ordering: str | None = None,
         descending: bool = False,
     ) -> List[DocumentType]:
-        """Return document types defined in paperless-ngx."""
+        """Return document types defined in paperless-ngx.
+        
+        This is a sync wrapper for the async method with exactly the same parameters.
+        See: `easypaperless.DocumentTypesResource.list` 
+        """
         return cast(
             List[DocumentType],
             self._run(
@@ -47,7 +51,11 @@ class SyncDocumentTypesResource:
         )
 
     def get(self, id: int) -> DocumentType:
-        """Fetch a single document type by its ID."""
+        """Fetch a single document type by its ID.
+        
+        This is a sync wrapper for the async method with exactly the same parameters.
+        See: `easypaperless.DocumentTypesResource.get` 
+        """
         return cast(DocumentType, self._run(self._async_document_types.get(id)))
 
     def create(
@@ -60,7 +68,11 @@ class SyncDocumentTypesResource:
         owner: int | None = None,
         set_permissions: SetPermissions | None = None,
     ) -> DocumentType:
-        """Create a new document type."""
+        """Create a new document type.
+        
+        This is a sync wrapper for the async method with exactly the same parameters.
+        See: `easypaperless.DocumentTypesResource.create` 
+        """
         return cast(
             DocumentType,
             self._run(
@@ -84,7 +96,11 @@ class SyncDocumentTypesResource:
         matching_algorithm: MatchingAlgorithm | None = None,
         is_insensitive: bool | None = None,
     ) -> DocumentType:
-        """Partially update a document type."""
+        """Partially update a document type.
+        
+        This is a sync wrapper for the async method with exactly the same parameters.
+        See: `easypaperless.DocumentTypesResource.update` 
+        """
         return cast(
             DocumentType,
             self._run(
@@ -99,11 +115,19 @@ class SyncDocumentTypesResource:
         )
 
     def delete(self, id: int) -> None:
-        """Delete a document type."""
+        """Delete a document type.
+        
+        This is a sync wrapper for the async method with exactly the same parameters.
+        See: `easypaperless.DocumentTypesResource.delete` 
+        """
         self._run(self._async_document_types.delete(id))
 
     def bulk_delete(self, ids: List[int]) -> None:
-        """Permanently delete multiple document types."""
+        """Permanently delete multiple document types.
+        
+        This is a sync wrapper for the async method with exactly the same parameters.
+        See: `easypaperless.DocumentTypesResource.bulk_delete` 
+        """
         self._run(self._async_document_types.bulk_delete(ids))
 
     def bulk_set_permissions(
@@ -114,7 +138,11 @@ class SyncDocumentTypesResource:
         owner: int | None = None,
         merge: bool = False,
     ) -> None:
-        """Set permissions and/or owner on multiple document types."""
+        """Set permissions and/or owner on multiple document types.
+        
+        This is a sync wrapper for the async method with exactly the same parameters.
+        See: `easypaperless.DocumentTypesResource.bulk_set_permissions` 
+        """
         self._run(
             self._async_document_types.bulk_set_permissions(
                 ids, set_permissions=set_permissions, owner=owner, merge=merge

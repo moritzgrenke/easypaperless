@@ -7,6 +7,12 @@ from typing import Any
 
 from easypaperless._internal.http import HttpSession
 from easypaperless._internal.resolvers import NameResolver
+from easypaperless._internal.resources.correspondents import CorrespondentsResource
+from easypaperless._internal.resources.custom_fields import CustomFieldsResource
+from easypaperless._internal.resources.document_types import DocumentTypesResource
+from easypaperless._internal.resources.documents import DocumentsResource
+from easypaperless._internal.resources.storage_paths import StoragePathsResource
+from easypaperless._internal.resources.tags import TagsResource
 from easypaperless.models.permissions import SetPermissions
 
 logger = logging.getLogger(__name__)
@@ -14,6 +20,13 @@ logger = logging.getLogger(__name__)
 
 class _ClientCore:
     """Base class: constructor, context manager, and internal CRUD helpers."""
+
+    documents: DocumentsResource
+    tags: TagsResource
+    correspondents: CorrespondentsResource
+    document_types: DocumentTypesResource
+    storage_paths: StoragePathsResource
+    custom_fields: CustomFieldsResource
 
     def __init__(
         self,
@@ -28,13 +41,6 @@ class _ClientCore:
         self._resolver = NameResolver(self._session)
         self._poll_interval = poll_interval
         self._poll_timeout = poll_timeout
-
-        from easypaperless._internal.resources.correspondents import CorrespondentsResource
-        from easypaperless._internal.resources.custom_fields import CustomFieldsResource
-        from easypaperless._internal.resources.document_types import DocumentTypesResource
-        from easypaperless._internal.resources.documents import DocumentsResource
-        from easypaperless._internal.resources.storage_paths import StoragePathsResource
-        from easypaperless._internal.resources.tags import TagsResource
 
         self.documents = DocumentsResource(self)
         self.tags = TagsResource(self)
@@ -126,27 +132,22 @@ class PaperlessClient(_ClientCore):
 
     * ``client.bulk_edit_objects(object_type, object_ids, operation, **parameters)``
 
-    .. deprecated::
-        Use the resource-level bulk methods (e.g. ``client.tags.bulk_delete()``) instead.
-
-
-
     Resources are accessible as attributes:
 
-    * ``client.documents`` — document CRUD, bulk ops, upload, notes
-    * ``client.documents.notes`` — document notes
-    * ``client.tags`` — tag CRUD + bulk ops
-    * ``client.correspondents`` — correspondent CRUD + bulk ops
-    * ``client.document_types`` — document type CRUD + bulk ops
-    * ``client.storage_paths`` — storage path CRUD + bulk ops
-    * ``client.custom_fields`` — custom field CRUD
+    * ``client.correspondents`` — correspondent CRUD + bulk ops - see `easypaperless.resources.CorrespondentsResource`
+    * ``client.custom_fields`` — custom field CRUD - see `easypaperless.resources.CustomFieldsResource`
+    * ``client.document_types`` — document type CRUD + bulk ops - see `easypaperless.resources.DocumentTypesResource`
+    * ``client.documents`` — document CRUD, bulk ops, upload, download - see `easypaperless.resources.DocumentsResource`
+    * ``client.documents.notes`` — document notes - see `easypaperless.resources.NotesResource`
+    * ``client.storage_paths`` — storage path CRUD + bulk ops - see `easypaperless.resources.StoragePathsResource`
+    * ``client.tags`` — tag CRUD + bulk ops - see `easypaperless.resources.TagsResource`
 
     Use as an async context manager to ensure the underlying HTTP connection
     pool is closed when you are done:
 
     Example:
         async with PaperlessClient(url="http://localhost:8000", api_key="abc") as client:
-            docs = await client.documents.list()
+            docs = await client.documents.list(max_results=10)
     """
 
     def __init__(

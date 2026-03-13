@@ -61,7 +61,6 @@ class NotesResource:
         resp = await self._core._session.get(f"/documents/{document_id}/notes/")
         return [DocumentNote.model_validate(item) for item in resp.json()]
 
-    @public
     async def create(self, document_id: int, *, note: str) -> DocumentNote:
         """Create a new note on a document.
 

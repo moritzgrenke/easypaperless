@@ -26,7 +26,11 @@ class SyncCustomFieldsResource:
         ordering: str | None = None,
         descending: bool = False,
     ) -> List[CustomField]:
-        """Return all custom fields defined in paperless-ngx."""
+        """Return all custom fields defined in paperless-ngx.
+        
+        This is a sync wrapper for the async method with exactly the same parameters.
+        See: `easypaperless.CustomFieldsResource.list` 
+        """
         return cast(
             List[CustomField],
             self._run(
@@ -40,7 +44,11 @@ class SyncCustomFieldsResource:
         )
 
     def get(self, id: int) -> CustomField:
-        """Fetch a single custom field by its ID."""
+        """Fetch a single custom field by its ID.
+        
+        This is a sync wrapper for the async method with exactly the same parameters.
+        See: `easypaperless.CustomFieldsResource.get` 
+        """
         return cast(CustomField, self._run(self._async_custom_fields.get(id)))
 
     def create(
@@ -52,7 +60,11 @@ class SyncCustomFieldsResource:
         owner: int | None = None,
         set_permissions: SetPermissions | None = None,
     ) -> CustomField:
-        """Create a new custom field."""
+        """Create a new custom field.
+        
+        This is a sync wrapper for the async method with exactly the same parameters.
+        See: `easypaperless.CustomFieldsResource.create` 
+        """
         return cast(
             CustomField,
             self._run(
@@ -73,7 +85,11 @@ class SyncCustomFieldsResource:
         name: str | None = None,
         extra_data: Any | None = None,
     ) -> CustomField:
-        """Partially update a custom field."""
+        """Partially update a custom field.
+        
+        This is a sync wrapper for the async method with exactly the same parameters.
+        See: `easypaperless.CustomFieldsResource.update` 
+        """
         return cast(
             CustomField,
             self._run(
@@ -86,5 +102,9 @@ class SyncCustomFieldsResource:
         )
 
     def delete(self, id: int) -> None:
-        """Delete a custom field."""
+        """Delete a custom field.
+        
+        This is a sync wrapper for the async method with exactly the same parameters.
+        See: `easypaperless.CustomFieldsResource.delete` 
+        """
         self._run(self._async_custom_fields.delete(id))

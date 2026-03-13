@@ -22,15 +22,27 @@ class SyncNotesResource:
         self._run = run
 
     def list(self, document_id: int) -> List[DocumentNote]:
-        """Fetch all notes attached to a document."""
+        """Fetch all notes attached to a document.
+        
+        This is a sync wrapper for the async method with exactly the same parameters.
+        See: `easypaperless.NotesResource.list` 
+        """
         return cast(List[DocumentNote], self._run(self._async_notes.list(document_id)))
 
     def create(self, document_id: int, *, note: str) -> DocumentNote:
-        """Create a new note on a document."""
+        """Create a new note on a document.
+        
+        This is a sync wrapper for the async method with exactly the same parameters.
+        See: `easypaperless.NotesResource.create` 
+        """
         return cast(DocumentNote, self._run(self._async_notes.create(document_id, note=note)))
 
     def delete(self, document_id: int, note_id: int) -> None:
-        """Delete a note from a document."""
+        """Delete a note from a document.
+        
+        This is a sync wrapper for the async method with exactly the same parameters.
+        See: `easypaperless.NotesResource.delete` 
+        """
         self._run(self._async_notes.delete(document_id, note_id))
 
 
@@ -43,13 +55,21 @@ class SyncDocumentsResource:
         self.notes = SyncNotesResource(async_documents.notes, run)
 
     def get(self, id: int, *, include_metadata: bool = False) -> Document:
-        """Fetch a single document by its ID."""
+        """Fetch a single document by its ID.
+        
+        This is a sync wrapper for the async method with exactly the same parameters.
+        See: `easypaperless.DocumentsResource.get` 
+        """
         return cast(
             Document, self._run(self._async_documents.get(id, include_metadata=include_metadata))
         )
 
     def get_metadata(self, id: int) -> DocumentMetadata:
-        """Fetch the extended file-level metadata for a document."""
+        """Fetch the extended file-level metadata for a document.
+        
+        This is a sync wrapper for the async method with exactly the same parameters.
+        See: `easypaperless.DocumentsResource.get_metadata` 
+        """
         return cast(DocumentMetadata, self._run(self._async_documents.get_metadata(id)))
 
     def list(
@@ -97,7 +117,11 @@ class SyncDocumentsResource:
         max_results: int | None = None,
         on_page: Callable[[int, int | None], None] | None = None,
     ) -> List[Document]:
-        """Return a filtered list of documents."""
+        """Return a filtered list of documents.
+        
+        This is a sync wrapper for the async method with exactly the same parameters.
+        See: `easypaperless.DocumentsResource.list` 
+        """
         return cast(
             List[Document],
             self._run(
@@ -163,7 +187,11 @@ class SyncDocumentsResource:
         owner: int | None = None,
         set_permissions: SetPermissions | None = None,
     ) -> Document:
-        """Partially update a document."""
+        """Partially update a document.
+        
+        This is a sync wrapper for the async method with exactly the same parameters.
+        See: `easypaperless.DocumentsResource.update` 
+        """
         return cast(
             Document,
             self._run(
@@ -185,11 +213,19 @@ class SyncDocumentsResource:
         )
 
     def delete(self, id: int) -> None:
-        """Permanently delete a document."""
+        """Permanently delete a document.
+        
+        This is a sync wrapper for the async method with exactly the same parameters.
+        See: `easypaperless.DocumentsResource.delete` 
+        """
         self._run(self._async_documents.delete(id))
 
     def download(self, id: int, *, original: bool = False) -> bytes:
-        """Download the binary content of a document."""
+        """Download the binary content of a document.
+        
+        This is a sync wrapper for the async method with exactly the same parameters.
+        See: `easypaperless.DocumentsResource.download` 
+        """
         return cast(bytes, self._run(self._async_documents.download(id, original=original)))
 
     def upload(
@@ -207,7 +243,11 @@ class SyncDocumentsResource:
         poll_interval: float | None = None,
         poll_timeout: float | None = None,
     ) -> str | Document:
-        """Upload a document to paperless-ngx."""
+        """Upload a document to paperless-ngx.
+        
+        This is a sync wrapper for the async method with exactly the same parameters.
+        See: `easypaperless.DocumentsResource.upload` 
+        """
         return cast(
             str | Document,
             self._run(
@@ -228,15 +268,27 @@ class SyncDocumentsResource:
         )
 
     def bulk_edit(self, document_ids: List[int], method: str, **parameters: Any) -> None:
-        """Execute a bulk-edit operation on a list of documents."""
+        """Execute a bulk-edit operation on a list of documents.
+        
+        This is a sync wrapper for the async method with exactly the same parameters.
+        See: `easypaperless.DocumentsResource.bulk_edits` 
+        """
         self._run(self._async_documents.bulk_edit(document_ids, method, **parameters))
 
     def bulk_add_tag(self, document_ids: List[int], tag: int | str) -> None:
-        """Add a tag to multiple documents."""
+        """Add a tag to multiple documents.
+        
+        This is a sync wrapper for the async method with exactly the same parameters.
+        See: `easypaperless.DocumentsResource.bulk_add_tag` 
+        """
         self._run(self._async_documents.bulk_add_tag(document_ids, tag))
 
     def bulk_remove_tag(self, document_ids: List[int], tag: int | str) -> None:
-        """Remove a tag from multiple documents."""
+        """Remove a tag from multiple documents.
+        
+        This is a sync wrapper for the async method with exactly the same parameters.
+        See: `easypaperless.DocumentsResource.bulk_remove_tag` 
+        """
         self._run(self._async_documents.bulk_remove_tag(document_ids, tag))
 
     def bulk_modify_tags(
@@ -246,7 +298,11 @@ class SyncDocumentsResource:
         add_tags: List[int | str] | None = None,
         remove_tags: List[int | str] | None = None,
     ) -> None:
-        """Add and/or remove tags on multiple documents atomically."""
+        """Add and/or remove tags on multiple documents atomically.
+        
+        This is a sync wrapper for the async method with exactly the same parameters.
+        See: `easypaperless.DocumentsResource.bulk_modify_tags` 
+        """
         self._run(
             self._async_documents.bulk_modify_tags(
                 document_ids, add_tags=add_tags, remove_tags=remove_tags
@@ -254,25 +310,41 @@ class SyncDocumentsResource:
         )
 
     def bulk_delete(self, document_ids: List[int]) -> None:
-        """Permanently delete multiple documents."""
+        """Permanently delete multiple documents.
+        
+        This is a sync wrapper for the async method with exactly the same parameters.
+        See: `easypaperless.DocumentsResource.bulk_delete` 
+        """
         self._run(self._async_documents.bulk_delete(document_ids))
 
     def bulk_set_correspondent(
         self, document_ids: List[int], correspondent: int | str | None
     ) -> None:
-        """Assign a correspondent to multiple documents."""
+        """Assign a correspondent to multiple documents.
+        
+        This is a sync wrapper for the async method with exactly the same parameters.
+        See: `easypaperless.DocumentsResource.bulk_set_correspondent` 
+        """
         self._run(self._async_documents.bulk_set_correspondent(document_ids, correspondent))
 
     def bulk_set_document_type(
         self, document_ids: List[int], document_type: int | str | None
     ) -> None:
-        """Assign a document type to multiple documents."""
+        """Assign a document type to multiple documents.
+        
+        This is a sync wrapper for the async method with exactly the same parameters.
+        See: `easypaperless.DocumentsResource.bulk_set_document_type` 
+        """
         self._run(self._async_documents.bulk_set_document_type(document_ids, document_type))
 
     def bulk_set_storage_path(
         self, document_ids: List[int], storage_path: int | str | None
     ) -> None:
-        """Assign a storage path to multiple documents."""
+        """Assign a storage path to multiple documents.
+        
+        This is a sync wrapper for the async method with exactly the same parameters.
+        See: `easypaperless.DocumentsResource.bulk_set_storage_path` 
+        """
         self._run(self._async_documents.bulk_set_storage_path(document_ids, storage_path))
 
     def bulk_modify_custom_fields(
@@ -282,7 +354,11 @@ class SyncDocumentsResource:
         add_fields: List[dict[str, Any]] | None = None,
         remove_fields: List[int] | None = None,
     ) -> None:
-        """Add and/or remove custom field values on multiple documents."""
+        """Add and/or remove custom field values on multiple documents.
+        
+        This is a sync wrapper for the async method with exactly the same parameters.
+        See: `easypaperless.DocumentsResource.bulk_modify_custom_fields` 
+        """
         self._run(
             self._async_documents.bulk_modify_custom_fields(
                 document_ids, add_fields=add_fields, remove_fields=remove_fields
@@ -297,7 +373,11 @@ class SyncDocumentsResource:
         owner: int | None = None,
         merge: bool = False,
     ) -> None:
-        """Set permissions and/or owner on multiple documents."""
+        """Set permissions and/or owner on multiple documents.
+        
+        This is a sync wrapper for the async method with exactly the same parameters.
+        See: `easypaperless.DocumentsResource.bulk_set_permissions` 
+        """
         self._run(
             self._async_documents.bulk_set_permissions(
                 document_ids,

@@ -30,7 +30,11 @@ class SyncStoragePathsResource:
         ordering: str | None = None,
         descending: bool = False,
     ) -> List[StoragePath]:
-        """Return storage paths defined in paperless-ngx."""
+        """Return storage paths defined in paperless-ngx.
+        
+        This is a sync wrapper for the async method with exactly the same parameters.
+        See: `easypaperless.StoragePathsResource.list` 
+        """
         return cast(
             List[StoragePath],
             self._run(
@@ -47,7 +51,11 @@ class SyncStoragePathsResource:
         )
 
     def get(self, id: int) -> StoragePath:
-        """Fetch a single storage path by its ID."""
+        """Fetch a single storage path by its ID.
+        
+        This is a sync wrapper for the async method with exactly the same parameters.
+        See: `easypaperless.StoragePathsResource.get` 
+        """
         return cast(StoragePath, self._run(self._async_storage_paths.get(id)))
 
     def create(
@@ -61,7 +69,11 @@ class SyncStoragePathsResource:
         owner: int | None = None,
         set_permissions: SetPermissions | None = None,
     ) -> StoragePath:
-        """Create a new storage path."""
+        """Create a new storage path.
+        
+        This is a sync wrapper for the async method with exactly the same parameters.
+        See: `easypaperless.StoragePathsResource.create` 
+        """
         return cast(
             StoragePath,
             self._run(
@@ -87,7 +99,11 @@ class SyncStoragePathsResource:
         matching_algorithm: MatchingAlgorithm | None = None,
         is_insensitive: bool | None = None,
     ) -> StoragePath:
-        """Partially update a storage path."""
+        """Partially update a storage path.
+        
+        This is a sync wrapper for the async method with exactly the same parameters.
+        See: `easypaperless.StoragePathsResource.update` 
+        """
         return cast(
             StoragePath,
             self._run(
@@ -103,11 +119,19 @@ class SyncStoragePathsResource:
         )
 
     def delete(self, id: int) -> None:
-        """Delete a storage path."""
+        """Delete a storage path.
+        
+        This is a sync wrapper for the async method with exactly the same parameters.
+        See: `easypaperless.StoragePathsResource.delete` 
+        """
         self._run(self._async_storage_paths.delete(id))
 
     def bulk_delete(self, ids: List[int]) -> None:
-        """Permanently delete multiple storage paths."""
+        """Permanently delete multiple storage paths.
+        
+        This is a sync wrapper for the async method with exactly the same parameters.
+        See: `easypaperless.StoragePathsResource.bulk_delete` 
+        """
         self._run(self._async_storage_paths.bulk_delete(ids))
 
     def bulk_set_permissions(
@@ -118,7 +142,11 @@ class SyncStoragePathsResource:
         owner: int | None = None,
         merge: bool = False,
     ) -> None:
-        """Set permissions and/or owner on multiple storage paths."""
+        """Set permissions and/or owner on multiple storage paths.
+        
+        This is a sync wrapper for the async method with exactly the same parameters.
+        See: `easypaperless.StoragePathsResource.bulk_set_permissions` 
+        """
         self._run(
             self._async_storage_paths.bulk_set_permissions(
                 ids, set_permissions=set_permissions, owner=owner, merge=merge

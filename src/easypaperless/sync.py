@@ -11,6 +11,12 @@ import threading
 from collections.abc import Coroutine
 from typing import Any, TypeVar
 
+from easypaperless._internal.sync_resources.correspondents import SyncCorrespondentsResource
+from easypaperless._internal.sync_resources.custom_fields import SyncCustomFieldsResource
+from easypaperless._internal.sync_resources.document_types import SyncDocumentTypesResource
+from easypaperless._internal.sync_resources.documents import SyncDocumentsResource
+from easypaperless._internal.sync_resources.storage_paths import SyncStoragePathsResource
+from easypaperless._internal.sync_resources.tags import SyncTagsResource
 from easypaperless.client import PaperlessClient
 
 _T = TypeVar("_T")
@@ -19,18 +25,18 @@ _T = TypeVar("_T")
 class _SyncCore:
     """Background event loop, _run() helper, and context manager."""
 
+    documents: SyncDocumentsResource
+    tags: SyncTagsResource
+    correspondents: SyncCorrespondentsResource
+    document_types: SyncDocumentTypesResource
+    storage_paths: SyncStoragePathsResource
+    custom_fields: SyncCustomFieldsResource
+
     def __init__(self, url: str, api_key: str, **kwargs: Any) -> None:
         self._loop = asyncio.new_event_loop()
         self._thread = threading.Thread(target=self._loop.run_forever, daemon=True)
         self._thread.start()
         self._async_client = PaperlessClient(url, api_key, **kwargs)
-
-        from easypaperless._internal.sync_resources.correspondents import SyncCorrespondentsResource
-        from easypaperless._internal.sync_resources.custom_fields import SyncCustomFieldsResource
-        from easypaperless._internal.sync_resources.document_types import SyncDocumentTypesResource
-        from easypaperless._internal.sync_resources.documents import SyncDocumentsResource
-        from easypaperless._internal.sync_resources.storage_paths import SyncStoragePathsResource
-        from easypaperless._internal.sync_resources.tags import SyncTagsResource
 
         self.documents = SyncDocumentsResource(self._async_client.documents, self._run)
         self.tags = SyncTagsResource(self._async_client.tags, self._run)
@@ -72,13 +78,13 @@ class SyncPaperlessClient(_SyncCore):
 
     Resources are accessible as attributes:
 
-    * ``client.documents`` — document CRUD, bulk ops, upload, notes
-    * ``client.documents.notes`` — document notes
-    * ``client.tags`` — tag CRUD + bulk ops
-    * ``client.correspondents`` — correspondent CRUD + bulk ops
-    * ``client.document_types`` — document type CRUD + bulk ops
-    * ``client.storage_paths`` — storage path CRUD + bulk ops
-    * ``client.custom_fields`` — custom field CRUD
+    * ``client.correspondents`` — correspondent CRUD + bulk ops - see `easypaperless.resources.SyncCorrespondentsResource`
+    * ``client.custom_fields`` — custom field CRUD - see `easypaperless.resources.SyncCustomFieldsResource`
+    * ``client.document_types`` — document type CRUD + bulk ops - see `easypaperless.resources.SyncDocumentTypesResource`
+    * ``client.documents`` — document CRUD, bulk ops, upload, download - see `easypaperless.resources.SyncDocumentsResource`
+    * ``client.documents.notes`` — document notes - see `easypaperless.resources.SyncNotesResource`
+    * ``client.storage_paths`` — storage path CRUD + bulk ops - see `easypaperless.resources.SyncStoragePathsResource`
+    * ``client.tags`` — tag CRUD + bulk ops - see `easypaperless.resources.SyncTagsResource`  
 
     All methods are synchronous wrappers around the async
     :class:`~easypaperless.client.PaperlessClient`.  Operations run on a

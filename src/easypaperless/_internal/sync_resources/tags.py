@@ -30,7 +30,11 @@ class SyncTagsResource:
         ordering: str | None = None,
         descending: bool = False,
     ) -> List[Tag]:
-        """Return tags defined in paperless-ngx."""
+        """Return tags defined in paperless-ngx.
+        
+        This is a sync wrapper for the async method with exactly the same parameters.
+        See: `easypaperless.TagsResource.list` 
+        """
         return cast(
             List[Tag],
             self._run(
@@ -47,7 +51,11 @@ class SyncTagsResource:
         )
 
     def get(self, id: int) -> Tag:
-        """Fetch a single tag by its ID."""
+        """Fetch a single tag by its ID.
+        
+        This is a sync wrapper for the async method with exactly the same parameters.
+        See: `easypaperless.TagsResource.get` 
+        """
         return cast(Tag, self._run(self._async_tags.get(id)))
 
     def create(
@@ -63,7 +71,11 @@ class SyncTagsResource:
         owner: int | None = None,
         set_permissions: SetPermissions | None = None,
     ) -> Tag:
-        """Create a new tag."""
+        """Create a new tag.
+        
+        This is a sync wrapper for the async method with exactly the same parameters.
+        See: `easypaperless.TagsResource.create` 
+        """
         return cast(
             Tag,
             self._run(
@@ -93,7 +105,11 @@ class SyncTagsResource:
         is_insensitive: bool | None = None,
         parent: int | None = None,
     ) -> Tag:
-        """Partially update a tag."""
+        """Partially update a tag.
+        
+        This is a sync wrapper for the async method with exactly the same parameters.
+        See: `easypaperless.TagsResource.update` 
+        """
         return cast(
             Tag,
             self._run(
@@ -111,11 +127,19 @@ class SyncTagsResource:
         )
 
     def delete(self, id: int) -> None:
-        """Delete a tag."""
+        """Delete a tag.
+        
+        This is a sync wrapper for the async method with exactly the same parameters.
+        See: `easypaperless.TagsResource.delete` 
+        """
         self._run(self._async_tags.delete(id))
 
     def bulk_delete(self, ids: List[int]) -> None:
-        """Permanently delete multiple tags."""
+        """Permanently delete multiple tags.
+        
+        This is a sync wrapper for the async method with exactly the same parameters.
+        See: `easypaperless.TagsResource.bulk_delete` 
+        """
         self._run(self._async_tags.bulk_delete(ids))
 
     def bulk_set_permissions(
@@ -126,7 +150,11 @@ class SyncTagsResource:
         owner: int | None = None,
         merge: bool = False,
     ) -> None:
-        """Set permissions and/or owner on multiple tags."""
+        """Set permissions and/or owner on multiple tags.
+        
+        This is a sync wrapper for the async method with exactly the same parameters.
+        See: `easypaperless.TagsResource.bulk_set_permissions` 
+        """
         self._run(
             self._async_tags.bulk_set_permissions(
                 ids, set_permissions=set_permissions, owner=owner, merge=merge

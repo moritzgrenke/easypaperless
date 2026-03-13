@@ -35,6 +35,7 @@ from easypaperless.models import (
     TaskStatus,
 )
 from easypaperless.sync import SyncPaperlessClient
+from easypaperless import resources as resources  # noqa: F401
 
 logging.getLogger("easypaperless").addHandler(logging.NullHandler())
 
