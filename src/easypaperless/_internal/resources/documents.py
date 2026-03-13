@@ -577,11 +577,11 @@ class DocumentsResource:
         *,
         title: str | None = None,
         created: date | str | None = None,
-        correspondent: int | str | None = None,
-        document_type: int | str | None = None,
-        storage_path: int | str | None = None,
+        correspondent: int | str | None | _Unset = UNSET,
+        document_type: int | str | None | _Unset = UNSET,
+        storage_path: int | str | None | _Unset = UNSET,
         tags: List[int | str] | None = None,
-        archive_serial_number: int | None = None,
+        archive_serial_number: int | None | _Unset = UNSET,
         custom_fields: List[dict[str, Any]] | None = None,
         wait: bool = False,
         poll_interval: float | None = None,
@@ -595,10 +595,18 @@ class DocumentsResource:
             created: Creation date as an ISO-8601 string (``"YYYY-MM-DD"``) or a
                 :class:`~datetime.date` object.
             correspondent: Correspondent to assign, as an ID or name.
+                Omit (or pass :data:`~easypaperless.UNSET`) to leave unset.
+                Pass ``None`` to explicitly omit this field from the request.
             document_type: Document type to assign, as an ID or name.
+                Omit (or pass :data:`~easypaperless.UNSET`) to leave unset.
+                Pass ``None`` to explicitly omit this field from the request.
             storage_path: Storage path to assign, as an ID or name.
+                Omit (or pass :data:`~easypaperless.UNSET`) to leave unset.
+                Pass ``None`` to explicitly omit this field from the request.
             tags: Tags to assign, as IDs or names.
             archive_serial_number: Archive serial number to assign.
+                Omit (or pass :data:`~easypaperless.UNSET`) to leave unset.
+                Pass ``None`` to explicitly omit this field from the request.
             custom_fields: List of ``{"field": <field_id>, "value": ...}`` dicts.
             wait: If ``False`` *(default)*, returns immediately with the task ID.
                 If ``True``, polls until processing completes.
@@ -624,16 +632,16 @@ class DocumentsResource:
             data["title"] = title
         if created is not None:
             data["created"] = self._format_date_value(created)
-        if correspondent is not None:
+        if not isinstance(correspondent, _Unset) and correspondent is not None:
             data["correspondent"] = await resolver.resolve("correspondents", correspondent)
-        if document_type is not None:
+        if not isinstance(document_type, _Unset) and document_type is not None:
             data["document_type"] = await resolver.resolve("document_types", document_type)
-        if storage_path is not None:
+        if not isinstance(storage_path, _Unset) and storage_path is not None:
             data["storage_path"] = await resolver.resolve("storage_paths", storage_path)
         if tags is not None:
             resolved = await resolver.resolve_list("tags", tags)
             data["tags"] = resolved
-        if archive_serial_number is not None:
+        if not isinstance(archive_serial_number, _Unset) and archive_serial_number is not None:
             data["archive_serial_number"] = archive_serial_number
         if custom_fields is not None:
             data["custom_fields"] = json.dumps(custom_fields)

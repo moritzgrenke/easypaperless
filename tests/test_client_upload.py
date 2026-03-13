@@ -125,7 +125,7 @@ async def test_upload_resolves_names(client, mock_router, tmp_path):
     assert "40" in body  # tag ID
 
 
-async def test_upload_omits_none_metadata(client, mock_router, tmp_path):
+async def test_upload_omits_unset_metadata(client, mock_router, tmp_path):
     """Only explicitly passed metadata is included in the request body."""
     pdf = tmp_path / "scan.pdf"
     pdf.write_bytes(b"%PDF-1.4 test")
@@ -138,7 +138,34 @@ async def test_upload_omits_none_metadata(client, mock_router, tmp_path):
     request = route.calls.last.request
     body = request.content.decode("utf-8", errors="replace")
     assert "Only Title" in body
-    # These fields were not passed, so they should not appear
+    # These fields were not passed (UNSET default), so they should not appear
+    assert "correspondent" not in body
+    assert "document_type" not in body
+    assert "storage_path" not in body
+    assert "archive_serial_number" not in body
+
+
+async def test_upload_omits_explicit_none_metadata(client, mock_router, tmp_path):
+    """Explicitly passing None for nullable upload params also omits them (form data has no null)."""
+    from easypaperless._internal.sentinel import UNSET
+
+    pdf = tmp_path / "scan.pdf"
+    pdf.write_bytes(b"%PDF-1.4 test")
+
+    route = mock_router.post("/documents/post_document/").mock(
+        return_value=Response(200, text='"null-task"')
+    )
+    await client.documents.upload(
+        pdf,
+        correspondent=None,
+        document_type=None,
+        storage_path=None,
+        archive_serial_number=None,
+    )
+
+    request = route.calls.last.request
+    body = request.content.decode("utf-8", errors="replace")
+    # None is the same as omitting for multipart form data
     assert "correspondent" not in body
     assert "document_type" not in body
     assert "storage_path" not in body
