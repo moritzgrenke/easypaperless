@@ -20,12 +20,5 @@ with SyncPaperlessClient(url=url, api_key=api_key) as client:
         client.tags.create(name="API_edited", color="#40bfb7")
 
     # Update metadata — string names are resolved to IDs automatically
-    client.documents.update(id=1, tags=["API_edited"], owner= 2)
-    doc = client.documents.get(id=1)
-    print(doc.title, doc.created_date, doc.tags, doc.owner)
-
-    client.documents.update(id=1, tags=[], owner = None)
-    doc = client.documents.get(id=1)
-    print(doc.title, doc.created_date, doc.tags, doc.owner)
-   
-
+    doc = client.documents.update(id=1, tags=["API_edited"])
+    print(doc.title, doc.created_date, doc.tags)
