@@ -276,14 +276,6 @@ class SyncDocumentsResource:
             ),
         )
 
-    def bulk_edit(self, document_ids: List[int], method: str, **parameters: Any) -> None:
-        """Execute a bulk-edit operation on a list of documents.
-        
-        This is a sync wrapper for the async method with exactly the same parameters.
-        See: `easypaperless.DocumentsResource.bulk_edits` 
-        """
-        self._run(self._async_documents.bulk_edit(document_ids, method, **parameters))
-
     def bulk_add_tag(self, document_ids: List[int], tag: int | str) -> None:
         """Add a tag to multiple documents.
         

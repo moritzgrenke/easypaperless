@@ -130,10 +130,6 @@ class _ClientCore:
 class PaperlessClient(_ClientCore):
     """Async client for the paperless-ngx API.
 
-    Low-level bulk helper, available in addition to resource-level methods:
-
-    * ``client.bulk_edit_objects(object_type, object_ids, operation, **parameters)``
-
     Resources are accessible as attributes:
 
     * ``client.correspondents`` — correspondent CRUD + bulk ops - see `easypaperless.resources.CorrespondentsResource`
@@ -179,27 +175,6 @@ class PaperlessClient(_ClientCore):
         super().__init__(
             url, api_key, timeout=timeout, poll_interval=poll_interval, poll_timeout=poll_timeout
         )
-
-    async def bulk_edit_objects(
-        self,
-        object_type: str,
-        object_ids: list[int],
-        operation: str,
-        **parameters: Any,
-    ) -> None:
-        """Execute a bulk operation on non-document objects.
-
-        This is a low-level method.  Prefer the resource-level helpers:
-        ``client.tags.bulk_delete()``, ``client.tags.bulk_set_permissions()``, etc.
-
-        Args:
-            object_type: The paperless-ngx object type string (e.g.
-                ``"tags"``, ``"correspondents"``).
-            object_ids: List of object IDs to operate on.
-            operation: Operation name (e.g. ``"delete"``, ``"set_permissions"``).
-            **parameters: Additional keyword arguments forwarded to the API.
-        """
-        await self._bulk_edit_objects(object_type, object_ids, operation, **parameters)
 
     async def __aenter__(self) -> PaperlessClient:
         return self

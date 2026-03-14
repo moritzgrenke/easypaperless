@@ -77,3 +77,37 @@
 ## Additional Notes
 
 Related to issue #0018 (Resource-Based Client API refactoring) which introduced the high-level bulk operation resource methods that make these low-level methods redundant as public API surface.
+
+## QA
+
+**Tested by:** QA Engineer
+**Date:** 2026-03-14
+**Commit:** d474c3d
+
+### Test Results
+
+| # | Test Case | Expected | Actual | Status |
+|---|-----------|----------|--------|--------|
+| 1 | AC1: `client.bulk_edit_objects` removed as public method | Not accessible on `PaperlessClient` | Public wrapper removed from `client.py`; only `_bulk_edit_objects` on `_ClientCore` remains | ✅ Pass |
+| 2 | AC2: `client.documents.bulk_edit` removed as public method | Not accessible on `DocumentsResource` | Renamed to `_bulk_edit` in `resources/documents.py` | ✅ Pass |
+| 3 | AC3: All high-level bulk methods work via renamed private helpers | All internal call sites use `_bulk_edit` / `_bulk_edit_objects` | All 9 call sites in `documents.py` updated; resource files (tags, correspondents, etc.) already used `_bulk_edit_objects` | ✅ Pass |
+| 4 | AC4: No public sync wrappers for `_bulk_edit_objects` or `_bulk_edit` | Both removed from `sync.py` and `sync_resources/documents.py` | `SyncPaperlessClient.bulk_edit_objects` and `SyncDocumentsResource.bulk_edit` both removed | ✅ Pass |
+| 5 | AC5: Methods absent from `__init__.py` exports | Neither name exported | `grep` found no references to `bulk_edit` in `__init__.py` | ✅ Pass |
+| 6 | AC6: All existing high-level bulk operation tests pass without modification | Tests for `bulk_delete`, `bulk_add_tag`, etc. unchanged and green | 498 tests pass; high-level bulk tests untouched | ✅ Pass |
+| 7 | Edge: Tests that directly tested low-level methods updated appropriately | `test_bulk_edit_raw` and `test_bulk_edit_objects` updated to private names; `test_sync_bulk_edit_objects` removed | Confirmed in diff — consistent with Risks & Considerations | ✅ Pass |
+| 8 | Edge: Non-document resource bulk ops (`tags`, `correspondents`, `document_types`, `storage_paths`) unaffected | Internal `_bulk_edit_objects` calls in resource files unchanged | Already used private `_bulk_edit_objects` — no changes needed | ✅ Pass |
+
+### Bugs Found
+
+None.
+
+### Automated Tests
+
+- Suite: `pytest tests/` — 498 passed, 0 failed (46 deselected — integration tests requiring live instance)
+
+### Summary
+
+- ACs tested: 6/6
+- ACs passing: 6/6
+- Bugs found: 0
+- Recommendation: ✅ Ready to merge

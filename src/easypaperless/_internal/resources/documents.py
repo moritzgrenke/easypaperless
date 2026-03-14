@@ -681,7 +681,7 @@ class DocumentsResource:
     # Document bulk operations
     # -------------------------------------------------------------------------
 
-    async def bulk_edit(self, document_ids: List[int], method: str, **parameters: Any) -> None:
+    async def _bulk_edit(self, document_ids: List[int], method: str, **parameters: Any) -> None:
         """Execute a bulk-edit operation on a list of documents.
 
         Args:
@@ -700,7 +700,7 @@ class DocumentsResource:
             tag: Tag to add, as an ID or name.
         """
         tag_id = await self._core._resolver.resolve("tags", tag)
-        await self.bulk_edit(document_ids, "add_tag", tag=tag_id)
+        await self._bulk_edit(document_ids, "add_tag", tag=tag_id)
 
     async def bulk_remove_tag(self, document_ids: List[int], tag: int | str) -> None:
         """Remove a tag from multiple documents in a single request.
@@ -710,7 +710,7 @@ class DocumentsResource:
             tag: Tag to remove, as an ID or name.
         """
         tag_id = await self._core._resolver.resolve("tags", tag)
-        await self.bulk_edit(document_ids, "remove_tag", tag=tag_id)
+        await self._bulk_edit(document_ids, "remove_tag", tag=tag_id)
 
     async def bulk_modify_tags(
         self,
@@ -729,7 +729,7 @@ class DocumentsResource:
         resolver = self._core._resolver
         add_ids = await resolver.resolve_list("tags", add_tags or [])
         remove_ids = await resolver.resolve_list("tags", remove_tags or [])
-        await self.bulk_edit(document_ids, "modify_tags", add_tags=add_ids, remove_tags=remove_ids)
+        await self._bulk_edit(document_ids, "modify_tags", add_tags=add_ids, remove_tags=remove_ids)
 
     async def bulk_delete(self, document_ids: List[int]) -> None:
         """Permanently delete multiple documents in a single request.
@@ -737,7 +737,7 @@ class DocumentsResource:
         Args:
             document_ids: List of document IDs to delete.
         """
-        await self.bulk_edit(document_ids, "delete")
+        await self._bulk_edit(document_ids, "delete")
 
     async def bulk_set_correspondent(
         self, document_ids: List[int], correspondent: int | str | None
@@ -752,7 +752,7 @@ class DocumentsResource:
         cor_id: int | None = None
         if correspondent is not None:
             cor_id = await self._core._resolver.resolve("correspondents", correspondent)
-        await self.bulk_edit(document_ids, "set_correspondent", correspondent=cor_id)
+        await self._bulk_edit(document_ids, "set_correspondent", correspondent=cor_id)
 
     async def bulk_set_document_type(
         self, document_ids: List[int], document_type: int | str | None
@@ -767,7 +767,7 @@ class DocumentsResource:
         dt_id: int | None = None
         if document_type is not None:
             dt_id = await self._core._resolver.resolve("document_types", document_type)
-        await self.bulk_edit(document_ids, "set_document_type", document_type=dt_id)
+        await self._bulk_edit(document_ids, "set_document_type", document_type=dt_id)
 
     async def bulk_set_storage_path(
         self, document_ids: List[int], storage_path: int | str | None
@@ -782,7 +782,7 @@ class DocumentsResource:
         sp_id: int | None = None
         if storage_path is not None:
             sp_id = await self._core._resolver.resolve("storage_paths", storage_path)
-        await self.bulk_edit(document_ids, "set_storage_path", storage_path=sp_id)
+        await self._bulk_edit(document_ids, "set_storage_path", storage_path=sp_id)
 
     async def bulk_modify_custom_fields(
         self,
@@ -798,7 +798,7 @@ class DocumentsResource:
             add_fields: Custom-field value dicts to add.
             remove_fields: Custom-field IDs whose values should be removed.
         """
-        await self.bulk_edit(
+        await self._bulk_edit(
             document_ids,
             "modify_custom_fields",
             add_custom_fields=add_fields or [],
@@ -826,4 +826,4 @@ class DocumentsResource:
             params["set_permissions"] = set_permissions.model_dump()
         if owner is not None:
             params["owner"] = owner
-        await self.bulk_edit(document_ids, "set_permissions", **params)
+        await self._bulk_edit(document_ids, "set_permissions", **params)

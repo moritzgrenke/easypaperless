@@ -576,13 +576,6 @@ def test_sync_bulk_delete_storage_paths():
             client.storage_paths.bulk_delete([1, 2])
 
 
-def test_sync_bulk_edit_objects():
-    with respx.mock(base_url=BASE_URL + "/api", assert_all_called=False) as router:
-        router.post("/bulk_edit_objects/").mock(return_value=Response(200, json="OK"))
-        with SyncPaperlessClient(url=BASE_URL, api_key=API_KEY) as client:
-            client.bulk_edit_objects("tags", [1, 2], "delete")
-
-
 def test_sync_bulk_set_permissions_tags():
     from easypaperless.models.permissions import PermissionSet, SetPermissions
 

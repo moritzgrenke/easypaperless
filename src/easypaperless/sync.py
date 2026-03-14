@@ -118,22 +118,6 @@ class SyncPaperlessClient(_SyncCore):
         """
         super().__init__(url, api_key, **kwargs)
 
-    def bulk_edit_objects(
-        self,
-        object_type: str,
-        object_ids: list[int],
-        operation: str,
-        **parameters: Any,
-    ) -> None:
-        """Execute a bulk operation on non-document objects.
-
-        Low-level helper.  Prefer resource-level methods such as
-        ``client.tags.bulk_delete()`` where available.
-        """
-        return self._run(
-            self._async_client.bulk_edit_objects(object_type, object_ids, operation, **parameters)
-        )
-
     def __enter__(self) -> SyncPaperlessClient:
         return self
 

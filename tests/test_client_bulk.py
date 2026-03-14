@@ -16,7 +16,7 @@ def _payload(route) -> dict:
 
 async def test_bulk_edit_raw(client, mock_router):
     route = mock_router.post("/documents/bulk_edit/").mock(return_value=Response(200, json={}))
-    await client.documents.bulk_edit([1, 2, 3], "delete")
+    await client.documents._bulk_edit([1, 2, 3], "delete")
     body = _payload(route)
     assert body == {"documents": [1, 2, 3], "method": "delete", "parameters": {}}
 
@@ -220,7 +220,7 @@ async def test_bulk_set_permissions_merge(client, mock_router):
 
 async def test_bulk_edit_objects(client, mock_router):
     route = mock_router.post("/bulk_edit_objects/").mock(return_value=Response(200, json={}))
-    await client.bulk_edit_objects("tags", [1, 2], "delete")
+    await client._bulk_edit_objects("tags", [1, 2], "delete")
     body = _payload(route)
     assert body == {"objects": [1, 2], "object_type": "tags", "operation": "delete"}
 
