@@ -434,7 +434,7 @@ async def test_update_document_none_clears_multiple_nullable_fields(client, mock
         document_type=None,
         storage_path=None,
         owner=None,
-        asn=None,
+        archive_serial_number=None,
     )
     body = captured["body"]
     assert body.get("correspondent") is None

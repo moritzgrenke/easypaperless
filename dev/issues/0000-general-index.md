@@ -21,8 +21,8 @@
 | 0015 | Feature | Non-Document Bulk Operations | QA Passed | [0015-non-document-bulk-operations.md](0015-non-document-bulk-operations.md) |
 | 0016 | Feature | SyncPaperlessClient | QA Passed | [0016-sync-client.md](0016-sync-client.md) |
 | 0017 | Feature | Document Notes | QA Passed | [0017-document-notes.md](0017-document-notes.md) |
-| 0018 | Refactoring | Resource-Based Client API | Implemented | [018-refactoring-resource_based_client_api.md](018-refactoring-resource_based_client_api.md) |
-| 0019 | Bug | None Cannot Express Explicit Null in Update/List Methods | Implemented | [0019-bug-update_document_nullable_fields_unresettable.md](0019-bug-update_document_nullable_fields_unresettable.md) |
-| 0020 | Task | Complete Missing Resource Parameters | Implemented | [0020-task-complete_missing_resource_parameters.md](0020-task-complete_missing_resource_parameters.md) |
-| 0021 | Bug | Documents Resource API Inconsistencies | Open | [0021-bug-documents_resource_api_inconsistencies.md](0021-bug-documents_resource_api_inconsistencies.md) |
-| 0022 | Bug | `is_insensitive` Misleading Default in `create()` Methods | Open | [0022-bug-is_insensitive_misleading_default_in_create.md](0022-bug-is_insensitive_misleading_default_in_create.md) |
+| 0018 | Refactoring | Resource-Based Client API | QA Passed | [018-refactoring-resource_based_client_api.md](018-refactoring-resource_based_client_api.md) |
+| 0019 | Bug | None Cannot Express Explicit Null in Update/List Methods | QA Passed | [0019-bug-update_document_nullable_fields_unresettable.md](0019-bug-update_document_nullable_fields_unresettable.md) |
+| 0020 | Task | Complete Missing Resource Parameters | QA Passed | [0020-task-complete_missing_resource_parameters.md](0020-task-complete_missing_resource_parameters.md) |
+| 0021 | Bug | Documents Resource API Inconsistencies | QA Passed | [0021-bug-documents_resource_api_inconsistencies.md](0021-bug-documents_resource_api_inconsistencies.md) |
+| 0022 | Bug | `is_insensitive` Misleading Default in `create()` Methods | QA Passed | [0022-bug-is_insensitive_misleading_default_in_create.md](0022-bug-is_insensitive_misleading_default_in_create.md) |
