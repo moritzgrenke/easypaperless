@@ -232,24 +232,20 @@ class DocumentsResource:
             exclude_tags: Documents must have **none** of these tags.
             correspondent: Filter to documents assigned to this correspondent.
                 Pass ``None`` to return only documents with no correspondent set.
-                Omit (or pass :data:`~easypaperless.UNSET`) to apply no filter.
             any_correspondent: Filter to documents assigned to any of these.
             exclude_correspondents: Exclude documents assigned to any of these.
             document_type: Filter to documents of exactly this type.
                 Pass ``None`` to return only documents with no document type set.
-                Omit (or pass :data:`~easypaperless.UNSET`) to apply no filter.
             document_type_name_contains: Case-insensitive substring filter on document type name.
             document_type_name_exact: Case-insensitive exact match on document type name.
             any_document_type: Filter to documents whose type is any of these.
             exclude_document_types: Exclude documents whose type is any of these.
             storage_path: Filter to documents assigned to this storage path.
                 Pass ``None`` to return only documents with no storage path set.
-                Omit (or pass :data:`~easypaperless.UNSET`) to apply no filter.
             any_storage_paths: Filter to documents assigned to any of these paths.
             exclude_storage_paths: Exclude documents assigned to any of these paths.
             owner: Filter to documents owned by this user ID.
                 Pass ``None`` to return only documents with no owner set.
-                Omit (or pass :data:`~easypaperless.UNSET`) to apply no filter.
             exclude_owners: Exclude documents owned by any of these user IDs.
             custom_fields: Documents must have **all** of these custom fields set.
             any_custom_fields: Documents must have **at least one** of these fields.
@@ -257,7 +253,6 @@ class DocumentsResource:
             custom_field_query: Filter documents by custom field values.
             archive_serial_number: Filter by exact archive serial number.
                 Pass ``None`` to return only documents with no ASN set.
-                Omit (or pass :data:`~easypaperless.UNSET`) to apply no filter.
             archive_serial_number_from: Filter by ASN >= this value.
             archive_serial_number_till: Filter by ASN <= this value.
             created_after: Only documents created after this date.
@@ -470,24 +465,18 @@ class DocumentsResource:
                 :class:`~datetime.date` object.
             correspondent: Correspondent to assign, as an ID or name.
                 Pass ``None`` to clear the correspondent.
-                Omit (or pass :data:`~easypaperless.UNSET`) to leave unchanged.
             document_type: Document type to assign, as an ID or name.
                 Pass ``None`` to clear the document type.
-                Omit (or pass :data:`~easypaperless.UNSET`) to leave unchanged.
             storage_path: Storage path to assign, as an ID or name.
                 Pass ``None`` to clear the storage path.
-                Omit (or pass :data:`~easypaperless.UNSET`) to leave unchanged.
             tags: Full replacement list of tags (IDs or names).
             archive_serial_number: Archive serial number to assign.
                 Pass ``None`` to clear the archive serial number.
-                Omit (or pass :data:`~easypaperless.UNSET`) to leave unchanged.
             custom_fields: List of ``{"field": <field_id>, "value": ...}`` dicts.
             owner: Numeric user ID to assign as document owner.
                 Pass ``None`` to clear the owner.
-                Omit (or pass :data:`~easypaperless.UNSET`) to leave unchanged.
             set_permissions: Explicit view/change permission sets.
             remove_inbox_tags: When ``True``, removes all inbox tags from the document.
-                Omit (or pass :data:`~easypaperless.UNSET`) to leave unchanged.
 
         Returns:
             The updated :class:`~easypaperless.models.documents.Document`.
@@ -595,23 +584,15 @@ class DocumentsResource:
             created: Creation date as an ISO-8601 string (``"YYYY-MM-DD"``) or a
                 :class:`~datetime.date` object.
             correspondent: Correspondent to assign, as an ID or name.
-                Omit (or pass :data:`~easypaperless.UNSET`) to leave unset.
-                Pass ``None`` to explicitly omit this field from the request.
             document_type: Document type to assign, as an ID or name.
-                Omit (or pass :data:`~easypaperless.UNSET`) to leave unset.
-                Pass ``None`` to explicitly omit this field from the request.
             storage_path: Storage path to assign, as an ID or name.
-                Omit (or pass :data:`~easypaperless.UNSET`) to leave unset.
-                Pass ``None`` to explicitly omit this field from the request.
             tags: Tags to assign, as IDs or names.
             archive_serial_number: Archive serial number to assign.
-                Omit (or pass :data:`~easypaperless.UNSET`) to leave unset.
-                Pass ``None`` to explicitly omit this field from the request.
             custom_fields: List of ``{"field": <field_id>, "value": ...}`` dicts.
             wait: If ``False`` *(default)*, returns immediately with the task ID.
                 If ``True``, polls until processing completes.
-            poll_interval: Override the client-level ``poll_interval``.
-            poll_timeout: Override the client-level ``poll_timeout``.
+            poll_interval: Override the client-level ``poll_interval`` (in seconds).
+            poll_timeout: Override the client-level ``poll_timeout`` (in seconds).
 
         Returns:
             The Celery task ID string when ``wait=False``, or the fully
