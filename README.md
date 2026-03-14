@@ -200,7 +200,7 @@ All functionality is accessed through resource attributes on the client (e.g. `c
 
 ## 📚 Documentation
 
-See the 👉 [Full API Reference (pdoc)](https://tastymojito.github.io/easypaperless/)
+See the 👉 [Full API Reference (pdoc)](https://moritzgrenke.github.io/easypaperless/)
 
 ## 🤝 Contributing
 
