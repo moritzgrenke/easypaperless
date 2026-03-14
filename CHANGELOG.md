@@ -3,24 +3,18 @@
 All notable changes to this project will be documented in this file.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
-## [Unreleased]
+## [0.2.0] - 2026-03-14
 
 ### Breaking Changes
 
 - `DocumentsResource.update()`: parameter `date` renamed to `created`; parameter `asn` renamed to `archive_serial_number`.
 - `DocumentsResource.upload()`: parameter `asn` renamed to `archive_serial_number`.
 - `DocumentsResource.list()`: default `search_mode` changed from `"title_or_text"` to `"title_or_content"`; map key `"title_or_text"` removed in favour of `"title_or_content"`.
-
-### Fixed
-
-- `DocumentsResource.upload()` `created` parameter now also accepts a `date` object (previously only `str`).
-
-## [0.2.0] - 2026-03-13
-
-### Breaking Changes
-
-The client API has been refactored from flat methods to a resource-based API.
-All resource operations are now accessed through resource objects on the client:
+- `client.bulk_edit_objects()` is now private (`_bulk_edit_objects`). It was an internal helper and was not intended for direct use.
+- `client.documents.bulk_edit()` is now private (`_bulk_edit`). It was an internal helper and was not intended for direct use.
+- `create()` methods on `TagsResource`, `CorrespondentsResource`, `DocumentTypesResource`, `StoragePathsResource`, and `CustomFieldsResource`: `is_insensitive` now defaults to `True` (was `False`), matching the paperless-ngx API default.
+- The client API has been refactored from flat methods to a resource-based API.
+  All resource operations are now accessed through resource objects on the client:
 
 | Before (0.1) | After (0.2) |
 |---|---|
@@ -73,6 +67,11 @@ All resource operations are now accessed through resource objects on the client:
 | `client.delete_custom_field(id)` | `client.custom_fields.delete(id)` |
 
 The same changes apply to `SyncPaperlessClient`.
+
+### Fixed
+
+- `DocumentsResource.upload()` `created` parameter now also accepts a `date` object (previously only `str`).
+- `SyncPaperlessClient` `create()` method signatures now consistently include `UNSET` as the default for optional nullable parameters, matching the async client.
 
 ### Removed
 
