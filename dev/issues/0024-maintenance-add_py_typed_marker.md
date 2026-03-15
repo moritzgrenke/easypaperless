@@ -53,3 +53,35 @@ None.
 ## Additional Notes
 - PEP 561 — https://peps.python.org/pep-0561/
 - mypy docs on missing imports — https://mypy.readthedocs.io/en/stable/running_mypy.html#missing-imports
+
+---
+
+## QA
+
+**Tested by:** QA Engineer
+**Date:** 2026-03-15
+**Commit:** 9db1cd1 (uncommitted working tree changes)
+
+### Test Results
+
+| # | Test Case | Expected | Actual | Status |
+|---|-----------|----------|--------|--------|
+| 1 | AC1: `src/easypaperless/py.typed` exists and is empty | File present, 0 bytes | File present, 0 bytes | ✅ Pass |
+| 2 | AC2: Built wheel contains `easypaperless/py.typed` | `py.typed` found in wheel archive | `py.typed` present in `easypaperless-0.2.0-py3-none-any.whl` | ✅ Pass |
+| 3 | AC3: mypy raises no "untyped package" warning when importing easypaperless | No mypy warning/error for missing types | `Success: no issues found in 1 source file` (tested with and without `--ignore-missing-imports`) | ✅ Pass |
+| 4 | Regression: mypy passes on the package source itself | No mypy errors in `src/easypaperless/` | `Success: no issues found in 32 source files` | ✅ Pass |
+| 5 | Regression: full test suite passes | 498 tests pass | 498 passed, 46 deselected (integration) | ✅ Pass |
+
+### Bugs Found
+
+None.
+
+### Automated Tests
+- Suite: pytest — 498 passed, 46 deselected (integration tests excluded by default)
+- No failures.
+
+### Summary
+- ACs tested: 3/3
+- ACs passing: 3/3
+- Bugs found: 0
+- Recommendation: ✅ Ready to merge

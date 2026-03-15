@@ -1,6 +1,6 @@
 # Feature Index
 
-**Next Available ID:** 0025
+**Next Available ID:** 0026
 
 | ID | Type | Name | Status | File |
 |----|------|------|--------|------|
@@ -27,4 +27,5 @@
 | 0021 | Bug | Documents Resource API Inconsistencies | QA Passed | [0021-bug-documents_resource_api_inconsistencies.md](0021-bug-documents_resource_api_inconsistencies.md) |
 | 0022 | Bug | `is_insensitive` Misleading Default in `create()` Methods | QA Passed | [0022-bug-is_insensitive_misleading_default_in_create.md](0022-bug-is_insensitive_misleading_default_in_create.md) |
 | 0023 | Refactoring | Hide Low-Level Bulk Edit Methods from Public API | QA Passed | [0023-refactoring-hide_low_level_bulk_edit_methods.md](0023-refactoring-hide_low_level_bulk_edit_methods.md) |
-| 0024 | Maintenance | Add py.typed Marker File for PEP 561 Compliance | Open | [0024-maintenance-add_py_typed_marker.md](0024-maintenance-add_py_typed_marker.md) |
+| 0024 | Maintenance | Add py.typed Marker File for PEP 561 Compliance | Implemented | [0024-maintenance-add_py_typed_marker.md](0024-maintenance-add_py_typed_marker.md) |
+| 0025 | Bug | `Document.created` Typed as `datetime` Instead of `date` | QA Passed | [0025-bug-document_created_field_wrong_type.md](0025-bug-document_created_field_wrong_type.md) |
