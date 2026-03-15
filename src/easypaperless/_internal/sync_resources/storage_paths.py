@@ -35,8 +35,19 @@ class SyncStoragePathsResource:
     ) -> List[StoragePath]:
         """Return storage paths defined in paperless-ngx.
 
-        This is a sync wrapper for the async method with exactly the same parameters.
-        See: `easypaperless.StoragePathsResource.list`
+        Args:
+            ids: Return only storage paths whose ID is in this list.
+            name_contains: Case-insensitive substring filter on name.
+            name_exact: Case-insensitive exact match on name.
+            path_contains: Case-insensitive substring filter on path template.
+            path_exact: Case-insensitive exact match on path template.
+            page: Return only this specific page (1-based).
+            page_size: Number of results per page.
+            ordering: Field to sort by.
+            descending: When ``True``, reverses the sort direction.
+
+        Returns:
+            List of :class:`~easypaperless.models.storage_paths.StoragePath` objects.
         """
         return cast(
             List[StoragePath],
@@ -57,9 +68,15 @@ class SyncStoragePathsResource:
 
     def get(self, id: int) -> StoragePath:
         """Fetch a single storage path by its ID.
-        
-        This is a sync wrapper for the async method with exactly the same parameters.
-        See: `easypaperless.StoragePathsResource.get` 
+
+        Args:
+            id: Numeric storage-path ID.
+
+        Returns:
+            The :class:`~easypaperless.models.storage_paths.StoragePath` with the given ID.
+
+        Raises:
+            ~easypaperless.exceptions.NotFoundError: If no storage path exists with that ID.
         """
         return cast(StoragePath, self._run(self._async_storage_paths.get(id)))
 
@@ -75,9 +92,19 @@ class SyncStoragePathsResource:
         set_permissions: SetPermissions | None = None,
     ) -> StoragePath:
         """Create a new storage path.
-        
-        This is a sync wrapper for the async method with exactly the same parameters.
-        See: `easypaperless.StoragePathsResource.create` 
+
+        Args:
+            name: Storage-path name. Must be unique.
+            path: Template string for the archive file path.
+            match: Auto-matching pattern.
+            matching_algorithm: Controls how ``match`` is applied.
+            is_insensitive: When ``True``, ``match`` is case-insensitive.
+                Defaults to ``True``, matching the paperless-ngx API default.
+            owner: Numeric user ID to assign as owner.
+            set_permissions: Explicit view/change permission sets.
+
+        Returns:
+            The newly created :class:`~easypaperless.models.storage_paths.StoragePath`.
         """
         return cast(
             StoragePath,
@@ -106,10 +133,23 @@ class SyncStoragePathsResource:
         owner: int | None | _Unset = UNSET,
         set_permissions: SetPermissions | None | _Unset = UNSET,
     ) -> StoragePath:
-        """Partially update a storage path.
+        """Partially update a storage path (PATCH semantics).
 
-        This is a sync wrapper for the async method with exactly the same parameters.
-        See: `easypaperless.StoragePathsResource.update`
+        Args:
+            id: Numeric ID of the storage path to update.
+            name: Storage-path name.
+            path: Template string for the archive file path.
+            match: Auto-matching pattern.
+            matching_algorithm: Controls how ``match`` is applied.
+            is_insensitive: When ``True``, ``match`` is case-insensitive.
+            owner: Numeric user ID to assign as owner.
+                Pass ``None`` to clear the owner.
+                Omit (or pass :data:`~easypaperless.UNSET`) to leave unchanged.
+            set_permissions: Explicit view/change permission sets.
+                Omit (or pass :data:`~easypaperless.UNSET`) to leave unchanged.
+
+        Returns:
+            The updated :class:`~easypaperless.models.storage_paths.StoragePath`.
         """
         return cast(
             StoragePath,
@@ -129,17 +169,20 @@ class SyncStoragePathsResource:
 
     def delete(self, id: int) -> None:
         """Delete a storage path.
-        
-        This is a sync wrapper for the async method with exactly the same parameters.
-        See: `easypaperless.StoragePathsResource.delete` 
+
+        Args:
+            id: Numeric ID of the storage path to delete.
+
+        Raises:
+            ~easypaperless.exceptions.NotFoundError: If no storage path exists with that ID.
         """
         self._run(self._async_storage_paths.delete(id))
 
     def bulk_delete(self, ids: List[int]) -> None:
-        """Permanently delete multiple storage paths.
-        
-        This is a sync wrapper for the async method with exactly the same parameters.
-        See: `easypaperless.StoragePathsResource.bulk_delete` 
+        """Permanently delete multiple storage paths in a single request.
+
+        Args:
+            ids: List of storage path IDs to delete.
         """
         self._run(self._async_storage_paths.bulk_delete(ids))
 
@@ -152,9 +195,12 @@ class SyncStoragePathsResource:
         merge: bool = False,
     ) -> None:
         """Set permissions and/or owner on multiple storage paths.
-        
-        This is a sync wrapper for the async method with exactly the same parameters.
-        See: `easypaperless.StoragePathsResource.bulk_set_permissions` 
+
+        Args:
+            ids: List of storage path IDs to modify.
+            set_permissions: Explicit view/change permission sets.
+            owner: Numeric user ID to assign as owner.
+            merge: When ``True``, new permissions are merged with existing ones.
         """
         self._run(
             self._async_storage_paths.bulk_set_permissions(

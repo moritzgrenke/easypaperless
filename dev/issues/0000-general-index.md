@@ -1,6 +1,6 @@
 # Feature Index
 
-**Next Available ID:** 0026
+**Next Available ID:** 0027
 
 | ID | Type | Name | Status | File |
 |----|------|------|--------|------|
@@ -29,3 +29,4 @@
 | 0023 | Refactoring | Hide Low-Level Bulk Edit Methods from Public API | QA Passed | [0023-refactoring-hide_low_level_bulk_edit_methods.md](0023-refactoring-hide_low_level_bulk_edit_methods.md) |
 | 0024 | Maintenance | Add py.typed Marker File for PEP 561 Compliance | Implemented | [0024-maintenance-add_py_typed_marker.md](0024-maintenance-add_py_typed_marker.md) |
 | 0025 | Bug | `Document.created` Typed as `datetime` Instead of `date` | QA Passed | [0025-bug-document_created_field_wrong_type.md](0025-bug-document_created_field_wrong_type.md) |
+| 0026 | Refactoring | Expand Sync Method Docstrings with Full Parameter Documentation | Implemented | [0026-refactoring-sync_docstrings_full_param_docs.md](0026-refactoring-sync_docstrings_full_param_docs.md) |

@@ -32,9 +32,18 @@ class SyncTagsResource:
         descending: bool = False,
     ) -> List[Tag]:
         """Return tags defined in paperless-ngx.
-        
-        This is a sync wrapper for the async method with exactly the same parameters.
-        See: `easypaperless.TagsResource.list` 
+
+        Args:
+            ids: Return only tags whose ID is in this list.
+            name_contains: Case-insensitive substring filter on tag name.
+            name_exact: Case-insensitive exact match on tag name.
+            page: Return only this specific page (1-based).
+            page_size: Number of results per page.
+            ordering: Field to sort by.
+            descending: When ``True``, reverses the sort direction.
+
+        Returns:
+            List of :class:`~easypaperless.models.tags.Tag` objects.
         """
         return cast(
             List[Tag],
@@ -53,9 +62,16 @@ class SyncTagsResource:
 
     def get(self, id: int) -> Tag:
         """Fetch a single tag by its ID.
-        
-        This is a sync wrapper for the async method with exactly the same parameters.
-        See: `easypaperless.TagsResource.get` 
+
+        Args:
+            id: Numeric tag ID.
+
+        Returns:
+            The :class:`~easypaperless.models.tags.Tag` with the given ID.
+
+        Raises:
+            ~easypaperless.exceptions.NotFoundError: If no tag exists with
+                that ID.
         """
         return cast(Tag, self._run(self._async_tags.get(id)))
 
@@ -73,9 +89,21 @@ class SyncTagsResource:
         set_permissions: SetPermissions | None = None,
     ) -> Tag:
         """Create a new tag.
-        
-        This is a sync wrapper for the async method with exactly the same parameters.
-        See: `easypaperless.TagsResource.create` 
+
+        Args:
+            name: Tag name. Must be unique.
+            color: Background colour as a CSS hex string.
+            is_inbox_tag: When ``True``, newly ingested documents get this tag.
+            match: Auto-matching pattern.
+            matching_algorithm: Controls how ``match`` is applied.
+            is_insensitive: When ``True``, ``match`` is case-insensitive.
+                Defaults to ``True``, matching the paperless-ngx API default.
+            parent: ID of parent tag for hierarchical trees.
+            owner: Numeric user ID to assign as owner.
+            set_permissions: Explicit view/change permission sets.
+
+        Returns:
+            The newly created :class:`~easypaperless.models.tags.Tag`.
         """
         return cast(
             Tag,
@@ -108,10 +136,27 @@ class SyncTagsResource:
         owner: int | None | _Unset = UNSET,
         set_permissions: SetPermissions | None | _Unset = UNSET,
     ) -> Tag:
-        """Partially update a tag.
+        """Partially update a tag (PATCH semantics).
 
-        This is a sync wrapper for the async method with exactly the same parameters.
-        See: `easypaperless.TagsResource.update`
+        Args:
+            id: Numeric ID of the tag to update.
+            name: Tag name.
+            color: Background colour as a CSS hex string.
+            is_inbox_tag: When ``True``, newly ingested documents get this tag.
+            match: Auto-matching pattern.
+            matching_algorithm: Controls how ``match`` is applied.
+            is_insensitive: When ``True``, ``match`` is case-insensitive.
+            parent: ID of parent tag.
+                Pass ``None`` to clear (make root tag).
+                Omit (or pass :data:`~easypaperless.UNSET`) to leave unchanged.
+            owner: Numeric user ID to assign as owner.
+                Pass ``None`` to clear the owner.
+                Omit (or pass :data:`~easypaperless.UNSET`) to leave unchanged.
+            set_permissions: Explicit view/change permission sets.
+                Omit (or pass :data:`~easypaperless.UNSET`) to leave unchanged.
+
+        Returns:
+            The updated :class:`~easypaperless.models.tags.Tag`.
         """
         return cast(
             Tag,
@@ -133,17 +178,21 @@ class SyncTagsResource:
 
     def delete(self, id: int) -> None:
         """Delete a tag.
-        
-        This is a sync wrapper for the async method with exactly the same parameters.
-        See: `easypaperless.TagsResource.delete` 
+
+        Args:
+            id: Numeric ID of the tag to delete.
+
+        Raises:
+            ~easypaperless.exceptions.NotFoundError: If no tag exists with
+                that ID.
         """
         self._run(self._async_tags.delete(id))
 
     def bulk_delete(self, ids: List[int]) -> None:
-        """Permanently delete multiple tags.
-        
-        This is a sync wrapper for the async method with exactly the same parameters.
-        See: `easypaperless.TagsResource.bulk_delete` 
+        """Permanently delete multiple tags in a single request.
+
+        Args:
+            ids: List of tag IDs to delete.
         """
         self._run(self._async_tags.bulk_delete(ids))
 
@@ -156,9 +205,12 @@ class SyncTagsResource:
         merge: bool = False,
     ) -> None:
         """Set permissions and/or owner on multiple tags.
-        
-        This is a sync wrapper for the async method with exactly the same parameters.
-        See: `easypaperless.TagsResource.bulk_set_permissions` 
+
+        Args:
+            ids: List of tag IDs to modify.
+            set_permissions: Explicit view/change permission sets.
+            owner: Numeric user ID to assign as owner.
+            merge: When ``True``, new permissions are merged with existing ones.
         """
         self._run(
             self._async_tags.bulk_set_permissions(

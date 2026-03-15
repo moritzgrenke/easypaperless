@@ -24,25 +24,46 @@ class SyncNotesResource:
 
     def list(self, document_id: int) -> List[DocumentNote]:
         """Fetch all notes attached to a document.
-        
-        This is a sync wrapper for the async method with exactly the same parameters.
-        See: `easypaperless.NotesResource.list` 
+
+        Args:
+            document_id: Numeric ID of the document whose notes to retrieve.
+
+        Returns:
+            List of :class:`~easypaperless.models.documents.DocumentNote` objects,
+            ordered by creation time.
+
+        Raises:
+            ~easypaperless.exceptions.NotFoundError: If no document exists
+                with that ID.
         """
         return cast(List[DocumentNote], self._run(self._async_notes.list(document_id)))
 
     def create(self, document_id: int, *, note: str) -> DocumentNote:
         """Create a new note on a document.
-        
-        This is a sync wrapper for the async method with exactly the same parameters.
-        See: `easypaperless.NotesResource.create` 
+
+        Args:
+            document_id: Numeric ID of the document to annotate.
+            note: Text content of the note.
+
+        Returns:
+            The newly created :class:`~easypaperless.models.documents.DocumentNote`.
+
+        Raises:
+            ~easypaperless.exceptions.NotFoundError: If no document exists
+                with that ID.
         """
         return cast(DocumentNote, self._run(self._async_notes.create(document_id, note=note)))
 
     def delete(self, document_id: int, note_id: int) -> None:
         """Delete a note from a document.
-        
-        This is a sync wrapper for the async method with exactly the same parameters.
-        See: `easypaperless.NotesResource.delete` 
+
+        Args:
+            document_id: Numeric ID of the document that owns the note.
+            note_id: Numeric ID of the note to delete.
+
+        Raises:
+            ~easypaperless.exceptions.NotFoundError: If no document or note
+                exists with the given IDs.
         """
         self._run(self._async_notes.delete(document_id, note_id))
 
@@ -57,9 +78,20 @@ class SyncDocumentsResource:
 
     def get(self, id: int, *, include_metadata: bool = False) -> Document:
         """Fetch a single document by its ID.
-        
-        This is a sync wrapper for the async method with exactly the same parameters.
-        See: `easypaperless.DocumentsResource.get` 
+
+        Args:
+            id: Numeric paperless-ngx document ID.
+            include_metadata: When ``True``, the extended file-level metadata
+                is fetched concurrently and attached to the document.
+                Default: ``False``.
+
+        Returns:
+            The :class:`~easypaperless.models.documents.Document` with the
+            given ID.
+
+        Raises:
+            ~easypaperless.exceptions.NotFoundError: If no document exists
+                with that ID.
         """
         return cast(
             Document, self._run(self._async_documents.get(id, include_metadata=include_metadata))
@@ -67,9 +99,16 @@ class SyncDocumentsResource:
 
     def get_metadata(self, id: int) -> DocumentMetadata:
         """Fetch the extended file-level metadata for a document.
-        
-        This is a sync wrapper for the async method with exactly the same parameters.
-        See: `easypaperless.DocumentsResource.get_metadata` 
+
+        Args:
+            id: Numeric paperless-ngx document ID.
+
+        Returns:
+            A :class:`~easypaperless.models.documents.DocumentMetadata` instance.
+
+        Raises:
+            ~easypaperless.exceptions.NotFoundError: If no document exists
+                with that ID.
         """
         return cast(DocumentMetadata, self._run(self._async_documents.get_metadata(id)))
 
@@ -121,9 +160,64 @@ class SyncDocumentsResource:
         on_page: Callable[[int, int | None], None] | None = None,
     ) -> List[Document]:
         """Return a filtered list of documents.
-        
-        This is a sync wrapper for the async method with exactly the same parameters.
-        See: `easypaperless.DocumentsResource.list` 
+
+        All tag, correspondent, document-type, storage-path, and custom-field
+        parameters accept either integer IDs or string names.
+
+        Args:
+            search: Search string.  Behaviour depends on ``search_mode``.
+            search_mode: How ``search`` is applied.  One of:
+                ``"title_or_content"`` *(default)*, ``"title"``, ``"query"``,
+                ``"original_filename"``.
+            ids: Return only documents whose ID is in this list.
+            tags: Documents must have **all** of these tags (AND semantics).
+            any_tags: Documents must have **at least one** of these tags.
+            exclude_tags: Documents must have **none** of these tags.
+            correspondent: Filter to documents assigned to this correspondent.
+                Pass ``None`` to return only documents with no correspondent set.
+            any_correspondent: Filter to documents assigned to any of these.
+            exclude_correspondents: Exclude documents assigned to any of these.
+            document_type: Filter to documents of exactly this type.
+                Pass ``None`` to return only documents with no document type set.
+            document_type_name_contains: Case-insensitive substring filter on document type name.
+            document_type_name_exact: Case-insensitive exact match on document type name.
+            any_document_type: Filter to documents whose type is any of these.
+            exclude_document_types: Exclude documents whose type is any of these.
+            storage_path: Filter to documents assigned to this storage path.
+                Pass ``None`` to return only documents with no storage path set.
+            any_storage_paths: Filter to documents assigned to any of these paths.
+            exclude_storage_paths: Exclude documents assigned to any of these paths.
+            owner: Filter to documents owned by this user ID.
+                Pass ``None`` to return only documents with no owner set.
+            exclude_owners: Exclude documents owned by any of these user IDs.
+            custom_fields: Documents must have **all** of these custom fields set.
+            any_custom_fields: Documents must have **at least one** of these fields.
+            exclude_custom_fields: Documents must have **none** of these fields.
+            custom_field_query: Filter documents by custom field values.
+            archive_serial_number: Filter by exact archive serial number.
+                Pass ``None`` to return only documents with no ASN set.
+            archive_serial_number_from: Filter by ASN >= this value.
+            archive_serial_number_till: Filter by ASN <= this value.
+            created_after: Only documents created after this date.
+            created_before: Only documents created before this date.
+            added_after: Only documents added after this date/time.
+            added_from: Only documents added on or after this date/time.
+            added_before: Only documents added before this date/time.
+            added_until: Only documents added on or before this date/time.
+            modified_after: Only documents modified after this date/time.
+            modified_from: Only documents modified on or after this date/time.
+            modified_before: Only documents modified before this date/time.
+            modified_until: Only documents modified on or before this date/time.
+            checksum: MD5 checksum of the original file (exact match).
+            page_size: Number of results per API page.  Default: ``25``.
+            page: Return only this specific page (1-based).
+            ordering: Field name to sort by.
+            descending: When ``True``, reverses the sort direction.
+            max_results: Stop after collecting this many documents.
+            on_page: Callback invoked after each page fetch.
+
+        Returns:
+            List of :class:`~easypaperless.models.documents.Document` objects.
         """
         return cast(
             List[Document],
@@ -193,10 +287,31 @@ class SyncDocumentsResource:
         set_permissions: SetPermissions | None | _Unset = UNSET,
         remove_inbox_tags: bool | None | _Unset = UNSET,
     ) -> Document:
-        """Partially update a document.
+        """Partially update a document (PATCH semantics).
 
-        This is a sync wrapper for the async method with exactly the same parameters.
-        See: `easypaperless.DocumentsResource.update`
+        Args:
+            id: Numeric ID of the document to update.
+            title: New document title.
+            content: OCR text content of the document.
+            created: Creation date as an ISO-8601 string (``"YYYY-MM-DD"``) or a
+                :class:`~datetime.date` object.
+            correspondent: Correspondent to assign, as an ID or name.
+                Pass ``None`` to clear the correspondent.
+            document_type: Document type to assign, as an ID or name.
+                Pass ``None`` to clear the document type.
+            storage_path: Storage path to assign, as an ID or name.
+                Pass ``None`` to clear the storage path.
+            tags: Full replacement list of tags (IDs or names).
+            archive_serial_number: Archive serial number to assign.
+                Pass ``None`` to clear the archive serial number.
+            custom_fields: List of ``{"field": <field_id>, "value": ...}`` dicts.
+            owner: Numeric user ID to assign as document owner.
+                Pass ``None`` to clear the owner.
+            set_permissions: Explicit view/change permission sets.
+            remove_inbox_tags: When ``True``, removes all inbox tags from the document.
+
+        Returns:
+            The updated :class:`~easypaperless.models.documents.Document`.
         """
         return cast(
             Document,
@@ -221,17 +336,26 @@ class SyncDocumentsResource:
 
     def delete(self, id: int) -> None:
         """Permanently delete a document.
-        
-        This is a sync wrapper for the async method with exactly the same parameters.
-        See: `easypaperless.DocumentsResource.delete` 
+
+        Args:
+            id: Numeric ID of the document to delete.
+
+        Raises:
+            ~easypaperless.exceptions.NotFoundError: If no document exists
+                with that ID.
         """
         self._run(self._async_documents.delete(id))
 
     def download(self, id: int, *, original: bool = False) -> bytes:
         """Download the binary content of a document.
-        
-        This is a sync wrapper for the async method with exactly the same parameters.
-        See: `easypaperless.DocumentsResource.download` 
+
+        Args:
+            id: Numeric ID of the document to download.
+            original: If ``False`` *(default)*, returns the archived PDF.
+                If ``True``, returns the original uploaded file.
+
+        Returns:
+            Raw file bytes.
         """
         return cast(bytes, self._run(self._async_documents.download(id, original=original)))
 
@@ -253,8 +377,30 @@ class SyncDocumentsResource:
     ) -> str | Document:
         """Upload a document to paperless-ngx.
 
-        This is a sync wrapper for the async method with exactly the same parameters.
-        See: `easypaperless.DocumentsResource.upload`
+        Args:
+            file: Path to the file to upload.
+            title: Title to assign to the document.
+            created: Creation date as an ISO-8601 string (``"YYYY-MM-DD"``) or a
+                :class:`~datetime.date` object.
+            correspondent: Correspondent to assign, as an ID or name.
+            document_type: Document type to assign, as an ID or name.
+            storage_path: Storage path to assign, as an ID or name.
+            tags: Tags to assign, as IDs or names.
+            archive_serial_number: Archive serial number to assign.
+            custom_fields: List of ``{"field": <field_id>, "value": ...}`` dicts.
+            wait: If ``False`` *(default)*, returns immediately with the task ID.
+                If ``True``, polls until processing completes.
+            poll_interval: Override the client-level ``poll_interval`` (in seconds).
+            poll_timeout: Override the client-level ``poll_timeout`` (in seconds).
+
+        Returns:
+            The Celery task ID string when ``wait=False``, or the fully
+            processed :class:`~easypaperless.models.documents.Document`
+            when ``wait=True``.
+
+        Raises:
+            ~easypaperless.exceptions.UploadError: If processing fails.
+            ~easypaperless.exceptions.TaskTimeoutError: If timeout is exceeded.
         """
         return cast(
             str | Document,
@@ -277,18 +423,20 @@ class SyncDocumentsResource:
         )
 
     def bulk_add_tag(self, document_ids: List[int], tag: int | str) -> None:
-        """Add a tag to multiple documents.
-        
-        This is a sync wrapper for the async method with exactly the same parameters.
-        See: `easypaperless.DocumentsResource.bulk_add_tag` 
+        """Add a tag to multiple documents in a single request.
+
+        Args:
+            document_ids: List of document IDs to tag.
+            tag: Tag to add, as an ID or name.
         """
         self._run(self._async_documents.bulk_add_tag(document_ids, tag))
 
     def bulk_remove_tag(self, document_ids: List[int], tag: int | str) -> None:
-        """Remove a tag from multiple documents.
-        
-        This is a sync wrapper for the async method with exactly the same parameters.
-        See: `easypaperless.DocumentsResource.bulk_remove_tag` 
+        """Remove a tag from multiple documents in a single request.
+
+        Args:
+            document_ids: List of document IDs to un-tag.
+            tag: Tag to remove, as an ID or name.
         """
         self._run(self._async_documents.bulk_remove_tag(document_ids, tag))
 
@@ -300,9 +448,11 @@ class SyncDocumentsResource:
         remove_tags: List[int | str] | None = None,
     ) -> None:
         """Add and/or remove tags on multiple documents atomically.
-        
-        This is a sync wrapper for the async method with exactly the same parameters.
-        See: `easypaperless.DocumentsResource.bulk_modify_tags` 
+
+        Args:
+            document_ids: List of document IDs to modify.
+            add_tags: Tags to add, as IDs or names.
+            remove_tags: Tags to remove, as IDs or names.
         """
         self._run(
             self._async_documents.bulk_modify_tags(
@@ -311,40 +461,46 @@ class SyncDocumentsResource:
         )
 
     def bulk_delete(self, document_ids: List[int]) -> None:
-        """Permanently delete multiple documents.
-        
-        This is a sync wrapper for the async method with exactly the same parameters.
-        See: `easypaperless.DocumentsResource.bulk_delete` 
+        """Permanently delete multiple documents in a single request.
+
+        Args:
+            document_ids: List of document IDs to delete.
         """
         self._run(self._async_documents.bulk_delete(document_ids))
 
     def bulk_set_correspondent(
         self, document_ids: List[int], correspondent: int | str | None
     ) -> None:
-        """Assign a correspondent to multiple documents.
-        
-        This is a sync wrapper for the async method with exactly the same parameters.
-        See: `easypaperless.DocumentsResource.bulk_set_correspondent` 
+        """Assign a correspondent to multiple documents in a single request.
+
+        Args:
+            document_ids: List of document IDs to modify.
+            correspondent: Correspondent to assign, as an ID or name.
+                Pass ``None`` to clear.
         """
         self._run(self._async_documents.bulk_set_correspondent(document_ids, correspondent))
 
     def bulk_set_document_type(
         self, document_ids: List[int], document_type: int | str | None
     ) -> None:
-        """Assign a document type to multiple documents.
-        
-        This is a sync wrapper for the async method with exactly the same parameters.
-        See: `easypaperless.DocumentsResource.bulk_set_document_type` 
+        """Assign a document type to multiple documents in a single request.
+
+        Args:
+            document_ids: List of document IDs to modify.
+            document_type: Document type to assign, as an ID or name.
+                Pass ``None`` to clear.
         """
         self._run(self._async_documents.bulk_set_document_type(document_ids, document_type))
 
     def bulk_set_storage_path(
         self, document_ids: List[int], storage_path: int | str | None
     ) -> None:
-        """Assign a storage path to multiple documents.
-        
-        This is a sync wrapper for the async method with exactly the same parameters.
-        See: `easypaperless.DocumentsResource.bulk_set_storage_path` 
+        """Assign a storage path to multiple documents in a single request.
+
+        Args:
+            document_ids: List of document IDs to modify.
+            storage_path: Storage path to assign, as an ID or name.
+                Pass ``None`` to clear.
         """
         self._run(self._async_documents.bulk_set_storage_path(document_ids, storage_path))
 
@@ -356,9 +512,11 @@ class SyncDocumentsResource:
         remove_fields: List[int] | None = None,
     ) -> None:
         """Add and/or remove custom field values on multiple documents.
-        
-        This is a sync wrapper for the async method with exactly the same parameters.
-        See: `easypaperless.DocumentsResource.bulk_modify_custom_fields` 
+
+        Args:
+            document_ids: List of document IDs to modify.
+            add_fields: Custom-field value dicts to add.
+            remove_fields: Custom-field IDs whose values should be removed.
         """
         self._run(
             self._async_documents.bulk_modify_custom_fields(
@@ -375,9 +533,12 @@ class SyncDocumentsResource:
         merge: bool = False,
     ) -> None:
         """Set permissions and/or owner on multiple documents.
-        
-        This is a sync wrapper for the async method with exactly the same parameters.
-        See: `easypaperless.DocumentsResource.bulk_set_permissions` 
+
+        Args:
+            document_ids: List of document IDs to modify.
+            set_permissions: Explicit view/change permission sets.
+            owner: Numeric user ID to assign as document owner.
+            merge: When ``True``, new permissions are merged with existing ones.
         """
         self._run(
             self._async_documents.bulk_set_permissions(

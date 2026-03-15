@@ -31,8 +31,16 @@ class SyncCustomFieldsResource:
     ) -> List[CustomField]:
         """Return all custom fields defined in paperless-ngx.
 
-        This is a sync wrapper for the async method with exactly the same parameters.
-        See: `easypaperless.CustomFieldsResource.list`
+        Args:
+            name_contains: Case-insensitive substring filter on name.
+            name_exact: Case-insensitive exact match on name.
+            page: Return only this specific page (1-based).
+            page_size: Number of results per page.
+            ordering: Field to sort by.
+            descending: When ``True``, reverses the sort direction.
+
+        Returns:
+            List of :class:`~easypaperless.models.custom_fields.CustomField` objects.
         """
         return cast(
             List[CustomField],
@@ -50,9 +58,15 @@ class SyncCustomFieldsResource:
 
     def get(self, id: int) -> CustomField:
         """Fetch a single custom field by its ID.
-        
-        This is a sync wrapper for the async method with exactly the same parameters.
-        See: `easypaperless.CustomFieldsResource.get` 
+
+        Args:
+            id: Numeric custom-field ID.
+
+        Returns:
+            The :class:`~easypaperless.models.custom_fields.CustomField` with the given ID.
+
+        Raises:
+            ~easypaperless.exceptions.NotFoundError: If no custom field exists with that ID.
         """
         return cast(CustomField, self._run(self._async_custom_fields.get(id)))
 
@@ -66,9 +80,18 @@ class SyncCustomFieldsResource:
         set_permissions: SetPermissions | None = None,
     ) -> CustomField:
         """Create a new custom field.
-        
-        This is a sync wrapper for the async method with exactly the same parameters.
-        See: `easypaperless.CustomFieldsResource.create` 
+
+        Args:
+            name: Field name shown in the UI. Must be unique.
+            data_type: Value type. One of ``"string"``, ``"boolean"``,
+                ``"integer"``, ``"float"``, ``"monetary"``, ``"date"``,
+                ``"url"``, ``"documentlink"``, ``"select"``.
+            extra_data: Additional configuration for the field type.
+            owner: Numeric user ID to assign as owner.
+            set_permissions: Explicit view/change permission sets.
+
+        Returns:
+            The newly created :class:`~easypaperless.models.custom_fields.CustomField`.
         """
         return cast(
             CustomField,
@@ -91,10 +114,17 @@ class SyncCustomFieldsResource:
         data_type: str | None | _Unset = UNSET,
         extra_data: Any | None | _Unset = UNSET,
     ) -> CustomField:
-        """Partially update a custom field.
+        """Partially update a custom field (PATCH semantics).
 
-        This is a sync wrapper for the async method with exactly the same parameters.
-        See: `easypaperless.CustomFieldsResource.update`
+        Args:
+            id: Numeric ID of the custom field to update.
+            name: Field name shown in the UI.
+            data_type: Value type (e.g. ``"string"``, ``"boolean"``, ``"integer"``).
+                Omit (or pass :data:`~easypaperless.UNSET`) to leave unchanged.
+            extra_data: Additional configuration for the field type.
+
+        Returns:
+            The updated :class:`~easypaperless.models.custom_fields.CustomField`.
         """
         return cast(
             CustomField,
@@ -110,8 +140,11 @@ class SyncCustomFieldsResource:
 
     def delete(self, id: int) -> None:
         """Delete a custom field.
-        
-        This is a sync wrapper for the async method with exactly the same parameters.
-        See: `easypaperless.CustomFieldsResource.delete` 
+
+        Args:
+            id: Numeric ID of the custom field to delete.
+
+        Raises:
+            ~easypaperless.exceptions.NotFoundError: If no custom field exists with that ID.
         """
         self._run(self._async_custom_fields.delete(id))

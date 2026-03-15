@@ -32,9 +32,18 @@ class SyncCorrespondentsResource:
         descending: bool = False,
     ) -> List[Correspondent]:
         """Return correspondents defined in paperless-ngx.
-        
-        This is a sync wrapper for the async method with exactly the same parameters.
-        See: `easypaperless.CorrespondentsResource.list` 
+
+        Args:
+            ids: Return only correspondents whose ID is in this list.
+            name_contains: Case-insensitive substring filter on name.
+            name_exact: Case-insensitive exact match on name.
+            page: Return only this specific page (1-based).
+            page_size: Number of results per page.
+            ordering: Field to sort by.
+            descending: When ``True``, reverses the sort direction.
+
+        Returns:
+            List of :class:`~easypaperless.models.correspondents.Correspondent` objects.
         """
         return cast(
             List[Correspondent],
@@ -53,9 +62,15 @@ class SyncCorrespondentsResource:
 
     def get(self, id: int) -> Correspondent:
         """Fetch a single correspondent by its ID.
-        
-        This is a sync wrapper for the async method with exactly the same parameters.
-        See: `easypaperless.CorrespondentsResource.get` 
+
+        Args:
+            id: Numeric correspondent ID.
+
+        Returns:
+            The :class:`~easypaperless.models.correspondents.Correspondent` with the given ID.
+
+        Raises:
+            ~easypaperless.exceptions.NotFoundError: If no correspondent exists with that ID.
         """
         return cast(Correspondent, self._run(self._async_correspondents.get(id)))
 
@@ -70,9 +85,18 @@ class SyncCorrespondentsResource:
         set_permissions: SetPermissions | None = None,
     ) -> Correspondent:
         """Create a new correspondent.
-        
-        This is a sync wrapper for the async method with exactly the same parameters.
-        See: `easypaperless.CorrespondentsResource.create` 
+
+        Args:
+            name: Correspondent name. Must be unique.
+            match: Auto-matching pattern.
+            matching_algorithm: Controls how ``match`` is applied.
+            is_insensitive: When ``True``, ``match`` is case-insensitive.
+                Defaults to ``True``, matching the paperless-ngx API default.
+            owner: Numeric user ID to assign as owner.
+            set_permissions: Explicit view/change permission sets.
+
+        Returns:
+            The newly created :class:`~easypaperless.models.correspondents.Correspondent`.
         """
         return cast(
             Correspondent,
@@ -99,10 +123,22 @@ class SyncCorrespondentsResource:
         owner: int | None | _Unset = UNSET,
         set_permissions: SetPermissions | None | _Unset = UNSET,
     ) -> Correspondent:
-        """Partially update a correspondent.
+        """Partially update a correspondent (PATCH semantics).
 
-        This is a sync wrapper for the async method with exactly the same parameters.
-        See: `easypaperless.CorrespondentsResource.update`
+        Args:
+            id: Numeric ID of the correspondent to update.
+            name: Correspondent name.
+            match: Auto-matching pattern.
+            matching_algorithm: Controls how ``match`` is applied.
+            is_insensitive: When ``True``, ``match`` is case-insensitive.
+            owner: Numeric user ID to assign as owner.
+                Pass ``None`` to clear the owner.
+                Omit (or pass :data:`~easypaperless.UNSET`) to leave unchanged.
+            set_permissions: Explicit view/change permission sets.
+                Omit (or pass :data:`~easypaperless.UNSET`) to leave unchanged.
+
+        Returns:
+            The updated :class:`~easypaperless.models.correspondents.Correspondent`.
         """
         return cast(
             Correspondent,
@@ -121,17 +157,20 @@ class SyncCorrespondentsResource:
 
     def delete(self, id: int) -> None:
         """Delete a correspondent.
-        
-        This is a sync wrapper for the async method with exactly the same parameters.
-        See: `easypaperless.CorrespondentsResource.delete` 
+
+        Args:
+            id: Numeric ID of the correspondent to delete.
+
+        Raises:
+            ~easypaperless.exceptions.NotFoundError: If no correspondent exists with that ID.
         """
         self._run(self._async_correspondents.delete(id))
 
     def bulk_delete(self, ids: List[int]) -> None:
-        """Permanently delete multiple correspondents.
-        
-        This is a sync wrapper for the async method with exactly the same parameters.
-        See: `easypaperless.CorrespondentsResource.bulk_delete` 
+        """Permanently delete multiple correspondents in a single request.
+
+        Args:
+            ids: List of correspondent IDs to delete.
         """
         self._run(self._async_correspondents.bulk_delete(ids))
 
@@ -144,9 +183,12 @@ class SyncCorrespondentsResource:
         merge: bool = False,
     ) -> None:
         """Set permissions and/or owner on multiple correspondents.
-        
-        This is a sync wrapper for the async method with exactly the same parameters.
-        See: `easypaperless.CorrespondentsResource.bulk_set_permissions` 
+
+        Args:
+            ids: List of correspondent IDs to modify.
+            set_permissions: Explicit view/change permission sets.
+            owner: Numeric user ID to assign as owner.
+            merge: When ``True``, new permissions are merged with existing ones.
         """
         self._run(
             self._async_correspondents.bulk_set_permissions(
