@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import json
+
 import respx
 from httpx import Response
 
@@ -229,6 +231,24 @@ def test_sync_create_tag():
         with SyncPaperlessClient(url=BASE_URL, api_key=API_KEY) as client:
             tag = client.tags.create(name="receipt")
     assert tag.name == "receipt"
+
+
+def test_sync_create_tag_omits_color_and_is_inbox_tag_when_not_provided():
+    """Regression: color and is_inbox_tag must default to UNSET, not None (issue #0027)."""
+    captured: dict = {}
+    created = {**TAG_DATA, "id": 2, "name": "receipt"}
+
+    def _capture(request):
+        captured["body"] = json.loads(request.content)
+        return Response(201, json=created)
+
+    with respx.mock(base_url=BASE_URL + "/api", assert_all_called=False) as router:
+        router.post("/tags/").mock(side_effect=_capture)
+        with SyncPaperlessClient(url=BASE_URL, api_key=API_KEY) as client:
+            client.tags.create(name="receipt")
+
+    assert "color" not in captured["body"]
+    assert "is_inbox_tag" not in captured["body"]
 
 
 def test_sync_update_tag():

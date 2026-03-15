@@ -1,6 +1,6 @@
 # Feature Index
 
-**Next Available ID:** 0027
+**Next Available ID:** 0028
 
 | ID | Type | Name | Status | File |
 |----|------|------|--------|------|
@@ -30,3 +30,4 @@
 | 0024 | Maintenance | Add py.typed Marker File for PEP 561 Compliance | Deployed | [0024-maintenance-add_py_typed_marker.md](0024-maintenance-add_py_typed_marker.md) |
 | 0025 | Bug | `Document.created` Typed as `datetime` Instead of `date` | Deployed | [0025-bug-document_created_field_wrong_type.md](0025-bug-document_created_field_wrong_type.md) |
 | 0026 | Refactoring | Expand Sync Method Docstrings with Full Parameter Documentation | Deployed | [0026-refactoring-sync_docstrings_full_param_docs.md](0026-refactoring-sync_docstrings_full_param_docs.md) |
+| 0027 | Bug | `SyncTagsResource.create()` Wrong Default Values for `color` and `is_inbox_tag` | QA Passed | [0027-bug-sync_tags_create_wrong_default_values.md](0027-bug-sync_tags_create_wrong_default_values.md) |
