@@ -7,6 +7,7 @@ Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
 ### Breaking Changes
 
+- `PaperlessClient` and `SyncPaperlessClient` constructor parameter renamed from `api_key` to `api_token`. Update any call site passing `api_key=` as a keyword argument.
 - All `list()` methods now return `PagedResult[T]` instead of `list[T]`. Update call sites to access items via `.results` and the total count via `.count`.
 
 ### Added

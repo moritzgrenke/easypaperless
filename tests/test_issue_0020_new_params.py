@@ -424,7 +424,7 @@ async def test_update_tag_set_permissions_none_sends_empty_dict(client, mock_rou
 
 
 def _sync_client(router):
-    return SyncPaperlessClient(url=BASE_URL, api_key=API_KEY)
+    return SyncPaperlessClient(url=BASE_URL, api_token=API_KEY)
 
 
 def test_sync_update_correspondent_set_permissions_forwarded():
@@ -433,7 +433,7 @@ def test_sync_update_correspondent_set_permissions_forwarded():
         router.patch("/correspondents/1/").mock(
             side_effect=_capturing_body(captured, CORR_DATA)
         )
-        with SyncPaperlessClient(url=BASE_URL, api_key=API_KEY) as client:
+        with SyncPaperlessClient(url=BASE_URL, api_token=API_KEY) as client:
             client.correspondents.update(1, set_permissions=PERMS)
     assert captured["body"]["set_permissions"] == PERMS_DICT
 
@@ -444,7 +444,7 @@ def test_sync_list_custom_fields_name_contains_forwarded():
         router.get("/custom_fields/").mock(
             side_effect=_capturing_params(captured, CF_LIST)
         )
-        with SyncPaperlessClient(url=BASE_URL, api_key=API_KEY) as client:
+        with SyncPaperlessClient(url=BASE_URL, api_token=API_KEY) as client:
             client.custom_fields.list(name_contains="amount")
     assert captured["params"].get("name__icontains") == "amount"
 
@@ -455,7 +455,7 @@ def test_sync_update_custom_field_data_type_forwarded():
         router.patch("/custom_fields/1/").mock(
             side_effect=_capturing_body(captured, CF_DATA)
         )
-        with SyncPaperlessClient(url=BASE_URL, api_key=API_KEY) as client:
+        with SyncPaperlessClient(url=BASE_URL, api_token=API_KEY) as client:
             client.custom_fields.update(1, data_type="integer")
     assert captured["body"]["data_type"] == "integer"
 
@@ -466,7 +466,7 @@ def test_sync_update_document_type_set_permissions_forwarded():
         router.patch("/document_types/1/").mock(
             side_effect=_capturing_body(captured, DOCTYPE_DATA)
         )
-        with SyncPaperlessClient(url=BASE_URL, api_key=API_KEY) as client:
+        with SyncPaperlessClient(url=BASE_URL, api_token=API_KEY) as client:
             client.document_types.update(1, set_permissions=PERMS)
     assert captured["body"]["set_permissions"] == PERMS_DICT
 
@@ -477,7 +477,7 @@ def test_sync_list_documents_document_type_name_contains_forwarded():
         router.get("/documents/").mock(
             side_effect=_capturing_params(captured, DOC_LIST)
         )
-        with SyncPaperlessClient(url=BASE_URL, api_key=API_KEY) as client:
+        with SyncPaperlessClient(url=BASE_URL, api_token=API_KEY) as client:
             client.documents.list(document_type_name_contains="invoice")
     assert captured["params"].get("document_type__name__icontains") == "invoice"
 
@@ -488,7 +488,7 @@ def test_sync_update_document_remove_inbox_tags_forwarded():
         router.patch("/documents/1/").mock(
             side_effect=_capturing_body(captured, DOC_DATA)
         )
-        with SyncPaperlessClient(url=BASE_URL, api_key=API_KEY) as client:
+        with SyncPaperlessClient(url=BASE_URL, api_token=API_KEY) as client:
             client.documents.update(1, remove_inbox_tags=True)
     assert captured["body"]["remove_inbox_tags"] is True
 
@@ -502,7 +502,7 @@ def test_sync_upload_custom_fields_forwarded(tmp_path):
         route = router.post("/documents/post_document/").mock(
             return_value=Response(200, text='"upload-task"')
         )
-        with SyncPaperlessClient(url=BASE_URL, api_key=API_KEY) as client:
+        with SyncPaperlessClient(url=BASE_URL, api_token=API_KEY) as client:
             result = client.documents.upload(pdf, custom_fields=custom_fields)
 
     assert result == "upload-task"
@@ -516,7 +516,7 @@ def test_sync_list_storage_paths_path_contains_forwarded():
         router.get("/storage_paths/").mock(
             side_effect=_capturing_params(captured, SP_LIST)
         )
-        with SyncPaperlessClient(url=BASE_URL, api_key=API_KEY) as client:
+        with SyncPaperlessClient(url=BASE_URL, api_token=API_KEY) as client:
             client.storage_paths.list(path_contains="archive")
     assert captured["params"].get("path__icontains") == "archive"
 
@@ -527,7 +527,7 @@ def test_sync_update_storage_path_set_permissions_forwarded():
         router.patch("/storage_paths/1/").mock(
             side_effect=_capturing_body(captured, SP_DATA)
         )
-        with SyncPaperlessClient(url=BASE_URL, api_key=API_KEY) as client:
+        with SyncPaperlessClient(url=BASE_URL, api_token=API_KEY) as client:
             client.storage_paths.update(1, set_permissions=PERMS)
     assert captured["body"]["set_permissions"] == PERMS_DICT
 
@@ -536,6 +536,6 @@ def test_sync_update_tag_set_permissions_forwarded():
     captured: dict = {}
     with respx.mock(base_url=API_BASE, assert_all_called=False) as router:
         router.patch("/tags/1/").mock(side_effect=_capturing_body(captured, TAG_DATA))
-        with SyncPaperlessClient(url=BASE_URL, api_key=API_KEY) as client:
+        with SyncPaperlessClient(url=BASE_URL, api_token=API_KEY) as client:
             client.tags.update(1, set_permissions=PERMS)
     assert captured["body"]["set_permissions"] == PERMS_DICT

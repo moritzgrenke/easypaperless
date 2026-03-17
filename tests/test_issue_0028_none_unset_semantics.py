@@ -62,7 +62,7 @@ def mock_router():
 
 @pytest.fixture
 async def client(mock_router):
-    async with PaperlessClient(url=BASE_URL, api_key=API_KEY) as c:
+    async with PaperlessClient(url=BASE_URL, api_token=API_KEY) as c:
         yield c
 
 
@@ -394,7 +394,7 @@ def test_sync_tags_create_set_permissions_none_sends_empty():
 
     with respx.mock(base_url=API_BASE, assert_all_called=False) as router:
         router.post("/tags/").mock(side_effect=_side_effect)
-        with SyncPaperlessClient(url=BASE_URL, api_key=API_KEY) as client:
+        with SyncPaperlessClient(url=BASE_URL, api_token=API_KEY) as client:
             client.tags.create(name="test", set_permissions=None)
 
     assert captured["body"]["set_permissions"] == SetPermissions().model_dump()
@@ -410,7 +410,7 @@ def test_sync_tags_create_set_permissions_unset_omits_key():
 
     with respx.mock(base_url=API_BASE, assert_all_called=False) as router:
         router.post("/tags/").mock(side_effect=_side_effect)
-        with SyncPaperlessClient(url=BASE_URL, api_key=API_KEY) as client:
+        with SyncPaperlessClient(url=BASE_URL, api_token=API_KEY) as client:
             client.tags.create(name="test")
 
     assert "set_permissions" not in captured["body"]
@@ -426,7 +426,7 @@ def test_sync_correspondents_update_set_permissions_none_sends_empty():
 
     with respx.mock(base_url=API_BASE, assert_all_called=False) as router:
         router.patch("/correspondents/1/").mock(side_effect=_side_effect)
-        with SyncPaperlessClient(url=BASE_URL, api_key=API_KEY) as client:
+        with SyncPaperlessClient(url=BASE_URL, api_token=API_KEY) as client:
             client.correspondents.update(1, set_permissions=None)
 
     assert captured["body"]["set_permissions"] == SetPermissions().model_dump()
@@ -443,7 +443,7 @@ def test_sync_tags_update_set_permissions_value_sends_model_dump():
 
     with respx.mock(base_url=API_BASE, assert_all_called=False) as router:
         router.patch("/tags/1/").mock(side_effect=_side_effect)
-        with SyncPaperlessClient(url=BASE_URL, api_key=API_KEY) as client:
+        with SyncPaperlessClient(url=BASE_URL, api_token=API_KEY) as client:
             client.tags.update(1, set_permissions=perms)
 
     assert captured["body"]["set_permissions"] == perms.model_dump()

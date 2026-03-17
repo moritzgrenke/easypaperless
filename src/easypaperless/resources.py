@@ -4,7 +4,7 @@ The following resource classes are _internal classes. Methods can be accessed vi
 `easypaperless.PaperlessClient` or `easypaperless.SyncPaperlessClient`
 
 Example:
-    async with PaperlessClient(url="http://localhost:8000", api_key="abc") as client:
+    async with PaperlessClient(url="http://localhost:8000", api_token="abc") as client:
         docs = await client.documents.list(max_results=10)
 
 """

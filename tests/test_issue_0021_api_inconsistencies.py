@@ -241,7 +241,7 @@ def test_sync_update_created_str_forwarded():
     captured: dict = {}
     with respx.mock(base_url=API_BASE, assert_all_called=False) as router:
         router.patch("/documents/1/").mock(side_effect=_patch_capture(captured))
-        with SyncPaperlessClient(url=BASE_URL, api_key=API_KEY) as client:
+        with SyncPaperlessClient(url=BASE_URL, api_token=API_KEY) as client:
             client.documents.update(1, created="2024-06-15")
     assert captured["body"]["created"] == "2024-06-15"
 
@@ -251,7 +251,7 @@ def test_sync_update_created_date_object_forwarded():
     captured: dict = {}
     with respx.mock(base_url=API_BASE, assert_all_called=False) as router:
         router.patch("/documents/1/").mock(side_effect=_patch_capture(captured))
-        with SyncPaperlessClient(url=BASE_URL, api_key=API_KEY) as client:
+        with SyncPaperlessClient(url=BASE_URL, api_token=API_KEY) as client:
             client.documents.update(1, created=date(2024, 6, 15))
     assert captured["body"]["created"] == "2024-06-15"
 
@@ -261,7 +261,7 @@ def test_sync_update_archive_serial_number_forwarded():
     captured: dict = {}
     with respx.mock(base_url=API_BASE, assert_all_called=False) as router:
         router.patch("/documents/1/").mock(side_effect=_patch_capture(captured))
-        with SyncPaperlessClient(url=BASE_URL, api_key=API_KEY) as client:
+        with SyncPaperlessClient(url=BASE_URL, api_token=API_KEY) as client:
             client.documents.update(1, archive_serial_number=99)
     assert captured["body"]["archive_serial_number"] == 99
     assert "asn" not in captured["body"]
@@ -274,7 +274,7 @@ def test_sync_upload_archive_serial_number_forwarded(tmp_path):
     captured: dict = {}
     with respx.mock(base_url=API_BASE, assert_all_called=False) as router:
         router.post("/documents/post_document/").mock(side_effect=_post_capture(captured))
-        with SyncPaperlessClient(url=BASE_URL, api_key=API_KEY) as client:
+        with SyncPaperlessClient(url=BASE_URL, api_token=API_KEY) as client:
             client.documents.upload(pdf, archive_serial_number=5)
     assert "5" in captured["body"]
     assert "asn" not in captured["body"]
@@ -287,7 +287,7 @@ def test_sync_upload_created_date_object_forwarded(tmp_path):
     captured: dict = {}
     with respx.mock(base_url=API_BASE, assert_all_called=False) as router:
         router.post("/documents/post_document/").mock(side_effect=_post_capture(captured))
-        with SyncPaperlessClient(url=BASE_URL, api_key=API_KEY) as client:
+        with SyncPaperlessClient(url=BASE_URL, api_token=API_KEY) as client:
             client.documents.upload(pdf, created=date(2024, 1, 20))
     assert "2024-01-20" in captured["body"]
 
@@ -297,7 +297,7 @@ def test_sync_list_default_search_mode_is_title_or_content():
     captured: dict = {}
     with respx.mock(base_url=API_BASE, assert_all_called=False) as router:
         router.get("/documents/").mock(side_effect=_get_capture(captured))
-        with SyncPaperlessClient(url=BASE_URL, api_key=API_KEY) as client:
+        with SyncPaperlessClient(url=BASE_URL, api_token=API_KEY) as client:
             client.documents.list(search="invoice")
     assert captured["params"]["search"] == "invoice"
     assert "title_or_text" not in captured["params"]

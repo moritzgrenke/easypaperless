@@ -75,7 +75,7 @@ def mock_router():
 
 @pytest.fixture
 async def client(mock_router):
-    async with PaperlessClient(url=BASE_URL, api_key=API_KEY) as c:
+    async with PaperlessClient(url=BASE_URL, api_token=API_KEY) as c:
         yield c
 
 
@@ -329,7 +329,7 @@ def test_sync_update_document_owner_none_sends_null():
 
     with respx.mock(base_url=API_BASE, assert_all_called=False) as router:
         router.patch("/documents/1/").mock(side_effect=_side_effect)
-        with SyncPaperlessClient(url=BASE_URL, api_key=API_KEY) as client:
+        with SyncPaperlessClient(url=BASE_URL, api_token=API_KEY) as client:
             client.documents.update(1, owner=None)
 
     assert "owner" in captured["body"]
@@ -346,7 +346,7 @@ def test_sync_update_document_owner_omitted_not_in_body():
 
     with respx.mock(base_url=API_BASE, assert_all_called=False) as router:
         router.patch("/documents/1/").mock(side_effect=_side_effect)
-        with SyncPaperlessClient(url=BASE_URL, api_key=API_KEY) as client:
+        with SyncPaperlessClient(url=BASE_URL, api_token=API_KEY) as client:
             client.documents.update(1, title="New Title")
 
     assert "owner" not in captured["body"]
@@ -362,7 +362,7 @@ def test_sync_list_documents_owner_none_applies_isnull_filter():
 
     with respx.mock(base_url=API_BASE, assert_all_called=False) as router:
         router.get("/documents/").mock(side_effect=_side_effect)
-        with SyncPaperlessClient(url=BASE_URL, api_key=API_KEY) as client:
+        with SyncPaperlessClient(url=BASE_URL, api_token=API_KEY) as client:
             client.documents.list(owner=None)
 
     assert captured["params"].get("owner__isnull") == "true"
@@ -379,7 +379,7 @@ def test_sync_list_documents_owner_omitted_no_filter():
 
     with respx.mock(base_url=API_BASE, assert_all_called=False) as router:
         router.get("/documents/").mock(side_effect=_side_effect)
-        with SyncPaperlessClient(url=BASE_URL, api_key=API_KEY) as client:
+        with SyncPaperlessClient(url=BASE_URL, api_token=API_KEY) as client:
             client.documents.list()
 
     assert "owner__isnull" not in captured["params"]

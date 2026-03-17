@@ -33,13 +33,13 @@ class _ClientCore:
     def __init__(
         self,
         url: str,
-        api_key: str,
+        api_token: str,
         *,
         timeout: float = 30.0,
         poll_interval: float = 2.0,
         poll_timeout: float = 60.0,
     ) -> None:
-        self._session = HttpSession(base_url=url, api_key=api_key, timeout=timeout)
+        self._session = HttpSession(base_url=url, api_token=api_token, timeout=timeout)
         self._resolver = NameResolver(self._session)
         self._poll_interval = poll_interval
         self._poll_timeout = poll_timeout
@@ -172,14 +172,14 @@ class PaperlessClient(_ClientCore):
     pool is closed when you are done:
 
     Example:
-        async with PaperlessClient(url="http://localhost:8000", api_key="abc") as client:
+        async with PaperlessClient(url="http://localhost:8000", api_token="abc") as client:
             docs = await client.documents.list(max_results=10)
     """
 
     def __init__(
         self,
         url: str,
-        api_key: str,
+        api_token: str,
         *,
         timeout: float = 30.0,
         poll_interval: float = 2.0,
@@ -190,7 +190,7 @@ class PaperlessClient(_ClientCore):
         Args:
             url: Base URL of the paperless-ngx instance
                 (e.g. ``"http://localhost:8000"``).
-            api_key: API token.  Generate one in paperless-ngx under
+            api_token: API token.  Generate one in paperless-ngx under
                 *Settings → API → Generate Token*.
             timeout: Default request timeout in seconds.  Default: ``30.0``.
             poll_interval: Seconds between status checks when ``wait=True``
@@ -201,7 +201,7 @@ class PaperlessClient(_ClientCore):
                 Default: ``60.0``.
         """
         super().__init__(
-            url, api_key, timeout=timeout, poll_interval=poll_interval, poll_timeout=poll_timeout
+            url, api_token, timeout=timeout, poll_interval=poll_interval, poll_timeout=poll_timeout
         )
 
     async def __aenter__(self) -> PaperlessClient:

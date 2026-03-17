@@ -333,7 +333,7 @@ def test_paged_result_generic_type_variance():
 def test_sync_documents_list_returns_paged_result():
     with respx.mock(base_url=API_BASE, assert_all_called=False) as router:
         router.get("/documents/").mock(return_value=Response(200, json=SINGLE_PAGE))
-        with SyncPaperlessClient(url=BASE_URL, api_key=API_KEY) as client:
+        with SyncPaperlessClient(url=BASE_URL, api_token=API_KEY) as client:
             result = client.documents.list()
     assert isinstance(result, PagedResult)
     assert isinstance(result.results[0], Document)
@@ -342,7 +342,7 @@ def test_sync_documents_list_returns_paged_result():
 def test_sync_tags_list_returns_paged_result():
     with respx.mock(base_url=API_BASE, assert_all_called=False) as router:
         router.get("/tags/").mock(return_value=Response(200, json=TAG_LIST_WITHOUT_ALL))
-        with SyncPaperlessClient(url=BASE_URL, api_key=API_KEY) as client:
+        with SyncPaperlessClient(url=BASE_URL, api_token=API_KEY) as client:
             result = client.tags.list()
     assert isinstance(result, PagedResult)
     assert isinstance(result.results[0], Tag)
@@ -354,7 +354,7 @@ def test_sync_correspondents_list_returns_paged_result():
     data = {"count": 1, "next": None, "previous": None, "results": [{"id": 1, "name": "ACME"}]}
     with respx.mock(base_url=API_BASE, assert_all_called=False) as router:
         router.get("/correspondents/").mock(return_value=Response(200, json=data))
-        with SyncPaperlessClient(url=BASE_URL, api_key=API_KEY) as client:
+        with SyncPaperlessClient(url=BASE_URL, api_token=API_KEY) as client:
             result = client.correspondents.list()
     assert isinstance(result, PagedResult)
     assert isinstance(result.results[0], Correspondent)
@@ -366,7 +366,7 @@ def test_sync_document_types_list_returns_paged_result():
     data = {"count": 1, "next": None, "previous": None, "results": [{"id": 1, "name": "Invoice"}]}
     with respx.mock(base_url=API_BASE, assert_all_called=False) as router:
         router.get("/document_types/").mock(return_value=Response(200, json=data))
-        with SyncPaperlessClient(url=BASE_URL, api_key=API_KEY) as client:
+        with SyncPaperlessClient(url=BASE_URL, api_token=API_KEY) as client:
             result = client.document_types.list()
     assert isinstance(result, PagedResult)
     assert isinstance(result.results[0], DocumentType)
@@ -383,7 +383,7 @@ def test_sync_storage_paths_list_returns_paged_result():
     }
     with respx.mock(base_url=API_BASE, assert_all_called=False) as router:
         router.get("/storage_paths/").mock(return_value=Response(200, json=data))
-        with SyncPaperlessClient(url=BASE_URL, api_key=API_KEY) as client:
+        with SyncPaperlessClient(url=BASE_URL, api_token=API_KEY) as client:
             result = client.storage_paths.list()
     assert isinstance(result, PagedResult)
     assert isinstance(result.results[0], StoragePath)
@@ -400,7 +400,7 @@ def test_sync_custom_fields_list_returns_paged_result():
     }
     with respx.mock(base_url=API_BASE, assert_all_called=False) as router:
         router.get("/custom_fields/").mock(return_value=Response(200, json=data))
-        with SyncPaperlessClient(url=BASE_URL, api_key=API_KEY) as client:
+        with SyncPaperlessClient(url=BASE_URL, api_token=API_KEY) as client:
             result = client.custom_fields.list()
     assert isinstance(result, PagedResult)
     assert isinstance(result.results[0], CustomField)
@@ -422,7 +422,7 @@ def test_sync_auto_pagination_next_previous_none():
 
     with respx.mock(base_url=API_BASE, assert_all_called=False) as router:
         router.get("/documents/").mock(side_effect=side_effect)
-        with SyncPaperlessClient(url=BASE_URL, api_key=API_KEY) as client:
+        with SyncPaperlessClient(url=BASE_URL, api_token=API_KEY) as client:
             result = client.documents.list()
 
     assert isinstance(result, PagedResult)
@@ -443,7 +443,7 @@ def test_sync_single_page_next_previous_from_api():
     }
     with respx.mock(base_url=API_BASE, assert_all_called=False) as router:
         router.get("/documents/").mock(return_value=Response(200, json=page_resp))
-        with SyncPaperlessClient(url=BASE_URL, api_key=API_KEY) as client:
+        with SyncPaperlessClient(url=BASE_URL, api_token=API_KEY) as client:
             result = client.documents.list(page=2)
 
     assert result.count == 100
@@ -462,7 +462,7 @@ def test_sync_max_results_count_is_server_total():
     }
     with respx.mock(base_url=API_BASE, assert_all_called=False) as router:
         router.get("/documents/").mock(return_value=Response(200, json=many))
-        with SyncPaperlessClient(url=BASE_URL, api_key=API_KEY) as client:
+        with SyncPaperlessClient(url=BASE_URL, api_token=API_KEY) as client:
             result = client.documents.list(max_results=3)
 
     assert result.count == 99

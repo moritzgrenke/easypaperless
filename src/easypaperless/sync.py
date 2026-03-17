@@ -32,11 +32,11 @@ class _SyncCore:
     storage_paths: SyncStoragePathsResource
     custom_fields: SyncCustomFieldsResource
 
-    def __init__(self, url: str, api_key: str, **kwargs: Any) -> None:
+    def __init__(self, url: str, api_token: str, **kwargs: Any) -> None:
         self._loop = asyncio.new_event_loop()
         self._thread = threading.Thread(target=self._loop.run_forever, daemon=True)
         self._thread.start()
-        self._async_client = PaperlessClient(url, api_key, **kwargs)
+        self._async_client = PaperlessClient(url, api_token, **kwargs)
 
         self.documents = SyncDocumentsResource(self._async_client.documents, self._run)
         self.tags = SyncTagsResource(self._async_client.tags, self._run)
@@ -101,7 +101,7 @@ class SyncPaperlessClient(_SyncCore):
     Use as a context manager to ensure proper cleanup:
 
     Example:
-        with SyncPaperlessClient(url="http://localhost:8000", api_key="abc") as client:
+        with SyncPaperlessClient(url="http://localhost:8000", api_token="abc") as client:
             tags = client.tags.list()
             docs = client.documents.list(search="invoice")
 
@@ -111,19 +111,19 @@ class SyncPaperlessClient(_SyncCore):
         directly in those environments.
     """
 
-    def __init__(self, url: str, api_key: str, **kwargs: Any) -> None:
+    def __init__(self, url: str, api_token: str, **kwargs: Any) -> None:
         """Create a synchronous paperless-ngx client.
 
         Args:
             url: Base URL of the paperless-ngx instance
                 (e.g. ``"http://localhost:8000"``).
-            api_key: API token.  Generate one in paperless-ngx under
+            api_token: API token.  Generate one in paperless-ngx under
                 *Settings → API → Generate Token*.
             **kwargs: Additional keyword arguments forwarded to
                 :class:`~easypaperless.client.PaperlessClient` (e.g.
                 ``poll_interval``, ``poll_timeout``).
         """
-        super().__init__(url, api_key, **kwargs)
+        super().__init__(url, api_token, **kwargs)
 
     def __enter__(self) -> SyncPaperlessClient:
         return self

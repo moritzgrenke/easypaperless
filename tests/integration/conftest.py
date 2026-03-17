@@ -79,14 +79,14 @@ def _require_env() -> tuple[str, str]:
 @pytest_asyncio.fixture
 async def client() -> object:
     url, key = _require_env()
-    async with PaperlessClient(url=url, api_key=key) as c:
+    async with PaperlessClient(url=url, api_token=key) as c:
         yield c
 
 
 @pytest_asyncio.fixture(scope="module")
 async def module_client() -> object:
     url, key = _require_env()
-    async with PaperlessClient(url=url, api_key=key) as c:
+    async with PaperlessClient(url=url, api_token=key) as c:
         yield c
 
 
@@ -128,5 +128,5 @@ def uid() -> str:
 @pytest.fixture
 def sync_client() -> object:
     url, key = _require_env()
-    with SyncPaperlessClient(url=url, api_key=key) as c:
+    with SyncPaperlessClient(url=url, api_token=key) as c:
         yield c

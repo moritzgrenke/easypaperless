@@ -1,6 +1,6 @@
 # Feature Index
 
-**Next Available ID:** 0031
+**Next Available ID:** 0032
 
 | ID | Type | Name | Status | File |
 |----|------|------|--------|------|
@@ -30,7 +30,8 @@
 | 0024 | Maintenance | Add py.typed Marker File for PEP 561 Compliance | Deployed | [0024-maintenance-add_py_typed_marker.md](0024-maintenance-add_py_typed_marker.md) |
 | 0025 | Bug | `Document.created` Typed as `datetime` Instead of `date` | Deployed | [0025-bug-document_created_field_wrong_type.md](0025-bug-document_created_field_wrong_type.md) |
 | 0026 | Refactoring | Expand Sync Method Docstrings with Full Parameter Documentation | Deployed | [0026-refactoring-sync_docstrings_full_param_docs.md](0026-refactoring-sync_docstrings_full_param_docs.md) |
-| 0027 | Bug | `SyncTagsResource.create()` Wrong Default Values for `color` and `is_inbox_tag` | QA Passed | [0027-bug-sync_tags_create_wrong_default_values.md](0027-bug-sync_tags_create_wrong_default_values.md) |
-| 0028 | Refactoring | Fix None/Unset Semantics Across Async Resource Methods and Expose Public `Unset` Alias | QA Passed | [0028-refactoring-fix_none_unset_semantics_and_public_unset_alias.md](0028-refactoring-fix_none_unset_semantics_and_public_unset_alias.md) |
-| 0029 | Feature | Return PagedResult Model from All list() Methods | QA Passed | [0029-feature-paged_result_model_for_list_methods.md](0029-feature-paged_result_model_for_list_methods.md) |
-| 0030 | Feature | Add Structured Logging Support Across All Resource Methods | QA Passed | [0030-feature-structured_logging_support.md](0030-feature-structured_logging_support.md) |
+| 0027 | Bug | `SyncTagsResource.create()` Wrong Default Values for `color` and `is_inbox_tag` | Deployed | [0027-bug-sync_tags_create_wrong_default_values.md](0027-bug-sync_tags_create_wrong_default_values.md) |
+| 0028 | Refactoring | Fix None/Unset Semantics Across Async Resource Methods and Expose Public `Unset` Alias | Deployed | [0028-refactoring-fix_none_unset_semantics_and_public_unset_alias.md](0028-refactoring-fix_none_unset_semantics_and_public_unset_alias.md) |
+| 0029 | Feature | Return PagedResult Model from All list() Methods | Deployed | [0029-feature-paged_result_model_for_list_methods.md](0029-feature-paged_result_model_for_list_methods.md) |
+| 0030 | Feature | Add Structured Logging Support Across All Resource Methods | Deployed | [0030-feature-structured_logging_support.md](0030-feature-structured_logging_support.md) |
+| 0031 | Refactoring | Rename `api_key` Parameter to `api_token` in Clients and Scripts | Deployed | [0031-refactoring-rename_api_key_to_api_token.md](0031-refactoring-rename_api_key_to_api_token.md) |

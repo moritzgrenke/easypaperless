@@ -17,7 +17,7 @@ API_KEY = "secret-token-abc"
 
 @pytest.fixture
 async def session():
-    s = HttpSession(base_url=BASE_URL, api_key=API_KEY)
+    s = HttpSession(base_url=BASE_URL, api_token=API_KEY)
     yield s
     await s.close()
 
@@ -126,7 +126,7 @@ async def test_info_log_emitted_by_resource_method(caplog):
     with caplog.at_level(logging.INFO, logger="easypaperless"):
         with respx.mock(base_url=API_BASE, assert_all_called=False) as router:
             router.get("/tags/").mock(return_value=Response(200, json=paged_data))
-            async with PaperlessClient(url=BASE_URL, api_key="key") as client:
+            async with PaperlessClient(url=BASE_URL, api_token="key") as client:
                 await client.tags.list()
 
     info_records = [r for r in caplog.records if r.levelno == logging.INFO]

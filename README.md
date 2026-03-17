@@ -73,8 +73,8 @@ async def main():
     # create a paperless client
     # we encourage you to use .env files to store your credentials
     url = "http://localhost:8000"
-    api_key = "YOUR_TOKEN"
-    async with PaperlessClient(url=url, api_key=api_key) as client:
+    api_token = "YOUR_TOKEN"
+    async with PaperlessClient(url=url, api_token=api_token) as client:
         # List documents — full-text search across title and OCR content, return the last 3 docs
         # list() returns a PagedResult; use .results for the items and .count for the total
         docs = await client.documents.list(
@@ -114,8 +114,8 @@ from easypaperless import SyncPaperlessClient
 # same example with the sync client:
 # we encourage you to use .env files to store your credentials
 url = "http://localhost:8000"
-api_key = "YOUR_TOKEN"
-with SyncPaperlessClient(url=url, api_key=api_key) as client:
+api_token = "YOUR_TOKEN"
+with SyncPaperlessClient(url=url, api_token=api_token) as client:
     # List documents — full-text search across title and OCR content, return the last 3 docs
     # list() returns a PagedResult; use .results for the items and .count for the total
     docs = client.documents.list(search="test", max_results=3, ordering="added", descending=True)

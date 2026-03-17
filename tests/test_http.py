@@ -21,7 +21,7 @@ BASE_URL = "http://paperless.test"
 
 @pytest.fixture
 async def session():
-    s = HttpSession(base_url=BASE_URL, api_key="key")
+    s = HttpSession(base_url=BASE_URL, api_token="key")
     yield s
     await s.close()
 

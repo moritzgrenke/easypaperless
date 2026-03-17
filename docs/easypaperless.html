@@ -18,6 +18,8 @@
         <input id="togglestate" type="checkbox" aria-hidden="true" tabindex="-1">
         <div>
 
+            <input type="search" placeholder="Search..." role="searchbox" aria-label="search"
+                   pattern=".+" required>
 
 
 
@@ -764,14 +766,14 @@ easypaperless    </h1>
 </span><span id="PaperlessClient-173"><a href="#PaperlessClient-173"><span class="linenos">173</span></a><span class="sd">    pool is closed when you are done:</span>
 </span><span id="PaperlessClient-174"><a href="#PaperlessClient-174"><span class="linenos">174</span></a>
 </span><span id="PaperlessClient-175"><a href="#PaperlessClient-175"><span class="linenos">175</span></a><span class="sd">    Example:</span>
-</span><span id="PaperlessClient-176"><a href="#PaperlessClient-176"><span class="linenos">176</span></a><span class="sd">        async with PaperlessClient(url=&quot;http://localhost:8000&quot;, api_key=&quot;abc&quot;) as client:</span>
+</span><span id="PaperlessClient-176"><a href="#PaperlessClient-176"><span class="linenos">176</span></a><span class="sd">        async with PaperlessClient(url=&quot;http://localhost:8000&quot;, api_token=&quot;abc&quot;) as client:</span>
 </span><span id="PaperlessClient-177"><a href="#PaperlessClient-177"><span class="linenos">177</span></a><span class="sd">            docs = await client.documents.list(max_results=10)</span>
 </span><span id="PaperlessClient-178"><a href="#PaperlessClient-178"><span class="linenos">178</span></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="PaperlessClient-179"><a href="#PaperlessClient-179"><span class="linenos">179</span></a>
 </span><span id="PaperlessClient-180"><a href="#PaperlessClient-180"><span class="linenos">180</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
 </span><span id="PaperlessClient-181"><a href="#PaperlessClient-181"><span class="linenos">181</span></a>        <span class="bp">self</span><span class="p">,</span>
 </span><span id="PaperlessClient-182"><a href="#PaperlessClient-182"><span class="linenos">182</span></a>        <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-</span><span id="PaperlessClient-183"><a href="#PaperlessClient-183"><span class="linenos">183</span></a>        <span class="n">api_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+</span><span id="PaperlessClient-183"><a href="#PaperlessClient-183"><span class="linenos">183</span></a>        <span class="n">api_token</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
 </span><span id="PaperlessClient-184"><a href="#PaperlessClient-184"><span class="linenos">184</span></a>        <span class="o">*</span><span class="p">,</span>
 </span><span id="PaperlessClient-185"><a href="#PaperlessClient-185"><span class="linenos">185</span></a>        <span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">30.0</span><span class="p">,</span>
 </span><span id="PaperlessClient-186"><a href="#PaperlessClient-186"><span class="linenos">186</span></a>        <span class="n">poll_interval</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.0</span><span class="p">,</span>
@@ -782,7 +784,7 @@ easypaperless    </h1>
 </span><span id="PaperlessClient-191"><a href="#PaperlessClient-191"><span class="linenos">191</span></a><span class="sd">        Args:</span>
 </span><span id="PaperlessClient-192"><a href="#PaperlessClient-192"><span class="linenos">192</span></a><span class="sd">            url: Base URL of the paperless-ngx instance</span>
 </span><span id="PaperlessClient-193"><a href="#PaperlessClient-193"><span class="linenos">193</span></a><span class="sd">                (e.g. ``&quot;http://localhost:8000&quot;``).</span>
-</span><span id="PaperlessClient-194"><a href="#PaperlessClient-194"><span class="linenos">194</span></a><span class="sd">            api_key: API token.  Generate one in paperless-ngx under</span>
+</span><span id="PaperlessClient-194"><a href="#PaperlessClient-194"><span class="linenos">194</span></a><span class="sd">            api_token: API token.  Generate one in paperless-ngx under</span>
 </span><span id="PaperlessClient-195"><a href="#PaperlessClient-195"><span class="linenos">195</span></a><span class="sd">                *Settings → API → Generate Token*.</span>
 </span><span id="PaperlessClient-196"><a href="#PaperlessClient-196"><span class="linenos">196</span></a><span class="sd">            timeout: Default request timeout in seconds.  Default: ``30.0``.</span>
 </span><span id="PaperlessClient-197"><a href="#PaperlessClient-197"><span class="linenos">197</span></a><span class="sd">            poll_interval: Seconds between status checks when ``wait=True``</span>
@@ -793,7 +795,7 @@ easypaperless    </h1>
 </span><span id="PaperlessClient-202"><a href="#PaperlessClient-202"><span class="linenos">202</span></a><span class="sd">                Default: ``60.0``.</span>
 </span><span id="PaperlessClient-203"><a href="#PaperlessClient-203"><span class="linenos">203</span></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="PaperlessClient-204"><a href="#PaperlessClient-204"><span class="linenos">204</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-</span><span id="PaperlessClient-205"><a href="#PaperlessClient-205"><span class="linenos">205</span></a>            <span class="n">url</span><span class="p">,</span> <span class="n">api_key</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">,</span> <span class="n">poll_interval</span><span class="o">=</span><span class="n">poll_interval</span><span class="p">,</span> <span class="n">poll_timeout</span><span class="o">=</span><span class="n">poll_timeout</span>
+</span><span id="PaperlessClient-205"><a href="#PaperlessClient-205"><span class="linenos">205</span></a>            <span class="n">url</span><span class="p">,</span> <span class="n">api_token</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">,</span> <span class="n">poll_interval</span><span class="o">=</span><span class="n">poll_interval</span><span class="p">,</span> <span class="n">poll_timeout</span><span class="o">=</span><span class="n">poll_timeout</span>
 </span><span id="PaperlessClient-206"><a href="#PaperlessClient-206"><span class="linenos">206</span></a>        <span class="p">)</span>
 </span><span id="PaperlessClient-207"><a href="#PaperlessClient-207"><span class="linenos">207</span></a>
 </span><span id="PaperlessClient-208"><a href="#PaperlessClient-208"><span class="linenos">208</span></a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="fm">__aenter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PaperlessClient</span><span class="p">:</span>
@@ -810,19 +812,19 @@ easypaperless    </h1>
 
 <ul>
 <li><code>client.correspondents</code> — correspondent CRUD + bulk ops -
-see <code>easypaperless.resources.CorrespondentsResource</code></li>
+see <code><a href="easypaperless/resources.html#CorrespondentsResource">easypaperless.resources.CorrespondentsResource</a></code></li>
 <li><code>client.custom_fields</code> — custom field CRUD -
-see <code>easypaperless.resources.CustomFieldsResource</code></li>
+see <code><a href="easypaperless/resources.html#CustomFieldsResource">easypaperless.resources.CustomFieldsResource</a></code></li>
 <li><code>client.document_types</code> — document type CRUD + bulk ops -
-see <code>easypaperless.resources.DocumentTypesResource</code></li>
+see <code><a href="easypaperless/resources.html#DocumentTypesResource">easypaperless.resources.DocumentTypesResource</a></code></li>
 <li><code>client.documents</code> — document CRUD, bulk ops, upload, download -
-see <code>easypaperless.resources.DocumentsResource</code></li>
+see <code><a href="easypaperless/resources.html#DocumentsResource">easypaperless.resources.DocumentsResource</a></code></li>
 <li><code>client.documents.notes</code> — document notes -
-see <code>easypaperless.resources.NotesResource</code></li>
+see <code><a href="easypaperless/resources.html#NotesResource">easypaperless.resources.NotesResource</a></code></li>
 <li><code>client.storage_paths</code> — storage path CRUD + bulk ops -
-see <code>easypaperless.resources.StoragePathsResource</code></li>
+see <code><a href="easypaperless/resources.html#StoragePathsResource">easypaperless.resources.StoragePathsResource</a></code></li>
 <li><code>client.tags</code> — tag CRUD + bulk ops -
-see <code>easypaperless.resources.TagsResource</code></li>
+see <code><a href="easypaperless/resources.html#TagsResource">easypaperless.resources.TagsResource</a></code></li>
 </ul>
 
 <p>Use as an async context manager to ensure the underlying HTTP connection
@@ -831,7 +833,7 @@ pool is closed when you are done:</p>
 <h6 id="example">Example:</h6>
 
 <blockquote>
-  <p>async with PaperlessClient(url="http://localhost:8000", api_key="abc") as client:
+  <p>async with PaperlessClient(url="http://localhost:8000", api_token="abc") as client:
       docs = await client.documents.list(max_results=10)</p>
 </blockquote>
 </div>
@@ -841,7 +843,7 @@ pool is closed when you are done:</p>
                                         <input id="PaperlessClient.__init__-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr function">
             
-        <span class="name">PaperlessClient</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">url</span><span class="p">:</span> <span class="nb">str</span>,</span><span class="param">	<span class="n">api_key</span><span class="p">:</span> <span class="nb">str</span>,</span><span class="param">	<span class="o">*</span>,</span><span class="param">	<span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">30.0</span>,</span><span class="param">	<span class="n">poll_interval</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.0</span>,</span><span class="param">	<span class="n">poll_timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">60.0</span></span>)</span>
+        <span class="name">PaperlessClient</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">url</span><span class="p">:</span> <span class="nb">str</span>,</span><span class="param">	<span class="n">api_token</span><span class="p">:</span> <span class="nb">str</span>,</span><span class="param">	<span class="o">*</span>,</span><span class="param">	<span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">30.0</span>,</span><span class="param">	<span class="n">poll_interval</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.0</span>,</span><span class="param">	<span class="n">poll_timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">60.0</span></span>)</span>
 
                 <label class="view-source-button" for="PaperlessClient.__init__-view-source"><span>View Source</span></label>
 
@@ -850,7 +852,7 @@ pool is closed when you are done:</p>
             <div class="pdoc-code codehilite"><pre><span></span><span id="PaperlessClient.__init__-180"><a href="#PaperlessClient.__init__-180"><span class="linenos">180</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
 </span><span id="PaperlessClient.__init__-181"><a href="#PaperlessClient.__init__-181"><span class="linenos">181</span></a>        <span class="bp">self</span><span class="p">,</span>
 </span><span id="PaperlessClient.__init__-182"><a href="#PaperlessClient.__init__-182"><span class="linenos">182</span></a>        <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-</span><span id="PaperlessClient.__init__-183"><a href="#PaperlessClient.__init__-183"><span class="linenos">183</span></a>        <span class="n">api_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+</span><span id="PaperlessClient.__init__-183"><a href="#PaperlessClient.__init__-183"><span class="linenos">183</span></a>        <span class="n">api_token</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
 </span><span id="PaperlessClient.__init__-184"><a href="#PaperlessClient.__init__-184"><span class="linenos">184</span></a>        <span class="o">*</span><span class="p">,</span>
 </span><span id="PaperlessClient.__init__-185"><a href="#PaperlessClient.__init__-185"><span class="linenos">185</span></a>        <span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">30.0</span><span class="p">,</span>
 </span><span id="PaperlessClient.__init__-186"><a href="#PaperlessClient.__init__-186"><span class="linenos">186</span></a>        <span class="n">poll_interval</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.0</span><span class="p">,</span>
@@ -861,7 +863,7 @@ pool is closed when you are done:</p>
 </span><span id="PaperlessClient.__init__-191"><a href="#PaperlessClient.__init__-191"><span class="linenos">191</span></a><span class="sd">        Args:</span>
 </span><span id="PaperlessClient.__init__-192"><a href="#PaperlessClient.__init__-192"><span class="linenos">192</span></a><span class="sd">            url: Base URL of the paperless-ngx instance</span>
 </span><span id="PaperlessClient.__init__-193"><a href="#PaperlessClient.__init__-193"><span class="linenos">193</span></a><span class="sd">                (e.g. ``&quot;http://localhost:8000&quot;``).</span>
-</span><span id="PaperlessClient.__init__-194"><a href="#PaperlessClient.__init__-194"><span class="linenos">194</span></a><span class="sd">            api_key: API token.  Generate one in paperless-ngx under</span>
+</span><span id="PaperlessClient.__init__-194"><a href="#PaperlessClient.__init__-194"><span class="linenos">194</span></a><span class="sd">            api_token: API token.  Generate one in paperless-ngx under</span>
 </span><span id="PaperlessClient.__init__-195"><a href="#PaperlessClient.__init__-195"><span class="linenos">195</span></a><span class="sd">                *Settings → API → Generate Token*.</span>
 </span><span id="PaperlessClient.__init__-196"><a href="#PaperlessClient.__init__-196"><span class="linenos">196</span></a><span class="sd">            timeout: Default request timeout in seconds.  Default: ``30.0``.</span>
 </span><span id="PaperlessClient.__init__-197"><a href="#PaperlessClient.__init__-197"><span class="linenos">197</span></a><span class="sd">            poll_interval: Seconds between status checks when ``wait=True``</span>
@@ -872,7 +874,7 @@ pool is closed when you are done:</p>
 </span><span id="PaperlessClient.__init__-202"><a href="#PaperlessClient.__init__-202"><span class="linenos">202</span></a><span class="sd">                Default: ``60.0``.</span>
 </span><span id="PaperlessClient.__init__-203"><a href="#PaperlessClient.__init__-203"><span class="linenos">203</span></a><span class="sd">        &quot;&quot;&quot;</span>
 </span><span id="PaperlessClient.__init__-204"><a href="#PaperlessClient.__init__-204"><span class="linenos">204</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-</span><span id="PaperlessClient.__init__-205"><a href="#PaperlessClient.__init__-205"><span class="linenos">205</span></a>            <span class="n">url</span><span class="p">,</span> <span class="n">api_key</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">,</span> <span class="n">poll_interval</span><span class="o">=</span><span class="n">poll_interval</span><span class="p">,</span> <span class="n">poll_timeout</span><span class="o">=</span><span class="n">poll_timeout</span>
+</span><span id="PaperlessClient.__init__-205"><a href="#PaperlessClient.__init__-205"><span class="linenos">205</span></a>            <span class="n">url</span><span class="p">,</span> <span class="n">api_token</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">,</span> <span class="n">poll_interval</span><span class="o">=</span><span class="n">poll_interval</span><span class="p">,</span> <span class="n">poll_timeout</span><span class="o">=</span><span class="n">poll_timeout</span>
 </span><span id="PaperlessClient.__init__-206"><a href="#PaperlessClient.__init__-206"><span class="linenos">206</span></a>        <span class="p">)</span>
 </span></pre></div>
 
@@ -884,7 +886,7 @@ pool is closed when you are done:</p>
 <ul>
 <li><strong>url:</strong>  Base URL of the paperless-ngx instance
 (e.g. <code>"http://localhost:8000"</code>).</li>
-<li><strong>api_key:</strong>  API token.  Generate one in paperless-ngx under
+<li><strong>api_token:</strong>  API token.  Generate one in paperless-ngx under
 <em>Settings → API → Generate Token</em>.</li>
 <li><strong>timeout:</strong>  Default request timeout in seconds.  Default: <code>30.0</code>.</li>
 <li><strong>poll_interval:</strong>  Seconds between status checks when <code>wait=True</code>
@@ -938,7 +940,7 @@ Default: <code>60.0</code>.</li>
 </span><span id="SyncPaperlessClient-102"><a href="#SyncPaperlessClient-102"><span class="linenos">102</span></a><span class="sd">    Use as a context manager to ensure proper cleanup:</span>
 </span><span id="SyncPaperlessClient-103"><a href="#SyncPaperlessClient-103"><span class="linenos">103</span></a>
 </span><span id="SyncPaperlessClient-104"><a href="#SyncPaperlessClient-104"><span class="linenos">104</span></a><span class="sd">    Example:</span>
-</span><span id="SyncPaperlessClient-105"><a href="#SyncPaperlessClient-105"><span class="linenos">105</span></a><span class="sd">        with SyncPaperlessClient(url=&quot;http://localhost:8000&quot;, api_key=&quot;abc&quot;) as client:</span>
+</span><span id="SyncPaperlessClient-105"><a href="#SyncPaperlessClient-105"><span class="linenos">105</span></a><span class="sd">        with SyncPaperlessClient(url=&quot;http://localhost:8000&quot;, api_token=&quot;abc&quot;) as client:</span>
 </span><span id="SyncPaperlessClient-106"><a href="#SyncPaperlessClient-106"><span class="linenos">106</span></a><span class="sd">            tags = client.tags.list()</span>
 </span><span id="SyncPaperlessClient-107"><a href="#SyncPaperlessClient-107"><span class="linenos">107</span></a><span class="sd">            docs = client.documents.list(search=&quot;invoice&quot;)</span>
 </span><span id="SyncPaperlessClient-108"><a href="#SyncPaperlessClient-108"><span class="linenos">108</span></a>
@@ -948,19 +950,19 @@ Default: <code>60.0</code>.</li>
 </span><span id="SyncPaperlessClient-112"><a href="#SyncPaperlessClient-112"><span class="linenos">112</span></a><span class="sd">        directly in those environments.</span>
 </span><span id="SyncPaperlessClient-113"><a href="#SyncPaperlessClient-113"><span class="linenos">113</span></a><span class="sd">    &quot;&quot;&quot;</span>
 </span><span id="SyncPaperlessClient-114"><a href="#SyncPaperlessClient-114"><span class="linenos">114</span></a>
-</span><span id="SyncPaperlessClient-115"><a href="#SyncPaperlessClient-115"><span class="linenos">115</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">api_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="SyncPaperlessClient-115"><a href="#SyncPaperlessClient-115"><span class="linenos">115</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">api_token</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="SyncPaperlessClient-116"><a href="#SyncPaperlessClient-116"><span class="linenos">116</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a synchronous paperless-ngx client.</span>
 </span><span id="SyncPaperlessClient-117"><a href="#SyncPaperlessClient-117"><span class="linenos">117</span></a>
 </span><span id="SyncPaperlessClient-118"><a href="#SyncPaperlessClient-118"><span class="linenos">118</span></a><span class="sd">        Args:</span>
 </span><span id="SyncPaperlessClient-119"><a href="#SyncPaperlessClient-119"><span class="linenos">119</span></a><span class="sd">            url: Base URL of the paperless-ngx instance</span>
 </span><span id="SyncPaperlessClient-120"><a href="#SyncPaperlessClient-120"><span class="linenos">120</span></a><span class="sd">                (e.g. ``&quot;http://localhost:8000&quot;``).</span>
-</span><span id="SyncPaperlessClient-121"><a href="#SyncPaperlessClient-121"><span class="linenos">121</span></a><span class="sd">            api_key: API token.  Generate one in paperless-ngx under</span>
+</span><span id="SyncPaperlessClient-121"><a href="#SyncPaperlessClient-121"><span class="linenos">121</span></a><span class="sd">            api_token: API token.  Generate one in paperless-ngx under</span>
 </span><span id="SyncPaperlessClient-122"><a href="#SyncPaperlessClient-122"><span class="linenos">122</span></a><span class="sd">                *Settings → API → Generate Token*.</span>
 </span><span id="SyncPaperlessClient-123"><a href="#SyncPaperlessClient-123"><span class="linenos">123</span></a><span class="sd">            **kwargs: Additional keyword arguments forwarded to</span>
 </span><span id="SyncPaperlessClient-124"><a href="#SyncPaperlessClient-124"><span class="linenos">124</span></a><span class="sd">                :class:`~easypaperless.client.PaperlessClient` (e.g.</span>
 </span><span id="SyncPaperlessClient-125"><a href="#SyncPaperlessClient-125"><span class="linenos">125</span></a><span class="sd">                ``poll_interval``, ``poll_timeout``).</span>
 </span><span id="SyncPaperlessClient-126"><a href="#SyncPaperlessClient-126"><span class="linenos">126</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="SyncPaperlessClient-127"><a href="#SyncPaperlessClient-127"><span class="linenos">127</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">api_key</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="SyncPaperlessClient-127"><a href="#SyncPaperlessClient-127"><span class="linenos">127</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">api_token</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </span><span id="SyncPaperlessClient-128"><a href="#SyncPaperlessClient-128"><span class="linenos">128</span></a>
 </span><span id="SyncPaperlessClient-129"><a href="#SyncPaperlessClient-129"><span class="linenos">129</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SyncPaperlessClient</span><span class="p">:</span>
 </span><span id="SyncPaperlessClient-130"><a href="#SyncPaperlessClient-130"><span class="linenos">130</span></a>        <span class="k">return</span> <span class="bp">self</span>
@@ -976,19 +978,19 @@ Default: <code>60.0</code>.</li>
 
 <ul>
 <li><code>client.correspondents</code> — correspondent CRUD + bulk ops -
-see <code>easypaperless.resources.SyncCorrespondentsResource</code></li>
+see <code><a href="easypaperless/resources.html#SyncCorrespondentsResource">easypaperless.resources.SyncCorrespondentsResource</a></code></li>
 <li><code>client.custom_fields</code> — custom field CRUD -
-see <code>easypaperless.resources.SyncCustomFieldsResource</code></li>
+see <code><a href="easypaperless/resources.html#SyncCustomFieldsResource">easypaperless.resources.SyncCustomFieldsResource</a></code></li>
 <li><code>client.document_types</code> — document type CRUD + bulk ops -
-see <code>easypaperless.resources.SyncDocumentTypesResource</code></li>
+see <code><a href="easypaperless/resources.html#SyncDocumentTypesResource">easypaperless.resources.SyncDocumentTypesResource</a></code></li>
 <li><code>client.documents</code> — document CRUD, bulk ops, upload, download -
-see <code>easypaperless.resources.SyncDocumentsResource</code></li>
+see <code><a href="easypaperless/resources.html#SyncDocumentsResource">easypaperless.resources.SyncDocumentsResource</a></code></li>
 <li><code>client.documents.notes</code> — document notes -
-see <code>easypaperless.resources.SyncNotesResource</code></li>
+see <code><a href="easypaperless/resources.html#SyncNotesResource">easypaperless.resources.SyncNotesResource</a></code></li>
 <li><code>client.storage_paths</code> — storage path CRUD + bulk ops -
-see <code>easypaperless.resources.SyncStoragePathsResource</code></li>
+see <code><a href="easypaperless/resources.html#SyncStoragePathsResource">easypaperless.resources.SyncStoragePathsResource</a></code></li>
 <li><code>client.tags</code> — tag CRUD + bulk ops -
-see <code>easypaperless.resources.SyncTagsResource</code></li>
+see <code><a href="easypaperless/resources.html#SyncTagsResource">easypaperless.resources.SyncTagsResource</a></code></li>
 </ul>
 
 <p>All methods are synchronous wrappers around the async
@@ -1001,7 +1003,7 @@ is reused across calls and cleanup works correctly.</p>
 <h6 id="example">Example:</h6>
 
 <blockquote>
-  <p>with SyncPaperlessClient(url="http://localhost:8000", api_key="abc") as client:
+  <p>with SyncPaperlessClient(url="http://localhost:8000", api_token="abc") as client:
       tags = client.tags.list()
       docs = client.documents.list(search="invoice")</p>
 </blockquote>
@@ -1020,25 +1022,25 @@ is reused across calls and cleanup works correctly.</p>
                                         <input id="SyncPaperlessClient.__init__-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr function">
             
-        <span class="name">SyncPaperlessClient</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">url</span><span class="p">:</span> <span class="nb">str</span>, </span><span class="param"><span class="n">api_key</span><span class="p">:</span> <span class="nb">str</span>, </span><span class="param"><span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span></span>)</span>
+        <span class="name">SyncPaperlessClient</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">url</span><span class="p">:</span> <span class="nb">str</span>, </span><span class="param"><span class="n">api_token</span><span class="p">:</span> <span class="nb">str</span>, </span><span class="param"><span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span></span>)</span>
 
                 <label class="view-source-button" for="SyncPaperlessClient.__init__-view-source"><span>View Source</span></label>
 
     </div>
     <a class="headerlink" href="#SyncPaperlessClient.__init__"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="SyncPaperlessClient.__init__-115"><a href="#SyncPaperlessClient.__init__-115"><span class="linenos">115</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">api_key</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="SyncPaperlessClient.__init__-115"><a href="#SyncPaperlessClient.__init__-115"><span class="linenos">115</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">api_token</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 </span><span id="SyncPaperlessClient.__init__-116"><a href="#SyncPaperlessClient.__init__-116"><span class="linenos">116</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a synchronous paperless-ngx client.</span>
 </span><span id="SyncPaperlessClient.__init__-117"><a href="#SyncPaperlessClient.__init__-117"><span class="linenos">117</span></a>
 </span><span id="SyncPaperlessClient.__init__-118"><a href="#SyncPaperlessClient.__init__-118"><span class="linenos">118</span></a><span class="sd">        Args:</span>
 </span><span id="SyncPaperlessClient.__init__-119"><a href="#SyncPaperlessClient.__init__-119"><span class="linenos">119</span></a><span class="sd">            url: Base URL of the paperless-ngx instance</span>
 </span><span id="SyncPaperlessClient.__init__-120"><a href="#SyncPaperlessClient.__init__-120"><span class="linenos">120</span></a><span class="sd">                (e.g. ``&quot;http://localhost:8000&quot;``).</span>
-</span><span id="SyncPaperlessClient.__init__-121"><a href="#SyncPaperlessClient.__init__-121"><span class="linenos">121</span></a><span class="sd">            api_key: API token.  Generate one in paperless-ngx under</span>
+</span><span id="SyncPaperlessClient.__init__-121"><a href="#SyncPaperlessClient.__init__-121"><span class="linenos">121</span></a><span class="sd">            api_token: API token.  Generate one in paperless-ngx under</span>
 </span><span id="SyncPaperlessClient.__init__-122"><a href="#SyncPaperlessClient.__init__-122"><span class="linenos">122</span></a><span class="sd">                *Settings → API → Generate Token*.</span>
 </span><span id="SyncPaperlessClient.__init__-123"><a href="#SyncPaperlessClient.__init__-123"><span class="linenos">123</span></a><span class="sd">            **kwargs: Additional keyword arguments forwarded to</span>
 </span><span id="SyncPaperlessClient.__init__-124"><a href="#SyncPaperlessClient.__init__-124"><span class="linenos">124</span></a><span class="sd">                :class:`~easypaperless.client.PaperlessClient` (e.g.</span>
 </span><span id="SyncPaperlessClient.__init__-125"><a href="#SyncPaperlessClient.__init__-125"><span class="linenos">125</span></a><span class="sd">                ``poll_interval``, ``poll_timeout``).</span>
 </span><span id="SyncPaperlessClient.__init__-126"><a href="#SyncPaperlessClient.__init__-126"><span class="linenos">126</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="SyncPaperlessClient.__init__-127"><a href="#SyncPaperlessClient.__init__-127"><span class="linenos">127</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">api_key</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="SyncPaperlessClient.__init__-127"><a href="#SyncPaperlessClient.__init__-127"><span class="linenos">127</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">api_token</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -1049,7 +1051,7 @@ is reused across calls and cleanup works correctly.</p>
 <ul>
 <li><strong>url:</strong>  Base URL of the paperless-ngx instance
 (e.g. <code>"http://localhost:8000"</code>).</li>
-<li><strong>api_key:</strong>  API token.  Generate one in paperless-ngx under
+<li><strong>api_token:</strong>  API token.  Generate one in paperless-ngx under
 <em>Settings → API → Generate Token</em>.</li>
 <li><strong>**kwargs:</strong>  Additional keyword arguments forwarded to
 <code>~<a href="#PaperlessClient">easypaperless.client.PaperlessClient</a></code> (e.g.
@@ -3913,5 +3915,186 @@ terminal state within <code>poll_timeout</code> seconds.</p>
                             </div>
                 </section>
     </main>
-</body>
+<script>
+    function escapeHTML(html) {
+        return document.createElement('div').appendChild(document.createTextNode(html)).parentNode.innerHTML;
+    }
+
+    const originalContent = document.querySelector("main.pdoc");
+    let currentContent = originalContent;
+
+    function setContent(innerHTML) {
+        let elem;
+        if (innerHTML) {
+            elem = document.createElement("main");
+            elem.classList.add("pdoc");
+            elem.innerHTML = innerHTML;
+        } else {
+            elem = originalContent;
+        }
+        if (currentContent !== elem) {
+            currentContent.replaceWith(elem);
+            currentContent = elem;
+        }
+    }
+
+    function getSearchTerm() {
+        return (new URL(window.location)).searchParams.get("search");
+    }
+
+    const searchBox = document.querySelector(".pdoc input[type=search]");
+    searchBox.addEventListener("input", function () {
+        let url = new URL(window.location);
+        if (searchBox.value.trim()) {
+            url.hash = "";
+            url.searchParams.set("search", searchBox.value);
+        } else {
+            url.searchParams.delete("search");
+        }
+        history.replaceState("", "", url.toString());
+        onInput();
+    });
+    window.addEventListener("popstate", onInput);
+
+
+    let search, searchErr;
+
+    async function initialize() {
+        try {
+            search = await new Promise((resolve, reject) => {
+                const script = document.createElement("script");
+                script.type = "text/javascript";
+                script.async = true;
+                script.onload = () => resolve(window.pdocSearch);
+                script.onerror = (e) => reject(e);
+                script.src = "search.js";
+                document.getElementsByTagName("head")[0].appendChild(script);
+            });
+        } catch (e) {
+            console.error("Cannot fetch pdoc search index");
+            searchErr = "Cannot fetch search index.";
+        }
+        onInput();
+
+        document.querySelector("nav.pdoc").addEventListener("click", e => {
+            if (e.target.hash) {
+                searchBox.value = "";
+                searchBox.dispatchEvent(new Event("input"));
+            }
+        });
+    }
+
+    function onInput() {
+        setContent((() => {
+            const term = getSearchTerm();
+            if (!term) {
+                return null
+            }
+            if (searchErr) {
+                return `<h3>Error: ${searchErr}</h3>`
+            }
+            if (!search) {
+                return "<h3>Searching...</h3>"
+            }
+
+            window.scrollTo({top: 0, left: 0, behavior: 'auto'});
+
+            const results = search(term);
+
+            let html;
+            if (results.length === 0) {
+                html = `No search results for '${escapeHTML(term)}'.`
+            } else {
+                html = `<h4>${results.length} search result${results.length > 1 ? "s" : ""} for '${escapeHTML(term)}'.</h4>`;
+            }
+            for (let result of results.slice(0, 10)) {
+                let doc = result.doc;
+                let url = `${doc.modulename.replaceAll(".", "/")}.html`;
+                if (doc.qualname) {
+                    url += `#${doc.qualname}`;
+                }
+
+                let heading;
+                switch (result.doc.kind) {
+                    case "function":
+                        if (doc.fullname.endsWith(".__init__")) {
+                            heading = `<span class="name">${doc.fullname.replace(/\.__init__$/, "")}</span>${doc.signature}`;
+                        } else {
+                            heading = `<span class="def">${doc.funcdef}</span> <span class="name">${doc.fullname}</span>${doc.signature}`;
+                        }
+                        break;
+                    case "class":
+                        heading = `<span class="def">class</span> <span class="name">${doc.fullname}</span>`;
+                        if (doc.bases)
+                            heading += `<wbr>(<span class="base">${doc.bases}</span>)`;
+                        heading += `:`;
+                        break;
+                    case "variable":
+                        heading = `<span class="name">${doc.fullname}</span>`;
+                        if (doc.annotation)
+                            heading += `<span class="annotation">${doc.annotation}</span>`;
+                        if (doc.default_value)
+                            heading += `<span class="default_value"> = ${doc.default_value}</span>`;
+                        break;
+                    default:
+                        heading = `<span class="name">${doc.fullname}</span>`;
+                        break;
+                }
+                html += `
+                        <section class="search-result">
+                        <a href="${url}" class="attr ${doc.kind}">${heading}</a>
+                        <div class="docstring">${doc.doc}</div>
+                        </section>
+                    `;
+
+            }
+            return html;
+        })());
+    }
+
+    if (getSearchTerm()) {
+        initialize();
+        searchBox.value = getSearchTerm();
+        onInput();
+    } else {
+        searchBox.addEventListener("focus", initialize, {once: true});
+    }
+
+    searchBox.addEventListener("keydown", e => {
+        if (["ArrowDown", "ArrowUp", "Enter"].includes(e.key)) {
+            let focused = currentContent.querySelector(".search-result.focused");
+            if (!focused) {
+                currentContent.querySelector(".search-result").classList.add("focused");
+            } else if (
+                e.key === "ArrowDown"
+                && focused.nextElementSibling
+                && focused.nextElementSibling.classList.contains("search-result")
+            ) {
+                focused.classList.remove("focused");
+                focused.nextElementSibling.classList.add("focused");
+                focused.nextElementSibling.scrollIntoView({
+                    behavior: "smooth",
+                    block: "nearest",
+                    inline: "nearest"
+                });
+            } else if (
+                e.key === "ArrowUp"
+                && focused.previousElementSibling
+                && focused.previousElementSibling.classList.contains("search-result")
+            ) {
+                focused.classList.remove("focused");
+                focused.previousElementSibling.classList.add("focused");
+                focused.previousElementSibling.scrollIntoView({
+                    behavior: "smooth",
+                    block: "nearest",
+                    inline: "nearest"
+                });
+            } else if (
+                e.key === "Enter"
+            ) {
+                focused.querySelector("a").click();
+            }
+        }
+    });
+</script></body>
 </html>

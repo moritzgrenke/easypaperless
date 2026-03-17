@@ -31,10 +31,10 @@ class _PagedRaw:
 
 
 class HttpSession:
-    def __init__(self, base_url: str, api_key: str, timeout: float = 30.0) -> None:
+    def __init__(self, base_url: str, api_token: str, timeout: float = 30.0) -> None:
         # Normalize: strip trailing slash, then append /api
         self._base_url = base_url.rstrip("/") + "/api"
-        self._api_key = api_key
+        self._api_token = api_token
         self._timeout = timeout
         self._client: httpx.AsyncClient | None = None
 
@@ -42,7 +42,7 @@ class HttpSession:
         if self._client is None:
             self._client = httpx.AsyncClient(
                 base_url=self._base_url,
-                headers={"Authorization": f"Token {self._api_key}"},
+                headers={"Authorization": f"Token {self._api_token}"},
                 timeout=self._timeout,
                 follow_redirects=True,
             )
