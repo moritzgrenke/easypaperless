@@ -21,6 +21,7 @@ from easypaperless.models.documents import (
     Task,
     TaskStatus,
 )
+from easypaperless.models.paged_result import PagedResult
 from easypaperless.models.permissions import SetPermissions
 
 if TYPE_CHECKING:
@@ -215,11 +216,19 @@ class DocumentsResource:
         descending: bool = False,
         max_results: int | None = None,
         on_page: Callable[[int, int | None], None] | None = None,
-    ) -> List[Document]:
+    ) -> PagedResult[Document]:
         """Return a filtered list of documents.
 
         All tag, correspondent, document-type, storage-path, and custom-field
         parameters accept either integer IDs or string names.
+
+        When ``page`` is ``None`` (the default), all pages are fetched
+        automatically and ``next`` / ``previous`` in the returned
+        :class:`~easypaperless.models.paged_result.PagedResult` are always
+        ``None`` — even if ``max_results`` truncates the final result set.
+        ``count`` always reflects the server total, not the truncated length.
+        When ``page`` is set to a specific integer, only that one page is
+        fetched and ``next`` / ``previous`` contain the raw API values.
 
         Args:
             search: Search string.  Behaviour depends on ``search_mode``.
@@ -274,7 +283,8 @@ class DocumentsResource:
             on_page: Callback invoked after each page fetch.
 
         Returns:
-            List of :class:`~easypaperless.models.documents.Document` objects.
+            :class:`~easypaperless.models.paged_result.PagedResult` of
+            :class:`~easypaperless.models.documents.Document` objects.
         """
         resolver = self._core._resolver
         params: dict[str, Any] = {"page_size": page_size}
@@ -427,16 +437,28 @@ class DocumentsResource:
 
         if page is not None:
             params["page"] = page
-            resp = await self._core._session.get("/documents/", params=params)
-            items = resp.json().get("results", [])
+            raw = await self._core._session.get_page("/documents/", params=params)
+            items = raw.items
             if max_results is not None:
                 items = items[:max_results]
-            return [Document.model_validate(item) for item in items]
+            return PagedResult(
+                count=raw.count,
+                next=raw.next,
+                previous=raw.previous,
+                all=raw.all_ids,
+                results=[Document.model_validate(item) for item in items],
+            )
 
-        items = await self._core._session.get_all_pages(
+        raw = await self._core._session.get_all_pages_paged(
             "/documents/", params, max_results=max_results, on_page=on_page
         )
-        return [Document.model_validate(item) for item in items]
+        return PagedResult(
+            count=raw.count,
+            next=raw.next,
+            previous=raw.previous,
+            all=raw.all_ids,
+            results=[Document.model_validate(item) for item in raw.items],
+        )
 
     async def update(
         self,

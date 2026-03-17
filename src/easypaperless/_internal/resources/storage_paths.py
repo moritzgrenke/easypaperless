@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING, Any, List, cast
 
 from easypaperless._internal.sentinel import UNSET, Unset
 from easypaperless.models._base import MatchingAlgorithm
+from easypaperless.models.paged_result import PagedResult
 from easypaperless.models.permissions import SetPermissions
 from easypaperless.models.storage_paths import StoragePath
 
@@ -31,8 +32,13 @@ class StoragePathsResource:
         page_size: int | None = None,
         ordering: str | None = None,
         descending: bool = False,
-    ) -> List[StoragePath]:
+    ) -> PagedResult[StoragePath]:
         """Return storage paths defined in paperless-ngx.
+
+        When ``page`` is ``None`` (the default), all pages are fetched
+        automatically and ``next`` / ``previous`` in the result are always
+        ``None``.  When ``page`` is set, only that page is fetched and
+        ``next`` / ``previous`` reflect the raw API values.
 
         Args:
             ids: Return only storage paths whose ID is in this list.
@@ -46,7 +52,8 @@ class StoragePathsResource:
             descending: When ``True``, reverses the sort direction.
 
         Returns:
-            List of :class:`~easypaperless.models.storage_paths.StoragePath` objects.
+            :class:`~easypaperless.models.paged_result.PagedResult` of
+            :class:`~easypaperless.models.storage_paths.StoragePath` objects.
         """
         params: dict[str, Any] = {}
         if ids is not None:
@@ -66,7 +73,7 @@ class StoragePathsResource:
         if ordering is not None:
             params["ordering"] = f"-{ordering}" if descending else ordering
         return cast(
-            List[StoragePath],
+            PagedResult[StoragePath],
             await self._core._list_resource("storage_paths", StoragePath, params or None),
         )
 

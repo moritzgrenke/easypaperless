@@ -17,7 +17,7 @@ async def test_tag_crud(client: PaperlessClient, uid: str) -> None:
         updated = await client.tags.update(tag.id, name=f"__integration_tag_{uid}_updated__")
         assert updated.name == f"__integration_tag_{uid}_updated__"
         tags = await client.tags.list()
-        ids = [t.id for t in tags]
+        ids = [t.id for t in tags.results]
         assert tag.id in ids
     finally:
         await client.tags.delete(tag.id)
@@ -35,7 +35,7 @@ async def test_correspondent_crud(client: PaperlessClient, uid: str) -> None:
         )
         assert updated.name == f"__integration_correspondent_{uid}_updated__"
         items = await client.correspondents.list()
-        ids = [c.id for c in items]
+        ids = [c.id for c in items.results]
         assert corr.id in ids
     finally:
         await client.correspondents.delete(corr.id)
@@ -53,7 +53,7 @@ async def test_document_type_crud(client: PaperlessClient, uid: str) -> None:
         )
         assert updated.name == f"__integration_doctype_{uid}_updated__"
         items = await client.document_types.list()
-        ids = [d.id for d in items]
+        ids = [d.id for d in items.results]
         assert dt.id in ids
     finally:
         await client.document_types.delete(dt.id)
@@ -73,7 +73,7 @@ async def test_storage_path_crud(client: PaperlessClient, uid: str) -> None:
         )
         assert updated.name == f"__integration_storagepath_{uid}_updated__"
         items = await client.storage_paths.list()
-        ids = [s.id for s in items]
+        ids = [s.id for s in items.results]
         assert sp.id in ids
     finally:
         await client.storage_paths.delete(sp.id)
@@ -91,7 +91,7 @@ async def test_custom_field_crud(client: PaperlessClient, uid: str) -> None:
         )
         assert updated.name == f"__integration_field_{uid}_updated__"
         items = await client.custom_fields.list()
-        ids = [f.id for f in items]
+        ids = [f.id for f in items.results]
         assert cf.id in ids
     finally:
         await client.custom_fields.delete(cf.id)

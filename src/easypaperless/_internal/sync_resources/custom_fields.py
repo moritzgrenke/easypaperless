@@ -2,10 +2,11 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, List, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from easypaperless._internal.sentinel import UNSET, Unset
 from easypaperless.models.custom_fields import CustomField
+from easypaperless.models.paged_result import PagedResult
 from easypaperless.models.permissions import SetPermissions
 
 if TYPE_CHECKING:
@@ -28,8 +29,13 @@ class SyncCustomFieldsResource:
         page_size: int | None = None,
         ordering: str | None = None,
         descending: bool = False,
-    ) -> List[CustomField]:
+    ) -> PagedResult[CustomField]:
         """Return all custom fields defined in paperless-ngx.
+
+        When ``page`` is ``None`` (the default), all pages are fetched
+        automatically and ``next`` / ``previous`` in the result are always
+        ``None``.  When ``page`` is set, only that page is fetched and
+        ``next`` / ``previous`` reflect the raw API values.
 
         Args:
             name_contains: Case-insensitive substring filter on name.
@@ -40,10 +46,11 @@ class SyncCustomFieldsResource:
             descending: When ``True``, reverses the sort direction.
 
         Returns:
-            List of :class:`~easypaperless.models.custom_fields.CustomField` objects.
+            :class:`~easypaperless.models.paged_result.PagedResult` of
+            :class:`~easypaperless.models.custom_fields.CustomField` objects.
         """
         return cast(
-            list[CustomField],
+            PagedResult[CustomField],
             self._run(
                 self._async_custom_fields.list(
                     name_contains=name_contains,

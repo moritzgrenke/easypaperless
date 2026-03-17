@@ -15,9 +15,9 @@ from easypaperless import PaperlessClient
 
 async def _first_doc(client: PaperlessClient):  # type: ignore[return]
     docs = await client.documents.list(page=1, page_size=1)
-    if not docs:
+    if not docs.results:
         pytest.skip("No documents available on this instance")
-    return docs[0]
+    return docs.results[0]
 
 
 # ---------------------------------------------------------------------------
@@ -27,8 +27,10 @@ async def _first_doc(client: PaperlessClient):  # type: ignore[return]
 
 @pytest.mark.integration
 async def test_list_documents_returns_results(client: PaperlessClient) -> None:
+    from easypaperless.models.paged_result import PagedResult
+
     docs = await client.documents.list(page=1, page_size=5)
-    assert isinstance(docs, list)
+    assert isinstance(docs, PagedResult)
 
 
 @pytest.mark.integration
@@ -124,14 +126,14 @@ async def test_search_mode_original_filename(client: PaperlessClient) -> None:
 async def test_filter_by_ids(client: PaperlessClient) -> None:
     doc = await _first_doc(client)
     docs = await client.documents.list(ids=[doc.id])
-    assert len(docs) == 1
-    assert docs[0].id == doc.id
+    assert len(docs.results) == 1
+    assert docs.results[0].id == doc.id
 
 
 @pytest.mark.integration
 async def test_filter_by_ids_no_match(client: PaperlessClient) -> None:
     docs = await client.documents.list(ids=[999999999])
-    assert docs == []
+    assert docs.results == []
 
 
 # ---------------------------------------------------------------------------
@@ -148,7 +150,7 @@ async def test_filter_tags_all(client: PaperlessClient, uid: str) -> None:
     try:
         await client.documents.update(doc.id, tags=[*original_tags, tag.id])
         docs = await client.documents.list(tags=[tag.id])
-        assert any(d.id == doc.id for d in docs)
+        assert any(d.id == doc.id for d in docs.results)
     finally:
         await client.documents.update(doc.id, tags=original_tags)
         await client.tags.delete(tag.id)
@@ -162,7 +164,7 @@ async def test_filter_any_tags(client: PaperlessClient, uid: str) -> None:
     try:
         await client.documents.update(doc.id, tags=[*original_tags, tag.id])
         docs = await client.documents.list(any_tags=[tag.id])
-        assert any(d.id == doc.id for d in docs)
+        assert any(d.id == doc.id for d in docs.results)
     finally:
         await client.documents.update(doc.id, tags=original_tags)
         await client.tags.delete(tag.id)
@@ -176,7 +178,7 @@ async def test_filter_exclude_tags(client: PaperlessClient, uid: str) -> None:
     try:
         await client.documents.update(doc.id, tags=[*original_tags, tag.id])
         docs = await client.documents.list(exclude_tags=[tag.id])
-        assert all(d.id != doc.id for d in docs)
+        assert all(d.id != doc.id for d in docs.results)
     finally:
         await client.documents.update(doc.id, tags=original_tags)
         await client.tags.delete(tag.id)
@@ -195,7 +197,7 @@ async def test_filter_correspondent_exact(client: PaperlessClient, uid: str) -> 
     try:
         await client.documents.update(doc.id, correspondent=corr.id)
         docs = await client.documents.list(correspondent=corr.id)
-        assert any(d.id == doc.id for d in docs)
+        assert any(d.id == doc.id for d in docs.results)
     finally:
         if original_corr is not None:
             await client.documents.update(doc.id, correspondent=original_corr)
@@ -210,7 +212,7 @@ async def test_filter_any_correspondent(client: PaperlessClient, uid: str) -> No
     try:
         await client.documents.update(doc.id, correspondent=corr.id)
         docs = await client.documents.list(any_correspondent=[corr.id])
-        assert any(d.id == doc.id for d in docs)
+        assert any(d.id == doc.id for d in docs.results)
     finally:
         if original_corr is not None:
             await client.documents.update(doc.id, correspondent=original_corr)
@@ -225,7 +227,7 @@ async def test_filter_exclude_correspondents(client: PaperlessClient, uid: str) 
     try:
         await client.documents.update(doc.id, correspondent=corr.id)
         docs = await client.documents.list(exclude_correspondents=[corr.id])
-        assert all(d.id != doc.id for d in docs)
+        assert all(d.id != doc.id for d in docs.results)
     finally:
         if original_corr is not None:
             await client.documents.update(doc.id, correspondent=original_corr)
@@ -245,7 +247,7 @@ async def test_filter_document_type_exact(client: PaperlessClient, uid: str) -> 
     try:
         await client.documents.update(doc.id, document_type=dt.id)
         docs = await client.documents.list(document_type=dt.id)
-        assert any(d.id == doc.id for d in docs)
+        assert any(d.id == doc.id for d in docs.results)
     finally:
         if original_dt is not None:
             await client.documents.update(doc.id, document_type=original_dt)
@@ -260,7 +262,7 @@ async def test_filter_any_document_type(client: PaperlessClient, uid: str) -> No
     try:
         await client.documents.update(doc.id, document_type=dt.id)
         docs = await client.documents.list(any_document_type=[dt.id])
-        assert any(d.id == doc.id for d in docs)
+        assert any(d.id == doc.id for d in docs.results)
     finally:
         if original_dt is not None:
             await client.documents.update(doc.id, document_type=original_dt)
@@ -275,7 +277,7 @@ async def test_filter_exclude_document_types(client: PaperlessClient, uid: str) 
     try:
         await client.documents.update(doc.id, document_type=dt.id)
         docs = await client.documents.list(exclude_document_types=[dt.id])
-        assert all(d.id != doc.id for d in docs)
+        assert all(d.id != doc.id for d in docs.results)
     finally:
         if original_dt is not None:
             await client.documents.update(doc.id, document_type=original_dt)
@@ -297,7 +299,7 @@ async def test_filter_storage_path_exact(client: PaperlessClient, uid: str) -> N
     try:
         await client.documents.update(doc.id, storage_path=sp.id)
         docs = await client.documents.list(storage_path=sp.id)
-        assert any(d.id == doc.id for d in docs)
+        assert any(d.id == doc.id for d in docs.results)
     finally:
         if original_sp is not None:
             await client.documents.update(doc.id, storage_path=original_sp)
@@ -314,7 +316,7 @@ async def test_filter_any_storage_paths(client: PaperlessClient, uid: str) -> No
     try:
         await client.documents.update(doc.id, storage_path=sp.id)
         docs = await client.documents.list(any_storage_paths=[sp.id])
-        assert any(d.id == doc.id for d in docs)
+        assert any(d.id == doc.id for d in docs.results)
     finally:
         if original_sp is not None:
             await client.documents.update(doc.id, storage_path=original_sp)
@@ -331,7 +333,7 @@ async def test_filter_exclude_storage_paths(client: PaperlessClient, uid: str) -
     try:
         await client.documents.update(doc.id, storage_path=sp.id)
         docs = await client.documents.list(exclude_storage_paths=[sp.id])
-        assert all(d.id != doc.id for d in docs)
+        assert all(d.id != doc.id for d in docs.results)
     finally:
         if original_sp is not None:
             await client.documents.update(doc.id, storage_path=original_sp)
@@ -492,13 +494,13 @@ async def test_ordering_ascending_vs_descending(client: PaperlessClient) -> None
 @pytest.mark.integration
 async def test_page_size(client: PaperlessClient) -> None:
     docs = await client.documents.list(page=1, page_size=3)
-    assert len(docs) <= 3
+    assert len(docs.results) <= 3
 
 
 @pytest.mark.integration
 async def test_max_results(client: PaperlessClient) -> None:
     docs = await client.documents.list(max_results=2)
-    assert len(docs) <= 2
+    assert len(docs.results) <= 2
 
 
 @pytest.mark.integration
@@ -507,8 +509,8 @@ async def test_auto_pagination(client: PaperlessClient) -> None:
     all_docs = await client.documents.list(page_size=1)
     single_page = await client.documents.list(page=1, page_size=1)
     # If there are multiple documents, auto-pagination returns more than page_size=1.
-    if len(single_page) == 1:
-        assert len(all_docs) >= len(single_page)
+    if len(single_page.results) == 1:
+        assert len(all_docs.results) >= len(single_page.results)
 
 
 # ---------------------------------------------------------------------------
@@ -525,7 +527,7 @@ async def test_filter_tag_by_name(client: PaperlessClient, uid: str) -> None:
     try:
         await client.documents.update(doc.id, tags=[*original_tags, tag.id])
         docs = await client.documents.list(tags=[name])
-        assert any(d.id == doc.id for d in docs)
+        assert any(d.id == doc.id for d in docs.results)
     finally:
         await client.documents.update(doc.id, tags=original_tags)
         await client.tags.delete(tag.id)

@@ -1,6 +1,6 @@
 # Feature Index
 
-**Next Available ID:** 0030
+**Next Available ID:** 0031
 
 | ID | Type | Name | Status | File |
 |----|------|------|--------|------|
@@ -32,4 +32,5 @@
 | 0026 | Refactoring | Expand Sync Method Docstrings with Full Parameter Documentation | Deployed | [0026-refactoring-sync_docstrings_full_param_docs.md](0026-refactoring-sync_docstrings_full_param_docs.md) |
 | 0027 | Bug | `SyncTagsResource.create()` Wrong Default Values for `color` and `is_inbox_tag` | QA Passed | [0027-bug-sync_tags_create_wrong_default_values.md](0027-bug-sync_tags_create_wrong_default_values.md) |
 | 0028 | Refactoring | Fix None/Unset Semantics Across Async Resource Methods and Expose Public `Unset` Alias | QA Passed | [0028-refactoring-fix_none_unset_semantics_and_public_unset_alias.md](0028-refactoring-fix_none_unset_semantics_and_public_unset_alias.md) |
-| 0029 | Feature | Return PagedResult Model from All list() Methods | Open | [0029-feature-paged_result_model_for_list_methods.md](0029-feature-paged_result_model_for_list_methods.md) |
+| 0029 | Feature | Return PagedResult Model from All list() Methods | QA Passed | [0029-feature-paged_result_model_for_list_methods.md](0029-feature-paged_result_model_for_list_methods.md) |
+| 0030 | Feature | Add Structured Logging Support Across All Resource Methods | OPEN | [0030-feature-structured_logging_support.md](0030-feature-structured_logging_support.md) |

@@ -59,10 +59,11 @@ TAG_LIST = {"count": 1, "next": None, "previous": None, "results": [TAG_DATA]}
 
 async def test_list_tags(client, mock_router):
     mock_router.get("/tags/").mock(return_value=Response(200, json=TAG_LIST))
-    tags = await client.tags.list()
-    assert len(tags) == 1
-    assert isinstance(tags[0], Tag)
-    assert tags[0].name == "invoice"
+    result = await client.tags.list()
+    assert result.count == 1
+    assert len(result.results) == 1
+    assert isinstance(result.results[0], Tag)
+    assert result.results[0].name == "invoice"
 
 
 async def test_get_tag(client, mock_router):
@@ -269,8 +270,8 @@ CORR_LIST = {"count": 1, "next": None, "previous": None, "results": [CORR_DATA]}
 
 async def test_list_correspondents(client, mock_router):
     mock_router.get("/correspondents/").mock(return_value=Response(200, json=CORR_LIST))
-    corrs = await client.correspondents.list()
-    assert isinstance(corrs[0], Correspondent)
+    result = await client.correspondents.list()
+    assert isinstance(result.results[0], Correspondent)
 
 
 async def test_get_correspondent(client, mock_router):
@@ -475,8 +476,8 @@ DT_LIST = {"count": 1, "next": None, "previous": None, "results": [DT_DATA]}
 
 async def test_list_document_types(client, mock_router):
     mock_router.get("/document_types/").mock(return_value=Response(200, json=DT_LIST))
-    dts = await client.document_types.list()
-    assert isinstance(dts[0], DocumentType)
+    result = await client.document_types.list()
+    assert isinstance(result.results[0], DocumentType)
 
 
 async def test_get_document_type(client, mock_router):
@@ -677,9 +678,9 @@ SP_LIST = {"count": 1, "next": None, "previous": None, "results": [SP_DATA]}
 
 async def test_list_storage_paths(client, mock_router):
     mock_router.get("/storage_paths/").mock(return_value=Response(200, json=SP_LIST))
-    sps = await client.storage_paths.list()
-    assert isinstance(sps[0], StoragePath)
-    assert sps[0].path == "/docs/{created_year}/"
+    result = await client.storage_paths.list()
+    assert isinstance(result.results[0], StoragePath)
+    assert result.results[0].path == "/docs/{created_year}/"
 
 
 async def test_get_storage_path(client, mock_router):
@@ -906,8 +907,8 @@ CF_LIST = {"count": 1, "next": None, "previous": None, "results": [CF_DATA]}
 
 async def test_list_custom_fields(client, mock_router):
     mock_router.get("/custom_fields/").mock(return_value=Response(200, json=CF_LIST))
-    cfs = await client.custom_fields.list()
-    assert isinstance(cfs[0], CustomField)
+    result = await client.custom_fields.list()
+    assert isinstance(result.results[0], CustomField)
 
 
 async def test_get_custom_field(client, mock_router):
@@ -1144,8 +1145,8 @@ async def test_delete_custom_field_invalidates_cache(client, mock_router):
 async def test_list_tags_ids(client, mock_router):
     captured: dict = {}
     mock_router.get("/tags/").mock(side_effect=_capturing_side_effect(captured, TAG_LIST))
-    tags = await client.tags.list(ids=[1, 2])
-    assert len(tags) == 1
+    result = await client.tags.list(ids=[1, 2])
+    assert len(result.results) == 1
     assert captured["params"]["id__in"] == "1,2"
 
 
@@ -1187,8 +1188,8 @@ async def test_list_correspondents_ids(client, mock_router):
     mock_router.get("/correspondents/").mock(
         side_effect=_capturing_side_effect(captured, CORR_LIST)
     )
-    corrs = await client.correspondents.list(ids=[1, 2])
-    assert len(corrs) == 1
+    result = await client.correspondents.list(ids=[1, 2])
+    assert len(result.results) == 1
     assert captured["params"]["id__in"] == "1,2"
 
 
@@ -1226,8 +1227,8 @@ async def test_list_correspondents_name_exact(client, mock_router):
 async def test_list_document_types_ids(client, mock_router):
     captured: dict = {}
     mock_router.get("/document_types/").mock(side_effect=_capturing_side_effect(captured, DT_LIST))
-    dts = await client.document_types.list(ids=[1, 2])
-    assert len(dts) == 1
+    result = await client.document_types.list(ids=[1, 2])
+    assert len(result.results) == 1
     assert captured["params"]["id__in"] == "1,2"
 
 
@@ -1259,8 +1260,8 @@ async def test_list_document_types_name_exact(client, mock_router):
 async def test_list_storage_paths_ids(client, mock_router):
     captured: dict = {}
     mock_router.get("/storage_paths/").mock(side_effect=_capturing_side_effect(captured, SP_LIST))
-    sps = await client.storage_paths.list(ids=[1, 2])
-    assert len(sps) == 1
+    result = await client.storage_paths.list(ids=[1, 2])
+    assert len(result.results) == 1
     assert captured["params"]["id__in"] == "1,2"
 
 

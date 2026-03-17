@@ -28,6 +28,7 @@ from easypaperless.models import (
     FieldDataType,
     FileMetadataEntry,
     MatchingAlgorithm,
+    PagedResult,
     PermissionSet,
     SearchHit,
     SetPermissions,
@@ -50,6 +51,7 @@ __all__ = [
     "Unset",
     # Models
     "MatchingAlgorithm",
+    "PagedResult",
     "Correspondent",
     "CustomField",
     "CustomFieldValue",

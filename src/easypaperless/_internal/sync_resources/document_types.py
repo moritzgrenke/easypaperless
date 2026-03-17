@@ -7,6 +7,7 @@ from typing import TYPE_CHECKING, Any, List, cast
 from easypaperless._internal.sentinel import UNSET, Unset
 from easypaperless.models._base import MatchingAlgorithm
 from easypaperless.models.document_types import DocumentType
+from easypaperless.models.paged_result import PagedResult
 from easypaperless.models.permissions import SetPermissions
 
 if TYPE_CHECKING:
@@ -30,8 +31,13 @@ class SyncDocumentTypesResource:
         page_size: int | None = None,
         ordering: str | None = None,
         descending: bool = False,
-    ) -> List[DocumentType]:
+    ) -> PagedResult[DocumentType]:
         """Return document types defined in paperless-ngx.
+
+        When ``page`` is ``None`` (the default), all pages are fetched
+        automatically and ``next`` / ``previous`` in the result are always
+        ``None``.  When ``page`` is set, only that page is fetched and
+        ``next`` / ``previous`` reflect the raw API values.
 
         Args:
             ids: Return only document types whose ID is in this list.
@@ -43,10 +49,11 @@ class SyncDocumentTypesResource:
             descending: When ``True``, reverses the sort direction.
 
         Returns:
-            List of :class:`~easypaperless.models.document_types.DocumentType` objects.
+            :class:`~easypaperless.models.paged_result.PagedResult` of
+            :class:`~easypaperless.models.document_types.DocumentType` objects.
         """
         return cast(
-            List[DocumentType],
+            PagedResult[DocumentType],
             self._run(
                 self._async_document_types.list(
                     ids=ids,

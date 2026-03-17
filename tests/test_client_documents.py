@@ -112,33 +112,34 @@ async def test_get_document_metadata_not_found(client, mock_router):
 
 async def test_list_documents(client, mock_router):
     mock_router.get("/documents/").mock(return_value=Response(200, json=DOC_LIST))
-    docs = await client.documents.list()
-    assert len(docs) == 1
-    assert docs[0].id == 1
+    result = await client.documents.list()
+    assert result.count == 1
+    assert len(result.results) == 1
+    assert result.results[0].id == 1
 
 
 async def test_list_documents_with_search(client, mock_router):
     mock_router.get("/documents/").mock(return_value=Response(200, json=DOC_LIST))
-    docs = await client.documents.list(search="invoice", search_mode="title")
-    assert len(docs) == 1
+    result = await client.documents.list(search="invoice", search_mode="title")
+    assert len(result.results) == 1
 
 
 async def test_list_documents_with_title_or_content_search(client, mock_router):
     mock_router.get("/documents/").mock(return_value=Response(200, json=DOC_LIST))
-    docs = await client.documents.list(search="invoice")  # default mode
-    assert len(docs) == 1
+    result = await client.documents.list(search="invoice")  # default mode
+    assert len(result.results) == 1
 
 
 async def test_list_documents_with_asn(client, mock_router):
     mock_router.get("/documents/").mock(return_value=Response(200, json=DOC_LIST))
-    docs = await client.documents.list(archive_serial_number=42)
-    assert len(docs) == 1
+    result = await client.documents.list(archive_serial_number=42)
+    assert len(result.results) == 1
 
 
 async def test_list_documents_with_date_range(client, mock_router):
     mock_router.get("/documents/").mock(return_value=Response(200, json=DOC_LIST))
-    docs = await client.documents.list(created_after="2024-01-01", created_before="2024-12-31")
-    assert len(docs) == 1
+    result = await client.documents.list(created_after="2024-01-01", created_before="2024-12-31")
+    assert len(result.results) == 1
 
 
 async def test_update_document(client, mock_router):
@@ -211,8 +212,8 @@ async def test_download_document_html_body_prefix(client, mock_router):
 
 async def test_list_documents_with_tag_id(client, mock_router):
     mock_router.get("/documents/").mock(return_value=Response(200, json=DOC_LIST))
-    docs = await client.documents.list(tags=[3])
-    assert len(docs) == 1
+    result = await client.documents.list(tags=[3])
+    assert len(result.results) == 1
 
 
 async def test_list_documents_with_tag_name(client, mock_router):
@@ -225,8 +226,8 @@ async def test_list_documents_with_tag_name(client, mock_router):
     }
     mock_router.get("/tags/").mock(return_value=Response(200, json=tags_resp))
     mock_router.get("/documents/").mock(return_value=Response(200, json=DOC_LIST))
-    docs = await client.documents.list(tags=["invoice"])
-    assert len(docs) == 1
+    result = await client.documents.list(tags=["invoice"])
+    assert len(result.results) == 1
 
 
 async def test_update_document_with_correspondent_name(client, mock_router):
@@ -615,9 +616,10 @@ async def test_list_documents_max_results_within_first_page(client, mock_router)
         "results": [{"id": i, "title": f"Doc{i}", "tags": []} for i in range(1, 6)],
     }
     mock_router.get("/documents/").mock(return_value=Response(200, json=many))
-    docs = await client.documents.list(max_results=3)
-    assert len(docs) == 3
-    assert [d.id for d in docs] == [1, 2, 3]
+    result = await client.documents.list(max_results=3)
+    assert result.count == 5
+    assert len(result.results) == 3
+    assert [d.id for d in result.results] == [1, 2, 3]
 
 
 async def test_list_documents_max_results_stops_pagination(client, mock_router):
@@ -642,9 +644,10 @@ async def test_list_documents_max_results_stops_pagination(client, mock_router):
         return Response(200, json=page1 if call_count == 1 else page2)
 
     mock_router.get("/documents/").mock(side_effect=side_effect)
-    docs = await client.documents.list(max_results=3)
-    assert len(docs) == 3
-    assert [d.id for d in docs] == [1, 2, 3]
+    result = await client.documents.list(max_results=3)
+    assert result.count == 4
+    assert len(result.results) == 3
+    assert [d.id for d in result.results] == [1, 2, 3]
     assert call_count == 2
 
 
@@ -664,8 +667,8 @@ async def test_list_documents_max_results_exact_first_page(client, mock_router):
         return Response(200, json=page1)
 
     mock_router.get("/documents/").mock(side_effect=side_effect)
-    docs = await client.documents.list(max_results=2)
-    assert len(docs) == 2
+    result = await client.documents.list(max_results=2)
+    assert len(result.results) == 2
     assert call_count == 1
 
 
@@ -698,9 +701,9 @@ async def test_list_documents_ordering_desc(client, mock_router):
 async def test_list_documents_page(client, mock_router):
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured, DOC_LIST))
-    docs = await client.documents.list(page=2)
+    result = await client.documents.list(page=2)
     assert captured["params"]["page"] == "2"
-    assert len(docs) == 1
+    assert len(result.results) == 1
 
 
 async def test_list_documents_page_suppresses_autopagination(client, mock_router):
@@ -719,9 +722,9 @@ async def test_list_documents_page_suppresses_autopagination(client, mock_router
         return Response(200, json=page_resp)
 
     mock_router.get("/documents/").mock(side_effect=side_effect)
-    docs = await client.documents.list(page=2)
+    result = await client.documents.list(page=2)
     assert call_count == 1
-    assert len(docs) == 1
+    assert len(result.results) == 1
 
 
 async def test_list_documents_search_mode_original_filename(client, mock_router):
@@ -1212,8 +1215,8 @@ async def test_list_documents_on_page_callback(client, mock_router):
     def on_page(fetched: int, total: int | None) -> None:
         page_calls.append((fetched, total))
 
-    docs = await client.documents.list(on_page=on_page)
-    assert len(docs) == 3
+    result = await client.documents.list(on_page=on_page)
+    assert len(result.results) == 3
     assert len(page_calls) == 2
     assert page_calls[0] == (2, 3)
     assert page_calls[1] == (3, 3)

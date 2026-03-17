@@ -152,9 +152,10 @@ def test_sync_list_documents():
     with respx.mock(base_url=BASE_URL + "/api", assert_all_called=False) as router:
         router.get("/documents/").mock(return_value=Response(200, json=DOC_LIST))
         with SyncPaperlessClient(url=BASE_URL, api_key=API_KEY) as client:
-            docs = client.documents.list()
-    assert len(docs) == 1
-    assert docs[0].title == "Test"
+            result = client.documents.list()
+    assert result.count == 1
+    assert len(result.results) == 1
+    assert result.results[0].title == "Test"
 
 
 def test_sync_update_document():
@@ -211,9 +212,10 @@ def test_sync_list_tags():
     with respx.mock(base_url=BASE_URL + "/api", assert_all_called=False) as router:
         router.get("/tags/").mock(return_value=Response(200, json=TAG_LIST))
         with SyncPaperlessClient(url=BASE_URL, api_key=API_KEY) as client:
-            tags = client.tags.list()
-    assert len(tags) == 1
-    assert tags[0].name == "invoice"
+            result = client.tags.list()
+    assert result.count == 1
+    assert len(result.results) == 1
+    assert result.results[0].name == "invoice"
 
 
 def test_sync_get_tag():
@@ -276,9 +278,10 @@ def test_sync_list_correspondents():
     with respx.mock(base_url=BASE_URL + "/api", assert_all_called=False) as router:
         router.get("/correspondents/").mock(return_value=Response(200, json=CORRESPONDENT_LIST))
         with SyncPaperlessClient(url=BASE_URL, api_key=API_KEY) as client:
-            items = client.correspondents.list()
-    assert len(items) == 1
-    assert items[0].name == "ACME Corp"
+            result = client.correspondents.list()
+    assert result.count == 1
+    assert len(result.results) == 1
+    assert result.results[0].name == "ACME Corp"
 
 
 def test_sync_get_correspondent():
@@ -323,9 +326,10 @@ def test_sync_list_document_types():
     with respx.mock(base_url=BASE_URL + "/api", assert_all_called=False) as router:
         router.get("/document_types/").mock(return_value=Response(200, json=DOCTYPE_LIST))
         with SyncPaperlessClient(url=BASE_URL, api_key=API_KEY) as client:
-            items = client.document_types.list()
-    assert len(items) == 1
-    assert items[0].name == "Invoice"
+            result = client.document_types.list()
+    assert result.count == 1
+    assert len(result.results) == 1
+    assert result.results[0].name == "Invoice"
 
 
 def test_sync_get_document_type():
@@ -370,9 +374,10 @@ def test_sync_list_storage_paths():
     with respx.mock(base_url=BASE_URL + "/api", assert_all_called=False) as router:
         router.get("/storage_paths/").mock(return_value=Response(200, json=STORAGE_PATH_LIST))
         with SyncPaperlessClient(url=BASE_URL, api_key=API_KEY) as client:
-            items = client.storage_paths.list()
-    assert len(items) == 1
-    assert items[0].name == "archive"
+            result = client.storage_paths.list()
+    assert result.count == 1
+    assert len(result.results) == 1
+    assert result.results[0].name == "archive"
 
 
 def test_sync_get_storage_path():
@@ -417,9 +422,10 @@ def test_sync_list_custom_fields():
     with respx.mock(base_url=BASE_URL + "/api", assert_all_called=False) as router:
         router.get("/custom_fields/").mock(return_value=Response(200, json=CUSTOM_FIELD_LIST))
         with SyncPaperlessClient(url=BASE_URL, api_key=API_KEY) as client:
-            items = client.custom_fields.list()
-    assert len(items) == 1
-    assert items[0].name == "Amount"
+            result = client.custom_fields.list()
+    assert result.count == 1
+    assert len(result.results) == 1
+    assert result.results[0].name == "Amount"
 
 
 def test_sync_get_custom_field():

@@ -14,6 +14,7 @@ from easypaperless._internal.resources.documents import DocumentsResource
 from easypaperless._internal.resources.storage_paths import StoragePathsResource
 from easypaperless._internal.resources.tags import TagsResource
 from easypaperless._internal.sentinel import UNSET, Unset
+from easypaperless.models.paged_result import PagedResult
 from easypaperless.models.permissions import SetPermissions
 
 logger = logging.getLogger(__name__)
@@ -65,13 +66,18 @@ class _ClientCore:
         resource: str,
         model_class: type[Any],
         params: dict[str, Any] | None = None,
-    ) -> list[Any]:
+    ) -> PagedResult[Any]:
         if params and "page" in params:
-            resp = await self._session.get(f"/{resource}/", params=params)
-            items = resp.json().get("results", [])
+            raw = await self._session.get_page(f"/{resource}/", params=params)
         else:
-            items = await self._session.get_all_pages(f"/{resource}/", params)
-        return [model_class.model_validate(item) for item in items]
+            raw = await self._session.get_all_pages_paged(f"/{resource}/", params)
+        return PagedResult(
+            count=raw.count,
+            next=raw.next,
+            previous=raw.previous,
+            all=raw.all_ids,
+            results=[model_class.model_validate(item) for item in raw.items],
+        )
 
     async def _get_resource(self, resource: str, id: int, model_class: type[Any]) -> Any:
         resp = await self._session.get(f"/{resource}/{id}/")

@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import logging
+from dataclasses import dataclass
 from typing import Any, Callable
 
 import httpx
@@ -16,6 +17,17 @@ from easypaperless.exceptions import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+@dataclass
+class _PagedRaw:
+    """Internal container for a raw paged API response."""
+
+    count: int
+    next: str | None
+    previous: str | None
+    all_ids: list[int] | None
+    items: list[dict[str, Any]]
 
 
 class HttpSession:
@@ -203,3 +215,99 @@ class HttpSession:
 
         logger.debug("Pagination complete: %d items from %s", len(results), path)
         return results
+
+    async def get_page(
+        self,
+        path: str,
+        *,
+        params: dict[str, Any] | None = None,
+    ) -> _PagedRaw:
+        """Fetch a single page and return full pagination metadata.
+
+        Args:
+            path: API path relative to the base URL.
+            params: Optional query parameters including ``page``.
+
+        Returns:
+            A :class:`_PagedRaw` with ``count``, ``next``, ``previous``,
+            ``all_ids``, and ``items`` from the API response.
+        """
+        resp = await self.get(path, params=params)
+        page = resp.json()
+        return _PagedRaw(
+            count=page.get("count", 0),
+            next=page.get("next"),
+            previous=page.get("previous"),
+            all_ids=page.get("all"),
+            items=page.get("results", []),
+        )
+
+    async def get_all_pages_paged(
+        self,
+        path: str,
+        params: dict[str, Any] | None = None,
+        *,
+        max_results: int | None = None,
+        on_page: Callable[[int, int | None], None] | None = None,
+    ) -> _PagedRaw:
+        """Fetch all pages and return items with first-page pagination metadata.
+
+        ``next`` and ``previous`` in the returned :class:`_PagedRaw` are
+        always ``None`` — they are meaningless once pagination has been fully
+        consumed by the library.  ``count`` and ``all_ids`` come from the
+        first page response.
+
+        Args:
+            path: API path relative to the base URL.
+            params: Optional query parameters (must *not* include ``page``).
+            max_results: Stop after collecting this many items.
+            on_page: Callback invoked after each page fetch with
+                ``(fetched_so_far, total_count)``.
+
+        Returns:
+            A :class:`_PagedRaw` with all collected items and first-page
+            metadata.
+        """
+        results: list[dict[str, Any]] = []
+        if params:
+            logger.debug("Fetching %s (params=%s)", path, params)
+        else:
+            logger.debug("Fetching %s", path)
+        response = await self.get(path, params=params)
+        page = response.json()
+        total_count: int = page.get("count", 0)
+        all_ids: list[int] | None = page.get("all")
+        results.extend(page.get("results", []))
+        if on_page is not None:
+            on_page(len(results), total_count)
+
+        if max_results is not None and len(results) >= max_results:
+            logger.debug("max_results=%d reached after first page", max_results)
+            return _PagedRaw(total_count, None, None, all_ids, results[:max_results])
+
+        next_url: str | None = page.get("next")
+        while next_url:
+            logger.debug("Fetching next page: %s", next_url)
+            client = self._get_client()
+            try:
+                response = await client.get(next_url)
+            except httpx.TimeoutException as exc:
+                raise ServerError(f"Request timed out (GET {next_url})") from exc
+            except httpx.HTTPError as exc:
+                raise ServerError(str(exc) or f"HTTP error on GET {next_url}") from exc
+            self._raise_for_status(response, "GET", next_url)
+            page = response.json()
+            results.extend(page.get("results", []))
+            if on_page is not None:
+                on_page(len(results), total_count)
+            next_url = page.get("next")
+
+            if max_results is not None and len(results) >= max_results:
+                logger.debug("max_results=%d reached", max_results)
+                break
+
+        if max_results is not None:
+            results = results[:max_results]
+
+        logger.debug("Pagination complete: %d items from %s", len(results), path)
+        return _PagedRaw(total_count, None, None, all_ids, results)

@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Any, List, cast
 
 from easypaperless._internal.sentinel import UNSET, Unset
 from easypaperless.models.documents import Document, DocumentMetadata, DocumentNote
+from easypaperless.models.paged_result import PagedResult
 from easypaperless.models.permissions import SetPermissions
 
 if TYPE_CHECKING:
@@ -158,11 +159,19 @@ class SyncDocumentsResource:
         descending: bool = False,
         max_results: int | None = None,
         on_page: Callable[[int, int | None], None] | None = None,
-    ) -> List[Document]:
+    ) -> PagedResult[Document]:
         """Return a filtered list of documents.
 
         All tag, correspondent, document-type, storage-path, and custom-field
         parameters accept either integer IDs or string names.
+
+        When ``page`` is ``None`` (the default), all pages are fetched
+        automatically and ``next`` / ``previous`` in the returned
+        :class:`~easypaperless.models.paged_result.PagedResult` are always
+        ``None`` — even if ``max_results`` truncates the final result set.
+        ``count`` always reflects the server total, not the truncated length.
+        When ``page`` is set to a specific integer, only that one page is
+        fetched and ``next`` / ``previous`` contain the raw API values.
 
         Args:
             search: Search string.  Behaviour depends on ``search_mode``.
@@ -217,10 +226,11 @@ class SyncDocumentsResource:
             on_page: Callback invoked after each page fetch.
 
         Returns:
-            List of :class:`~easypaperless.models.documents.Document` objects.
+            :class:`~easypaperless.models.paged_result.PagedResult` of
+            :class:`~easypaperless.models.documents.Document` objects.
         """
         return cast(
-            List[Document],
+            PagedResult[Document],
             self._run(
                 self._async_documents.list(
                     search=search,
