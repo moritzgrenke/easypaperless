@@ -106,6 +106,8 @@ class DocumentTypesResource:
             name: Document-type name. Must be unique.
             match: Auto-matching pattern.
             matching_algorithm: Controls how ``match`` is applied.
+                E.g. ``matching_algorithm=MatchingAlgorithm.REGEX`` for
+                regular-expression matching.
             is_insensitive: When ``True``, ``match`` is case-insensitive.
                 Defaults to ``True``, matching the paperless-ngx API default.
             owner: Numeric user ID to assign as owner.
@@ -148,6 +150,8 @@ class DocumentTypesResource:
             name: Document-type name.
             match: Auto-matching pattern.
             matching_algorithm: Controls how ``match`` is applied.
+                E.g. ``matching_algorithm=MatchingAlgorithm.REGEX`` for
+                regular-expression matching.
             is_insensitive: When ``True``, ``match`` is case-insensitive.
             owner: Numeric user ID to assign as owner.
                 Pass ``None`` to clear the owner.

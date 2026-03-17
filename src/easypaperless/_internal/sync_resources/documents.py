@@ -202,21 +202,35 @@ class SyncDocumentsResource:
             custom_fields: Documents must have **all** of these custom fields set.
             any_custom_fields: Documents must have **at least one** of these fields.
             exclude_custom_fields: Documents must have **none** of these fields.
-            custom_field_query: Filter documents by custom field values.
+            custom_field_query: Filter documents by custom field values using a nested
+                query structure. See the `paperless-ngx API docs
+                <https://docs.paperless-ngx.com/api/#filtering-by-custom-fields>`_ for
+                the query format.
             archive_serial_number: Filter by exact archive serial number.
                 Pass ``None`` to return only documents with no ASN set.
             archive_serial_number_from: Filter by ASN >= this value.
             archive_serial_number_till: Filter by ASN <= this value.
             created_after: Only documents created after this date.
+                String input must be ISO-8601: ``"YYYY-MM-DD"``.
             created_before: Only documents created before this date.
+                String input must be ISO-8601: ``"YYYY-MM-DD"``.
             added_after: Only documents added after this date/time.
+                String input must be ISO-8601: ``"YYYY-MM-DD"`` for date precision or
+                ``"YYYY-MM-DDTHH:MM:SS"`` for datetime precision.
             added_from: Only documents added on or after this date/time.
+                String input must be ISO-8601: ``"YYYY-MM-DD"`` or ``"YYYY-MM-DDTHH:MM:SS"``.
             added_before: Only documents added before this date/time.
+                String input must be ISO-8601: ``"YYYY-MM-DD"`` or ``"YYYY-MM-DDTHH:MM:SS"``.
             added_until: Only documents added on or before this date/time.
+                String input must be ISO-8601: ``"YYYY-MM-DD"`` or ``"YYYY-MM-DDTHH:MM:SS"``.
             modified_after: Only documents modified after this date/time.
+                String input must be ISO-8601: ``"YYYY-MM-DD"`` or ``"YYYY-MM-DDTHH:MM:SS"``.
             modified_from: Only documents modified on or after this date/time.
+                String input must be ISO-8601: ``"YYYY-MM-DD"`` or ``"YYYY-MM-DDTHH:MM:SS"``.
             modified_before: Only documents modified before this date/time.
+                String input must be ISO-8601: ``"YYYY-MM-DD"`` or ``"YYYY-MM-DDTHH:MM:SS"``.
             modified_until: Only documents modified on or before this date/time.
+                String input must be ISO-8601: ``"YYYY-MM-DD"`` or ``"YYYY-MM-DDTHH:MM:SS"``.
             checksum: MD5 checksum of the original file (exact match).
             page_size: Number of results per API page.  Default: ``25``.
             page: Return only this specific page (1-based).
@@ -402,8 +416,15 @@ class SyncDocumentsResource:
             custom_fields: List of ``{"field": <field_id>, "value": ...}`` dicts.
             wait: If ``False`` *(default)*, returns immediately with the task ID.
                 If ``True``, polls until processing completes.
-            poll_interval: Override the client-level ``poll_interval`` (in seconds).
-            poll_timeout: Override the client-level ``poll_timeout`` (in seconds).
+            poll_interval: Seconds between task-status checks while waiting for
+                processing to complete (requires ``wait=True``). Overrides the
+                client-level default. When omitted, falls back to the client-level
+                ``poll_interval`` (``2.0`` s unless changed at construction).
+            poll_timeout: Maximum seconds to wait before raising
+                :exc:`~easypaperless.exceptions.TaskTimeoutError` (requires
+                ``wait=True``). Overrides the client-level default. When omitted,
+                falls back to the client-level ``poll_timeout`` (``60.0`` s unless
+                changed at construction).
 
         Returns:
             The Celery task ID string when ``wait=False``, or the fully

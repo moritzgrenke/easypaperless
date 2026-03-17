@@ -103,6 +103,8 @@ class SyncTagsResource:
             is_inbox_tag: When ``True``, newly ingested documents get this tag.
             match: Auto-matching pattern.
             matching_algorithm: Controls how ``match`` is applied.
+                E.g. ``matching_algorithm=MatchingAlgorithm.REGEX`` for
+                regular-expression matching.
             is_insensitive: When ``True``, ``match`` is case-insensitive.
                 Defaults to ``True``, matching the paperless-ngx API default.
             parent: ID of parent tag for hierarchical trees.
@@ -153,6 +155,8 @@ class SyncTagsResource:
             is_inbox_tag: When ``True``, newly ingested documents get this tag.
             match: Auto-matching pattern.
             matching_algorithm: Controls how ``match`` is applied.
+                E.g. ``matching_algorithm=MatchingAlgorithm.REGEX`` for
+                regular-expression matching.
             is_insensitive: When ``True``, ``match`` is case-insensitive.
             parent: ID of parent tag.
                 Pass ``None`` to clear (make root tag).
