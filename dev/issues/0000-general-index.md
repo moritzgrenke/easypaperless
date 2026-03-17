@@ -1,6 +1,6 @@
 # Feature Index
 
-**Next Available ID:** 0032
+**Next Available ID:** 0034
 
 | ID | Type | Name | Status | File |
 |----|------|------|--------|------|
@@ -35,3 +35,5 @@
 | 0029 | Feature | Return PagedResult Model from All list() Methods | Deployed | [0029-feature-paged_result_model_for_list_methods.md](0029-feature-paged_result_model_for_list_methods.md) |
 | 0030 | Feature | Add Structured Logging Support Across All Resource Methods | Deployed | [0030-feature-structured_logging_support.md](0030-feature-structured_logging_support.md) |
 | 0031 | Refactoring | Rename `api_key` Parameter to `api_token` in Clients and Scripts | Deployed | [0031-refactoring-rename_api_key_to_api_token.md](0031-refactoring-rename_api_key_to_api_token.md) |
+| 0032 | Bug | `documents.notes.list()` Does Not Return `PagedResult` | Implemented | [0032-bug-notes_list_missing_paged_result.md](0032-bug-notes_list_missing_paged_result.md) |
+| 0033 | Bug | Pagination Follows Wrong Scheme on HTTPS Instances Behind Reverse Proxy | Open | [0033-bug-pagination_wrong_scheme_on_https.md](0033-bug-pagination_wrong_scheme_on_https.md) |

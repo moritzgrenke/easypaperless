@@ -23,21 +23,39 @@ class SyncNotesResource:
         self._async_notes = async_notes
         self._run = run
 
-    def list(self, document_id: int) -> List[DocumentNote]:
-        """Fetch all notes attached to a document.
+    def list(
+        self,
+        document_id: int,
+        *,
+        page: int | None = None,
+        page_size: int | None = None,
+    ) -> PagedResult[DocumentNote]:
+        """Fetch notes attached to a document.
+
+        When ``page`` is ``None`` (the default), all pages are fetched
+        automatically and ``next`` / ``previous`` in the returned
+        :class:`~easypaperless.models.paged_result.PagedResult` are always
+        ``None``.  When ``page`` is set to a specific integer, only that one
+        page is fetched and ``next`` / ``previous`` contain the raw API values.
 
         Args:
             document_id: Numeric ID of the document whose notes to retrieve.
+            page: Return only this specific page (1-based).
+            page_size: Number of results per page.
 
         Returns:
-            List of :class:`~easypaperless.models.documents.DocumentNote` objects,
+            :class:`~easypaperless.models.paged_result.PagedResult` of
+            :class:`~easypaperless.models.documents.DocumentNote` objects,
             ordered by creation time.
 
         Raises:
             ~easypaperless.exceptions.NotFoundError: If no document exists
                 with that ID.
         """
-        return cast(List[DocumentNote], self._run(self._async_notes.list(document_id)))
+        return cast(
+            PagedResult[DocumentNote],
+            self._run(self._async_notes.list(document_id, page=page, page_size=page_size)),
+        )
 
     def create(self, document_id: int, *, note: str) -> DocumentNote:
         """Create a new note on a document.

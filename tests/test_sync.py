@@ -467,12 +467,76 @@ def test_sync_delete_custom_field():
 
 
 def test_sync_get_notes():
+    paged = {"count": 1, "next": None, "previous": None, "all": None, "results": [NOTE_DATA]}
     with respx.mock(base_url=BASE_URL + "/api", assert_all_called=False) as router:
-        router.get("/documents/1/notes/").mock(return_value=Response(200, json=[NOTE_DATA]))
+        router.get("/documents/1/notes/").mock(return_value=Response(200, json=paged))
         with SyncPaperlessClient(url=BASE_URL, api_token=API_KEY) as client:
-            notes = client.documents.notes.list(1)
-    assert len(notes) == 1
-    assert notes[0].note == "hello"
+            result = client.documents.notes.list(1)
+    assert result.count == 1
+    assert len(result.results) == 1
+    assert result.results[0].note == "hello"
+
+
+def test_sync_get_notes_single_page():
+    """Single-page mode: next/previous reflect raw API values."""
+    paged = {
+        "count": 5,
+        "next": "http://paperless.test/api/documents/1/notes/?page=2",
+        "previous": None,
+        "all": None,
+        "results": [NOTE_DATA],
+    }
+    with respx.mock(base_url=BASE_URL + "/api", assert_all_called=False) as router:
+        router.get("/documents/1/notes/").mock(return_value=Response(200, json=paged))
+        with SyncPaperlessClient(url=BASE_URL, api_token=API_KEY) as client:
+            result = client.documents.notes.list(1, page=1)
+    assert result.count == 5
+    assert result.next == "http://paperless.test/api/documents/1/notes/?page=2"
+    assert result.previous is None
+    assert len(result.results) == 1
+
+
+def test_sync_get_notes_auto_pagination():
+    """Auto-pagination: all pages fetched, next/previous are None."""
+    note2 = {**NOTE_DATA, "id": 2, "note": "Second note"}
+    page1 = {
+        "count": 2,
+        "next": "http://paperless.test/api/documents/1/notes/?page=2",
+        "previous": None,
+        "all": None,
+        "results": [NOTE_DATA],
+    }
+    page2 = {"count": 2, "next": None, "previous": None, "all": None, "results": [note2]}
+    with respx.mock(base_url=BASE_URL + "/api", assert_all_called=False) as router:
+        router.get("/documents/1/notes/").mock(
+            side_effect=[Response(200, json=page1), Response(200, json=page2)]
+        )
+        with SyncPaperlessClient(url=BASE_URL, api_token=API_KEY) as client:
+            result = client.documents.notes.list(1)
+    assert result.count == 2
+    assert len(result.results) == 2
+    assert result.next is None
+    assert result.previous is None
+
+
+def test_sync_get_notes_all_field():
+    """'all' field is populated when the API returns it."""
+    paged = {"count": 1, "next": None, "previous": None, "all": [10], "results": [NOTE_DATA]}
+    with respx.mock(base_url=BASE_URL + "/api", assert_all_called=False) as router:
+        router.get("/documents/1/notes/").mock(return_value=Response(200, json=paged))
+        with SyncPaperlessClient(url=BASE_URL, api_token=API_KEY) as client:
+            result = client.documents.notes.list(1)
+    assert result.all == [10]
+
+
+def test_sync_get_notes_all_field_absent():
+    """'all' field is None when absent from the API response."""
+    paged = {"count": 1, "next": None, "previous": None, "results": [NOTE_DATA]}
+    with respx.mock(base_url=BASE_URL + "/api", assert_all_called=False) as router:
+        router.get("/documents/1/notes/").mock(return_value=Response(200, json=paged))
+        with SyncPaperlessClient(url=BASE_URL, api_token=API_KEY) as client:
+            result = client.documents.notes.list(1)
+    assert result.all is None
 
 
 def test_sync_create_note():

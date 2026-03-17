@@ -7,6 +7,7 @@ from httpx import Response
 
 from easypaperless.exceptions import NotFoundError
 from easypaperless.models.documents import DocumentNote
+from easypaperless.models.paged_result import PagedResult
 
 NOTE_DATA = {
     "id": 1,
@@ -22,21 +23,105 @@ NOTE_DATA_NESTED_USER = {
     "user": {"id": 1, "username": "admin", "first_name": "", "last_name": ""},
 }
 
+PAGED_RESPONSE = {
+    "count": 1,
+    "next": None,
+    "previous": None,
+    "all": None,
+    "results": [NOTE_DATA],
+}
+
+PAGED_RESPONSE_EMPTY = {
+    "count": 0,
+    "next": None,
+    "previous": None,
+    "all": None,
+    "results": [],
+}
+
 
 async def test_get_notes(client, mock_router):
-    mock_router.get("/documents/42/notes/").mock(return_value=Response(200, json=[NOTE_DATA]))
-    notes = await client.documents.notes.list(42)
-    assert len(notes) == 1
-    assert isinstance(notes[0], DocumentNote)
-    assert notes[0].id == 1
-    assert notes[0].note == "Needs review"
-    assert notes[0].document == 42
+    mock_router.get("/documents/42/notes/").mock(return_value=Response(200, json=PAGED_RESPONSE))
+    result = await client.documents.notes.list(42)
+    assert isinstance(result, PagedResult)
+    assert result.count == 1
+    assert len(result.results) == 1
+    assert isinstance(result.results[0], DocumentNote)
+    assert result.results[0].id == 1
+    assert result.results[0].note == "Needs review"
+    assert result.results[0].document == 42
 
 
 async def test_get_notes_empty(client, mock_router):
-    mock_router.get("/documents/42/notes/").mock(return_value=Response(200, json=[]))
-    notes = await client.documents.notes.list(42)
-    assert notes == []
+    mock_router.get("/documents/42/notes/").mock(
+        return_value=Response(200, json=PAGED_RESPONSE_EMPTY)
+    )
+    result = await client.documents.notes.list(42)
+    assert isinstance(result, PagedResult)
+    assert result.count == 0
+    assert result.results == []
+
+
+async def test_get_notes_auto_pagination(client, mock_router):
+    """Auto-pagination: next/previous are None, count from first page."""
+    page1 = {
+        "count": 2,
+        "next": "http://paperless.test/api/documents/42/notes/?page=2",
+        "previous": None,
+        "all": None,
+        "results": [NOTE_DATA],
+    }
+    note2 = {**NOTE_DATA, "id": 2, "note": "Second note"}
+    page2 = {"count": 2, "next": None, "previous": None, "all": None, "results": [note2]}
+    mock_router.get("/documents/42/notes/").mock(
+        side_effect=[Response(200, json=page1), Response(200, json=page2)]
+    )
+    result = await client.documents.notes.list(42)
+    assert isinstance(result, PagedResult)
+    assert result.count == 2
+    assert len(result.results) == 2
+    assert result.next is None
+    assert result.previous is None
+
+
+async def test_get_notes_single_page(client, mock_router):
+    """Single-page mode: next/previous reflect raw API values."""
+    paged = {
+        "count": 5,
+        "next": "http://localhost/api/documents/42/notes/?page=2",
+        "previous": None,
+        "all": None,
+        "results": [NOTE_DATA],
+    }
+    mock_router.get("/documents/42/notes/").mock(return_value=Response(200, json=paged))
+    result = await client.documents.notes.list(42, page=1)
+    assert isinstance(result, PagedResult)
+    assert result.count == 5
+    assert result.next == "http://localhost/api/documents/42/notes/?page=2"
+    assert result.previous is None
+    assert len(result.results) == 1
+
+
+async def test_get_notes_all_field(client, mock_router):
+    """'all' field is included when present in the API response."""
+    paged = {
+        "count": 1,
+        "next": None,
+        "previous": None,
+        "all": [1],
+        "results": [NOTE_DATA],
+    }
+    mock_router.get("/documents/42/notes/").mock(return_value=Response(200, json=paged))
+    result = await client.documents.notes.list(42)
+    assert result.all == [1]
+
+
+async def test_get_notes_all_field_absent(client, mock_router):
+    """'all' field is None when absent from the API response."""
+    paged = {"count": 1, "next": None, "previous": None, "results": [NOTE_DATA]}
+    mock_router.get("/documents/42/notes/").mock(return_value=Response(200, json=paged))
+    result = await client.documents.notes.list(42)
+    assert result.all is None
 
 
 async def test_create_note(client, mock_router):
@@ -49,11 +134,10 @@ async def test_create_note(client, mock_router):
 
 
 async def test_get_notes_nested_user(client, mock_router):
-    mock_router.get("/documents/42/notes/").mock(
-        return_value=Response(200, json=[NOTE_DATA_NESTED_USER])
-    )
-    notes = await client.documents.notes.list(42)
-    assert notes[0].user == 1
+    paged = {**PAGED_RESPONSE, "results": [NOTE_DATA_NESTED_USER]}
+    mock_router.get("/documents/42/notes/").mock(return_value=Response(200, json=paged))
+    result = await client.documents.notes.list(42)
+    assert result.results[0].user == 1
 
 
 async def test_delete_note(client, mock_router):

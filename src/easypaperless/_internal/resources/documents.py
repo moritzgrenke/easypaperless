@@ -10,7 +10,7 @@ import time
 from collections.abc import Callable
 from datetime import date, datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, List
+from typing import TYPE_CHECKING, Any, List, cast
 
 from easypaperless._internal.sentinel import UNSET, Unset
 from easypaperless.exceptions import ServerError, TaskTimeoutError, UploadError
@@ -45,14 +45,29 @@ class NotesResource:
     def __init__(self, core: _ClientCore) -> None:
         self._core = core
 
-    async def list(self, document_id: int) -> List[DocumentNote]:
-        """Fetch all notes attached to a document.
+    async def list(
+        self,
+        document_id: int,
+        *,
+        page: int | None = None,
+        page_size: int | None = None,
+    ) -> PagedResult[DocumentNote]:
+        """Fetch notes attached to a document.
+
+        When ``page`` is ``None`` (the default), all pages are fetched
+        automatically and ``next`` / ``previous`` in the returned
+        :class:`~easypaperless.models.paged_result.PagedResult` are always
+        ``None``.  When ``page`` is set to a specific integer, only that one
+        page is fetched and ``next`` / ``previous`` contain the raw API values.
 
         Args:
             document_id: Numeric ID of the document whose notes to retrieve.
+            page: Return only this specific page (1-based).
+            page_size: Number of results per page.
 
         Returns:
-            List of :class:`~easypaperless.models.documents.DocumentNote` objects,
+            :class:`~easypaperless.models.paged_result.PagedResult` of
+            :class:`~easypaperless.models.documents.DocumentNote` objects,
             ordered by creation time.
 
         Raises:
@@ -60,8 +75,25 @@ class NotesResource:
                 with that ID.
         """
         logger.info("Listing notes for document id=%d", document_id)
-        resp = await self._core._session.get(f"/documents/{document_id}/notes/")
-        return [DocumentNote.model_validate(item) for item in resp.json()]
+        path = f"/documents/{document_id}/notes/"
+        params: dict[str, Any] = {}
+        if page_size is not None:
+            params["page_size"] = page_size
+        if page is not None:
+            params["page"] = page
+            raw = await self._core._session.get_page(path, params=params)
+        else:
+            raw = await self._core._session.get_all_pages_paged(path, params or None)
+        return cast(
+            PagedResult[DocumentNote],
+            PagedResult(
+                count=raw.count,
+                next=raw.next,
+                previous=raw.previous,
+                all=raw.all_ids,
+                results=[DocumentNote.model_validate(item) for item in raw.items],
+            ),
+        )
 
     async def create(self, document_id: int, *, note: str) -> DocumentNote:
         """Create a new note on a document.
