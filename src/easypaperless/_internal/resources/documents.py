@@ -81,17 +81,54 @@ class NotesResource:
             params["page_size"] = page_size
         if page is not None:
             params["page"] = page
-            raw = await self._core._session.get_page(path, params=params)
-        else:
-            raw = await self._core._session.get_all_pages_paged(path, params or None)
+
+        resp = await self._core._session.get(path, params=params or None)
+        data = resp.json()
+
+        if isinstance(data, list):
+            # The paperless-ngx notes endpoint returns a plain JSON array rather
+            # than a paginated envelope.  Build a synthetic PagedResult so callers
+            # always receive a consistent return type regardless of API version.
+            notes = [DocumentNote.model_validate(item) for item in data]
+            note_ids = [n.id for n in notes if n.id is not None]
+            all_ids: list[int] | None = note_ids if note_ids else None
+            return PagedResult(
+                count=len(notes),
+                next=None,
+                previous=None,
+                all=all_ids,
+                results=notes,
+            )
+
+        # Paginated dict envelope — forward-compatible with potential future API changes.
+        items: list[Any] = list(data.get("results", []))
+        count: int = data.get("count", 0)
+        page_all_ids: list[int] | None = data.get("all")
+
+        if page is None:
+            next_url: str | None = data.get("next")
+            while next_url:
+                next_url = self._core._session._normalise_next_url(next_url)
+                page_resp = await self._core._session.get(next_url)
+                page_data = page_resp.json()
+                items.extend(page_data.get("results", []))
+                next_url = page_data.get("next")
+            return PagedResult(
+                count=count,
+                next=None,
+                previous=None,
+                all=page_all_ids,
+                results=[DocumentNote.model_validate(item) for item in items],
+            )
+
         return cast(
             PagedResult[DocumentNote],
             PagedResult(
-                count=raw.count,
-                next=raw.next,
-                previous=raw.previous,
-                all=raw.all_ids,
-                results=[DocumentNote.model_validate(item) for item in raw.items],
+                count=count,
+                next=data.get("next"),
+                previous=data.get("previous"),
+                all=page_all_ids,
+                results=[DocumentNote.model_validate(item) for item in items],
             ),
         )
 

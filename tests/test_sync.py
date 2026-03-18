@@ -467,14 +467,45 @@ def test_sync_delete_custom_field():
 
 
 def test_sync_get_notes():
-    paged = {"count": 1, "next": None, "previous": None, "all": None, "results": [NOTE_DATA]}
+    """Primary happy path: plain array response is wrapped into a PagedResult."""
     with respx.mock(base_url=BASE_URL + "/api", assert_all_called=False) as router:
-        router.get("/documents/1/notes/").mock(return_value=Response(200, json=paged))
+        router.get("/documents/1/notes/").mock(return_value=Response(200, json=[NOTE_DATA]))
         with SyncPaperlessClient(url=BASE_URL, api_token=API_KEY) as client:
             result = client.documents.notes.list(1)
     assert result.count == 1
     assert len(result.results) == 1
     assert result.results[0].note == "hello"
+
+
+def test_sync_get_notes_empty():
+    """Empty plain array response yields PagedResult with count=0."""
+    with respx.mock(base_url=BASE_URL + "/api", assert_all_called=False) as router:
+        router.get("/documents/1/notes/").mock(return_value=Response(200, json=[]))
+        with SyncPaperlessClient(url=BASE_URL, api_token=API_KEY) as client:
+            result = client.documents.notes.list(1)
+    assert result.count == 0
+    assert result.results == []
+
+
+def test_sync_get_notes_plain_array_synthetic_paged_result():
+    """Regression #0034: plain array is wrapped into a synthetic PagedResult with correct fields."""
+    with respx.mock(base_url=BASE_URL + "/api", assert_all_called=False) as router:
+        router.get("/documents/1/notes/").mock(return_value=Response(200, json=[NOTE_DATA]))
+        with SyncPaperlessClient(url=BASE_URL, api_token=API_KEY) as client:
+            result = client.documents.notes.list(1)
+    assert result.count == 1
+    assert result.next is None
+    assert result.previous is None
+    assert result.all == [10]
+
+
+def test_sync_get_notes_plain_array_empty_all_ids():
+    """Regression #0034: empty plain array produces all=None."""
+    with respx.mock(base_url=BASE_URL + "/api", assert_all_called=False) as router:
+        router.get("/documents/1/notes/").mock(return_value=Response(200, json=[]))
+        with SyncPaperlessClient(url=BASE_URL, api_token=API_KEY) as client:
+            result = client.documents.notes.list(1)
+    assert result.all is None
 
 
 def test_sync_get_notes_single_page():

@@ -23,6 +23,11 @@ NOTE_DATA_NESTED_USER = {
     "user": {"id": 1, "username": "admin", "first_name": "", "last_name": ""},
 }
 
+# Plain array — actual paperless-ngx API response shape for /documents/{id}/notes/
+PLAIN_ARRAY_RESPONSE = [NOTE_DATA]
+PLAIN_ARRAY_EMPTY = []  # type: list[dict]
+
+# Paginated dict envelope — kept for forward-compatibility tests only
 PAGED_RESPONSE = {
     "count": 1,
     "next": None,
@@ -40,8 +45,15 @@ PAGED_RESPONSE_EMPTY = {
 }
 
 
+# ---------------------------------------------------------------------------
+# Plain array tests — reflect the actual paperless-ngx API response shape
+# ---------------------------------------------------------------------------
+
+
 async def test_get_notes(client, mock_router):
-    mock_router.get("/documents/42/notes/").mock(return_value=Response(200, json=PAGED_RESPONSE))
+    mock_router.get("/documents/42/notes/").mock(
+        return_value=Response(200, json=PLAIN_ARRAY_RESPONSE)
+    )
     result = await client.documents.notes.list(42)
     assert isinstance(result, PagedResult)
     assert result.count == 1
@@ -53,13 +65,35 @@ async def test_get_notes(client, mock_router):
 
 
 async def test_get_notes_empty(client, mock_router):
-    mock_router.get("/documents/42/notes/").mock(
-        return_value=Response(200, json=PAGED_RESPONSE_EMPTY)
-    )
+    mock_router.get("/documents/42/notes/").mock(return_value=Response(200, json=PLAIN_ARRAY_EMPTY))
     result = await client.documents.notes.list(42)
     assert isinstance(result, PagedResult)
     assert result.count == 0
     assert result.results == []
+
+
+async def test_get_notes_plain_array_synthetic_paged_result(client, mock_router):
+    """Regression: plain array response is wrapped into a synthetic PagedResult."""
+    mock_router.get("/documents/42/notes/").mock(
+        return_value=Response(200, json=PLAIN_ARRAY_RESPONSE)
+    )
+    result = await client.documents.notes.list(42)
+    assert result.count == 1
+    assert result.next is None
+    assert result.previous is None
+    assert result.all == [1]
+
+
+async def test_get_notes_plain_array_empty_all_ids(client, mock_router):
+    """Empty plain array produces all=None (no IDs to list)."""
+    mock_router.get("/documents/42/notes/").mock(return_value=Response(200, json=PLAIN_ARRAY_EMPTY))
+    result = await client.documents.notes.list(42)
+    assert result.all is None
+
+
+# ---------------------------------------------------------------------------
+# Paginated dict tests — forward-compatibility if paperless-ngx ever switches
+# ---------------------------------------------------------------------------
 
 
 async def test_get_notes_auto_pagination(client, mock_router):
@@ -134,8 +168,9 @@ async def test_create_note(client, mock_router):
 
 
 async def test_get_notes_nested_user(client, mock_router):
-    paged = {**PAGED_RESPONSE, "results": [NOTE_DATA_NESTED_USER]}
-    mock_router.get("/documents/42/notes/").mock(return_value=Response(200, json=paged))
+    mock_router.get("/documents/42/notes/").mock(
+        return_value=Response(200, json=[NOTE_DATA_NESTED_USER])
+    )
     result = await client.documents.notes.list(42)
     assert result.results[0].user == 1
 

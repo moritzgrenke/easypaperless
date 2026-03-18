@@ -1,6 +1,6 @@
 # Feature Index
 
-**Next Available ID:** 0034
+**Next Available ID:** 0035
 
 | ID | Type | Name | Status | File |
 |----|------|------|--------|------|
@@ -37,3 +37,4 @@
 | 0031 | Refactoring | Rename `api_key` Parameter to `api_token` in Clients and Scripts | Deployed | [0031-refactoring-rename_api_key_to_api_token.md](0031-refactoring-rename_api_key_to_api_token.md) |
 | 0032 | Bug | `documents.notes.list()` Does Not Return `PagedResult` | Deployed | [0032-bug-notes_list_missing_paged_result.md](0032-bug-notes_list_missing_paged_result.md) |
 | 0033 | Bug | Pagination Follows Wrong Scheme on HTTPS Instances Behind Reverse Proxy | Deployed | [0033-bug-pagination_wrong_scheme_on_https.md](0033-bug-pagination_wrong_scheme_on_https.md) |
+| 0034 | Bug | `notes.list()` Crashes at Runtime with AttributeError on Real Instance | Implemented | [0034-bug-notes_list_crashes_on_plain_array_response.md](0034-bug-notes_list_crashes_on_plain_array_response.md) |
