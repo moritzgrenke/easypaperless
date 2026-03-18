@@ -3,6 +3,14 @@
 All notable changes to this project will be documented in this file.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.3.2] - 2026-03-18
+
+### Fixed
+
+- `documents.notes.list()` (async and sync) no longer crashes with `AttributeError: 'list' object has no attribute 'get'` on real paperless-ngx instances. The `/documents/{id}/notes/` endpoint returns a plain JSON array; the method now wraps it into a synthetic `PagedResult[DocumentNote]` (`count=len(notes)`, `next=None`, `previous=None`, `all=[<ids>] or None`) instead of incorrectly treating it as a paginated dict envelope.
+
+---
+
 ## [0.3.1] - 2026-03-17
 
 ### Fixed
