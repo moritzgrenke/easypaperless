@@ -1,6 +1,6 @@
 # Feature Index
 
-**Next Available ID:** 0036
+**Next Available ID:** 0037
 
 | ID | Type | Name | Status | File |
 |----|------|------|--------|------|
@@ -39,3 +39,4 @@
 | 0033 | Bug | Pagination Follows Wrong Scheme on HTTPS Instances Behind Reverse Proxy | Deployed | [0033-bug-pagination_wrong_scheme_on_https.md](0033-bug-pagination_wrong_scheme_on_https.md) |
 | 0034 | Bug | `notes.list()` Crashes at Runtime with AttributeError on Real Instance | Deployed | [0034-bug-notes_list_crashes_on_plain_array_response.md](0034-bug-notes_list_crashes_on_plain_array_response.md) |
 | 0035 | Feature | Users Resource CRUD | QA Passed | [0035-feature-users_resource_crud.md](0035-feature-users_resource_crud.md) |
+| 0036 | Feature | Trash Resource | QA Passed | [0036-feature-trash_resource.md](0036-feature-trash_resource.md) |

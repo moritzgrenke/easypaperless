@@ -13,6 +13,7 @@ from easypaperless._internal.resources.document_types import DocumentTypesResour
 from easypaperless._internal.resources.documents import DocumentsResource
 from easypaperless._internal.resources.storage_paths import StoragePathsResource
 from easypaperless._internal.resources.tags import TagsResource
+from easypaperless._internal.resources.trash import TrashResource
 from easypaperless._internal.resources.users import UsersResource
 from easypaperless._internal.sentinel import UNSET, Unset
 from easypaperless.models.paged_result import PagedResult
@@ -31,6 +32,7 @@ class _ClientCore:
     storage_paths: StoragePathsResource
     custom_fields: CustomFieldsResource
     users: UsersResource
+    trash: TrashResource
 
     def __init__(
         self,
@@ -53,6 +55,7 @@ class _ClientCore:
         self.storage_paths = StoragePathsResource(self)
         self.custom_fields = CustomFieldsResource(self)
         self.users = UsersResource(self)
+        self.trash = TrashResource(self)
 
     async def close(self) -> None:
         """Close the underlying HTTP connection pool."""
@@ -172,6 +175,8 @@ class PaperlessClient(_ClientCore):
       see `easypaperless.resources.TagsResource`
     * ``client.users`` — user CRUD -
       see `easypaperless.resources.UsersResource`
+    * ``client.trash`` — list, restore, and permanently delete trashed documents -
+      see `easypaperless.resources.TrashResource`
 
     Use as an async context manager to ensure the underlying HTTP connection
     pool is closed when you are done:
