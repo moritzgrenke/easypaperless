@@ -22,7 +22,6 @@ documents.list(): custom_field_query - format? examples?
 
 documents.upload(): poll_interval, poll_timeout in seconds?
 
-documents.bulk_edit(): add remark again "better use high-level methods", add full list of implemented methods. say explicitly that not all methods were implemented.
 
 
 ## general features
@@ -32,6 +31,7 @@ client.documents.list(): archive_serial_number => null => filter for archive_ser
 documents.bulk_modify_tags(): test edge case of mixed int/str param "add_tags". 
 
 tags.create() - can't find param "parent" in the api. later version of paperless-ngx?
+passing non existing parameters doesn't lead to an error (i had this once with a misspelled param.) leads to the situation that if api wrapper expects a later version of the api, but param doesn't yet exist, the param is silently ignored. give some kind of warning? e.g. query the version when initializing the client then check again a list of params - throw exceptions if param used that isn't available in the detected version!?
 
 logging needs to be added.
 
@@ -51,18 +51,15 @@ in correspondents.create(), document_types.create() and storage_paths.create() a
 ## 16.03.
 
 
-check again: documents.get_metadata() - working?
-
-
 Out of scope: paperless-ngx error? created should be nullable?
 
-client poll_intervall and poll_timeout : docstring has hint "in seconds"?
-
-
-bulk_set_permissions in documents lead to an error 500 (when tested via the mcp server).
+bulk_set_permissions in documents lead to an error 500 (when tested via the mcp server and both params none).
 
 
 
+## 20.03.
 
-
-
+planning to add more resources:
+v0.4.0: permission project: profile, trash, users
+v0.5.0: admin suite: config, groups, logs, saved_views, status, tasks?, token?, ui_settings
+v0.6.0: rest: documents.*, mail_accounts, mail_rules, oauth?, remote_version?, search?, share_links, statistics, workflow_actions, workflow_triggers, workflows

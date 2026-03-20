@@ -17,6 +17,7 @@ from easypaperless._internal.sync_resources.document_types import SyncDocumentTy
 from easypaperless._internal.sync_resources.documents import SyncDocumentsResource
 from easypaperless._internal.sync_resources.storage_paths import SyncStoragePathsResource
 from easypaperless._internal.sync_resources.tags import SyncTagsResource
+from easypaperless._internal.sync_resources.users import SyncUsersResource
 from easypaperless.client import PaperlessClient
 
 _T = TypeVar("_T")
@@ -31,6 +32,7 @@ class _SyncCore:
     document_types: SyncDocumentTypesResource
     storage_paths: SyncStoragePathsResource
     custom_fields: SyncCustomFieldsResource
+    users: SyncUsersResource
 
     def __init__(self, url: str, api_token: str, **kwargs: Any) -> None:
         self._loop = asyncio.new_event_loop()
@@ -48,6 +50,7 @@ class _SyncCore:
         )
         self.storage_paths = SyncStoragePathsResource(self._async_client.storage_paths, self._run)
         self.custom_fields = SyncCustomFieldsResource(self._async_client.custom_fields, self._run)
+        self.users = SyncUsersResource(self._async_client.users, self._run)
 
     def _run(self, coro: Coroutine[Any, Any, _T]) -> _T:
         """Submit a coroutine to the background event loop and block until done."""
@@ -92,6 +95,8 @@ class SyncPaperlessClient(_SyncCore):
       see `easypaperless.resources.SyncStoragePathsResource`
     * ``client.tags`` — tag CRUD + bulk ops -
       see `easypaperless.resources.SyncTagsResource`
+    * ``client.users`` — user CRUD -
+      see `easypaperless.resources.SyncUsersResource`
 
     All methods are synchronous wrappers around the async
     :class:`~easypaperless.client.PaperlessClient`.  Operations run on a

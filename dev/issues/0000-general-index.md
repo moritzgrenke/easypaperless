@@ -1,6 +1,6 @@
 # Feature Index
 
-**Next Available ID:** 0035
+**Next Available ID:** 0036
 
 | ID | Type | Name | Status | File |
 |----|------|------|--------|------|
@@ -38,3 +38,4 @@
 | 0032 | Bug | `documents.notes.list()` Does Not Return `PagedResult` | Deployed | [0032-bug-notes_list_missing_paged_result.md](0032-bug-notes_list_missing_paged_result.md) |
 | 0033 | Bug | Pagination Follows Wrong Scheme on HTTPS Instances Behind Reverse Proxy | Deployed | [0033-bug-pagination_wrong_scheme_on_https.md](0033-bug-pagination_wrong_scheme_on_https.md) |
 | 0034 | Bug | `notes.list()` Crashes at Runtime with AttributeError on Real Instance | Deployed | [0034-bug-notes_list_crashes_on_plain_array_response.md](0034-bug-notes_list_crashes_on_plain_array_response.md) |
+| 0035 | Feature | Users Resource CRUD | QA Passed | [0035-feature-users_resource_crud.md](0035-feature-users_resource_crud.md) |

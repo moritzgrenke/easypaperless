@@ -29,6 +29,7 @@ from easypaperless.models import (
     FileMetadataEntry,
     MatchingAlgorithm,
     PagedResult,
+    PaperlessPermission,
     PermissionSet,
     SearchHit,
     SetPermissions,
@@ -36,6 +37,7 @@ from easypaperless.models import (
     Tag,
     Task,
     TaskStatus,
+    User,
 )
 from easypaperless.sync import SyncPaperlessClient
 
@@ -68,6 +70,8 @@ __all__ = [
     "Tag",
     "Task",
     "TaskStatus",
+    "User",
+    "PaperlessPermission",
     # Exceptions
     "PaperlessError",
     "AuthError",
