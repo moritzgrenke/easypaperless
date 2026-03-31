@@ -158,6 +158,7 @@ The `UNSET` sentinel (importable from `easypaperless`) allows you to distinguish
 * **update()** Partially update document fields like title, tags, or dates using PATCH semantics. Supports `UNSET` to distinguish "not provided" from explicit `None`.
 * **delete()** Permanently remove a document from your Paperless-ngx instance.
 * **download()** Download the binary content of a document — either the archived PDF or the original file.
+* **thumbnail()** Download the thumbnail image of a document as raw bytes.
 * **upload()** Upload a new file to Paperless-ngx and optionally wait for the processing task to complete.
 
 #### Document Bulk Operations
@@ -171,6 +172,7 @@ The `UNSET` sentinel (importable from `easypaperless`) allows you to distinguish
 * **bulk_set_storage_path()** Update the storage path for multiple documents simultaneously.
 * **bulk_modify_custom_fields()** Batch update or remove custom field values across multiple documents.
 * **bulk_set_permissions()** Manage ownership and access permissions for a list of documents.
+* **bulk_download()** Download multiple documents as a single ZIP archive. Supports choosing the file variant (`archive`, `originals`, or `both`), compression algorithm, and optional filename formatting.
 
 ### `client.documents.notes` — Document Notes
 

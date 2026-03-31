@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.5.0] - 2026-03-31
+
+### Added
+
+- **`documents.thumbnail(id)`** (`client.documents` / `sync_client.documents`): Fetches the thumbnail image for a document as raw bytes from `GET /documents/{id}/thumb/`. Raises `NotFoundError` if the document does not exist and `ServerError` if the server returns an HTML page (e.g. an auth redirect) instead of image content.
+- **`documents.bulk_download(document_ids, *, content, compression, follow_formatting)`** (`client.documents` / `sync_client.documents`): Downloads multiple documents as a single ZIP archive in one request via `POST /api/documents/bulk_download/`. `content` selects the file variant (`"archive"` *(default)*, `"originals"`, `"both"`); `compression` controls the ZIP algorithm (`"none"` *(default)*, `"deflated"`, `"bzip2"`, `"lzma"`); `follow_formatting` (default `False`) applies the configured paperless-ngx storage-path filename scheme to entries in the archive. Returns raw `bytes`.
+
+---
+
 ## [0.4.1] - 2026-03-23
 
 ### Fixed
