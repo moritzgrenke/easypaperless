@@ -66,3 +66,42 @@ Expose a `bulk_download()` method on the `documents` resource (both async and sy
 - API reference: `POST /api/documents/bulk_download/`
 - Request schema: `BulkDownloadRequest` — `documents` (required, list of int), `content` (string enum, default `"archive"`), `compression` (string enum, default `"none"`), `follow_formatting` (bool, default `false`)
 - The response is a binary ZIP stream, not JSON.
+
+---
+
+## QA
+
+**Tested by:** QA Engineer
+**Date:** 2026-03-31
+**Commit:** e131063 (re-run after BUG-001 fix)
+
+### Test Results
+
+| # | Test Case | Expected | Actual | Status |
+|---|-----------|----------|--------|--------|
+| 1 | AC1: `bulk_download(ids)` sends POST to `/api/documents/bulk_download/` with default body `{"documents": ids, "content": "archive", "compression": "none", "follow_formatting": false}` | Correct endpoint and payload | `test_bulk_download_defaults` verifies all fields | ✅ Pass |
+| 2 | AC2: Explicit `content="originals"` is sent in body | `content == "originals"` in payload | `test_bulk_download_content_originals` confirms | ✅ Pass |
+| 2b | AC2: Explicit `content="both"` is sent in body | `content == "both"` in payload | `test_bulk_download_content_both` confirms | ✅ Pass |
+| 2c | AC2: Explicit `compression="lzma"` is sent in body | `compression == "lzma"` in payload | `test_bulk_download_compression_lzma` confirms | ✅ Pass |
+| 2d | AC2: `follow_formatting=True` is sent in body | `follow_formatting == True` in payload | `test_bulk_download_follow_formatting` confirms | ✅ Pass |
+| 3 | AC3: Method returns raw response bytes | `bytes` object returned | `resp.content` returned directly; all tests assert `result == ZIP_BYTES` | ✅ Pass |
+| 4 | AC4: `content` and `compression` enforced via `Literal` type annotations | Mypy catches invalid values at type-check time | `Literal["archive","originals","both"]` and `Literal["none","deflated","bzip2","lzma"]`; mypy reports no issues | ✅ Pass |
+| 5 | AC5: Sync client exposes `bulk_download()` with same signature | Method exists on `SyncDocumentsResource`, delegates to async | `test_sync_bulk_download` passes with `content="originals"`, `compression="lzma"` | ✅ Pass |
+| 6 | AC6: Unit tests cover defaults, all non-default `content` values, ≥1 non-default `compression`, `follow_formatting=True`, sync | All required test cases present | 7 unit tests in `test_client_bulk.py` + 1 in `test_sync.py` | ✅ Pass |
+| 7 | Edge: Empty document list is forwarded as-is | `documents == []` in body | `test_bulk_download_empty_document_list` confirms | ✅ Pass |
+| 8 | Ruff linting — `tests/integration/test_bulk_download.py` | No lint errors | BUG-001 fixed: `io` now appears before `zipfile`; `ruff check .` passes clean | ✅ Pass |
+
+### Bugs Found
+
+None.
+
+### Automated Tests
+- Suite: `pytest tests/` — **638 passed, 0 failed**
+- Ruff: No errors
+- Mypy: No issues (38 source files)
+
+### Summary
+- ACs tested: 6/6
+- ACs passing: 6/6
+- Bugs found: 0
+- Recommendation: ✅ Ready to merge

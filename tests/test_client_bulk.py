@@ -302,3 +302,76 @@ async def test_bulk_set_permissions_storage_paths(client, mock_router):
     assert body["object_type"] == "storage_paths"
     assert body["operation"] == "set_permissions"
     assert body["merge"] is True
+
+
+# ---------------------------------------------------------------------------
+# bulk_download
+# ---------------------------------------------------------------------------
+
+ZIP_BYTES = b"PK\x03\x04fake-zip-content"
+
+
+async def test_bulk_download_defaults(client, mock_router):
+    route = mock_router.post("/documents/bulk_download/").mock(
+        return_value=Response(200, content=ZIP_BYTES)
+    )
+    result = await client.documents.bulk_download([1, 2, 3])
+    body = _payload(route)
+    assert body == {
+        "documents": [1, 2, 3],
+        "content": "archive",
+        "compression": "none",
+        "follow_formatting": False,
+    }
+    assert result == ZIP_BYTES
+
+
+async def test_bulk_download_content_originals(client, mock_router):
+    route = mock_router.post("/documents/bulk_download/").mock(
+        return_value=Response(200, content=ZIP_BYTES)
+    )
+    result = await client.documents.bulk_download([1], content="originals")
+    body = _payload(route)
+    assert body["content"] == "originals"
+    assert result == ZIP_BYTES
+
+
+async def test_bulk_download_content_both(client, mock_router):
+    route = mock_router.post("/documents/bulk_download/").mock(
+        return_value=Response(200, content=ZIP_BYTES)
+    )
+    result = await client.documents.bulk_download([1], content="both")
+    body = _payload(route)
+    assert body["content"] == "both"
+    assert result == ZIP_BYTES
+
+
+async def test_bulk_download_compression_lzma(client, mock_router):
+    route = mock_router.post("/documents/bulk_download/").mock(
+        return_value=Response(200, content=ZIP_BYTES)
+    )
+    result = await client.documents.bulk_download([1, 2], compression="lzma")
+    body = _payload(route)
+    assert body["compression"] == "lzma"
+    assert result == ZIP_BYTES
+
+
+async def test_bulk_download_follow_formatting(client, mock_router):
+    route = mock_router.post("/documents/bulk_download/").mock(
+        return_value=Response(200, content=ZIP_BYTES)
+    )
+    result = await client.documents.bulk_download([1], follow_formatting=True)
+    body = _payload(route)
+    assert body["follow_formatting"] is True
+    assert result == ZIP_BYTES
+
+
+async def test_bulk_download_empty_document_list(client, mock_router):
+    """Empty document list is forwarded as-is; server decides how to handle it."""
+    route = mock_router.post("/documents/bulk_download/").mock(
+        return_value=Response(200, content=b"")
+    )
+    result = await client.documents.bulk_download([])
+    body = _payload(route)
+    assert body["documents"] == []
+    assert result == b""

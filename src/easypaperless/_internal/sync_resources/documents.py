@@ -5,7 +5,7 @@ from __future__ import annotations
 from collections.abc import Callable
 from datetime import date, datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, List, cast
+from typing import TYPE_CHECKING, Any, List, Literal, cast
 
 from easypaperless._internal.sentinel import UNSET, Unset
 from easypaperless.models.documents import Document, DocumentMetadata, DocumentNote
@@ -620,4 +620,39 @@ class SyncDocumentsResource:
                 owner=owner,
                 merge=merge,
             )
+        )
+
+    def bulk_download(
+        self,
+        document_ids: List[int],
+        *,
+        content: Literal["archive", "originals", "both"] = "archive",
+        compression: Literal["none", "deflated", "bzip2", "lzma"] = "none",
+        follow_formatting: bool = False,
+    ) -> bytes:
+        """Download multiple documents as a single ZIP archive.
+
+        Args:
+            document_ids: List of document IDs to include in the ZIP.
+            content: File variant to include.  One of ``"archive"`` *(default)*,
+                ``"originals"``, or ``"both"``.
+            compression: ZIP compression algorithm.  One of ``"none"`` *(default)*,
+                ``"deflated"``, ``"bzip2"``, or ``"lzma"``.
+            follow_formatting: When ``True``, filenames inside the ZIP follow
+                the storage path formatting configured in paperless-ngx.
+                Default: ``False``.
+
+        Returns:
+            Raw bytes of the ZIP archive.
+        """
+        return cast(
+            bytes,
+            self._run(
+                self._async_documents.bulk_download(
+                    document_ids,
+                    content=content,
+                    compression=compression,
+                    follow_formatting=follow_formatting,
+                )
+            ),
         )

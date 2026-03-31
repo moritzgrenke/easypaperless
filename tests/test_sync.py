@@ -699,6 +699,15 @@ def test_sync_bulk_set_permissions():
             client.documents.bulk_set_permissions([1, 2], set_permissions=perms, owner=1)
 
 
+def test_sync_bulk_download():
+    zip_bytes = b"PK\x03\x04fake-zip"
+    with respx.mock(base_url=BASE_URL + "/api", assert_all_called=False) as router:
+        router.post("/documents/bulk_download/").mock(return_value=Response(200, content=zip_bytes))
+        with SyncPaperlessClient(url=BASE_URL, api_token=API_KEY) as client:
+            result = client.documents.bulk_download([1, 2], content="originals", compression="lzma")
+    assert result == zip_bytes
+
+
 # ---------------------------------------------------------------------------
 # Bulk operations (non-document)
 # ---------------------------------------------------------------------------
