@@ -4,9 +4,11 @@ from __future__ import annotations
 
 import json
 
+import pytest
 import respx
 from httpx import Response
 
+from easypaperless.exceptions import NotFoundError
 from easypaperless.models.documents import DocumentMetadata
 from easypaperless.sync import SyncPaperlessClient
 
@@ -195,6 +197,27 @@ def test_sync_download_document_original():
         with SyncPaperlessClient(url=BASE_URL, api_token=API_KEY) as client:
             data = client.documents.download(1, original=True)
     assert data == content
+
+
+def test_sync_thumbnail_document():
+    content = b"\x89PNG\r\n\x1a\n fake png"
+    with respx.mock(base_url=BASE_URL + "/api", assert_all_called=False) as router:
+        router.get("/documents/1/thumb/").mock(
+            return_value=Response(200, content=content, headers={"content-type": "image/png"})
+        )
+        with SyncPaperlessClient(url=BASE_URL, api_token=API_KEY) as client:
+            data = client.documents.thumbnail(1)
+    assert data == content
+
+
+def test_sync_thumbnail_document_not_found():
+    with respx.mock(base_url=BASE_URL + "/api", assert_all_called=False) as router:
+        router.get("/documents/999/thumb/").mock(
+            return_value=Response(404, json={"detail": "Not found."})
+        )
+        with SyncPaperlessClient(url=BASE_URL, api_token=API_KEY) as client:
+            with pytest.raises(NotFoundError):
+                client.documents.thumbnail(999)
 
 
 # ---------------------------------------------------------------------------

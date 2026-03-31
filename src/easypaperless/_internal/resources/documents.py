@@ -679,6 +679,32 @@ class DocumentsResource:
             )
         return resp.content
 
+    async def thumbnail(self, id: int) -> bytes:
+        """Fetch the thumbnail image of a document.
+
+        Args:
+            id: Numeric ID of the document whose thumbnail to retrieve.
+
+        Returns:
+            Raw binary content of the thumbnail image.
+
+        Raises:
+            ~easypaperless.exceptions.NotFoundError: If no document exists
+                with that ID.
+            ~easypaperless.exceptions.ServerError: If the server returns an
+                HTML page (e.g. an auth redirect) instead of the image.
+        """
+        logger.info("Fetching thumbnail for document id=%d", id)
+        resp = await self._core._session.get_download(f"/documents/{id}/thumb/")
+        content_type = resp.headers.get("content-type", "")
+        if "text/html" in content_type or resp.content[:9].lower().startswith(b"<!doctype"):
+            raise ServerError(
+                f"Thumbnail returned an HTML page (content-type: {content_type!r}). "
+                "The server redirected to a login page even after re-attaching auth.",
+                status_code=None,
+            )
+        return resp.content
+
     async def upload(
         self,
         file: str | Path,

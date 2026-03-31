@@ -405,6 +405,23 @@ class SyncDocumentsResource:
         """
         return cast(bytes, self._run(self._async_documents.download(id, original=original)))
 
+    def thumbnail(self, id: int) -> bytes:
+        """Fetch the thumbnail image of a document.
+
+        Args:
+            id: Numeric ID of the document whose thumbnail to retrieve.
+
+        Returns:
+            Raw binary content of the thumbnail image.
+
+        Raises:
+            ~easypaperless.exceptions.NotFoundError: If no document exists
+                with that ID.
+            ~easypaperless.exceptions.ServerError: If the server returns an
+                HTML page (e.g. an auth redirect) instead of the image.
+        """
+        return cast(bytes, self._run(self._async_documents.thumbnail(id)))
+
     def upload(
         self,
         file: str | Path,

@@ -212,6 +212,71 @@ async def test_download_document_html_body_prefix(client, mock_router):
         await client.documents.download(1)
 
 
+async def test_thumbnail_document(client, mock_router):
+    mock_router.get("/documents/1/thumb/").mock(
+        return_value=Response(200, content=b"\x89PNG", headers={"content-type": "image/png"})
+    )
+    content = await client.documents.thumbnail(1)
+    assert content == b"\x89PNG"
+
+
+async def test_thumbnail_document_not_found(client, mock_router):
+    mock_router.get("/documents/999/thumb/").mock(
+        return_value=Response(404, json={"detail": "Not found."})
+    )
+    with pytest.raises(NotFoundError):
+        await client.documents.thumbnail(999)
+
+
+async def test_thumbnail_document_html_content_type(client, mock_router):
+    """HTML content-type on thumb endpoint indicates auth redirect — should raise ServerError."""
+    mock_router.get("/documents/1/thumb/").mock(
+        return_value=Response(
+            200,
+            content=b"<html><body>Login</body></html>",
+            headers={"content-type": "text/html; charset=utf-8"},
+        )
+    )
+    with pytest.raises(ServerError, match="HTML page"):
+        await client.documents.thumbnail(1)
+
+
+async def test_thumbnail_document_html_body_prefix(client, mock_router):
+    """Body starting with <!doctype should raise ServerError even without HTML content-type."""
+    mock_router.get("/documents/1/thumb/").mock(
+        return_value=Response(
+            200,
+            content=b"<!DOCTYPE html><html><body>Login</body></html>",
+            headers={"content-type": "application/octet-stream"},
+        )
+    )
+    with pytest.raises(ServerError, match="HTML page"):
+        await client.documents.thumbnail(1)
+
+
+async def test_thumbnail_document_webp(client, mock_router):
+    """Thumbnail is returned as raw bytes regardless of MIME type (e.g. image/webp)."""
+    webp_magic = b"RIFF\x00\x00\x00\x00WEBP"
+    mock_router.get("/documents/1/thumb/").mock(
+        return_value=Response(200, content=webp_magic, headers={"content-type": "image/webp"})
+    )
+    content = await client.documents.thumbnail(1)
+    assert content == webp_magic
+
+
+async def test_thumbnail_document_html_body_prefix_lowercase(client, mock_router):
+    """Lowercase <!doctype prefix must also trigger ServerError (case-insensitive detection)."""
+    mock_router.get("/documents/1/thumb/").mock(
+        return_value=Response(
+            200,
+            content=b"<!doctype html><html><body>Login</body></html>",
+            headers={"content-type": "application/octet-stream"},
+        )
+    )
+    with pytest.raises(ServerError, match="HTML page"):
+        await client.documents.thumbnail(1)
+
+
 async def test_list_documents_with_tag_id(client, mock_router):
     mock_router.get("/documents/").mock(return_value=Response(200, json=DOC_LIST))
     result = await client.documents.list(tags=[3])
