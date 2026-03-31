@@ -1,6 +1,6 @@
 # Feature Index
 
-**Next Available ID:** 0038
+**Next Available ID:** 0040
 
 | ID | Type | Name | Status | File |
 |----|------|------|--------|------|
@@ -41,3 +41,5 @@
 | 0035 | Feature | Users Resource CRUD | QA Passed | [0035-feature-users_resource_crud.md](0035-feature-users_resource_crud.md) |
 | 0036 | Feature | Trash Resource | QA Passed | [0036-feature-trash_resource.md](0036-feature-trash_resource.md) |
 | 0037 | Bug | `documents.download(original=True)` Returns Archived PDF Instead of Original File | QA Passed | [0037-bug-download_original_returns_pdf.md](0037-bug-download_original_returns_pdf.md) |
+| 0038 | Feature | Document Thumbnail | QA Passed | [0038-feature-document_thumbnail.md](0038-feature-document_thumbnail.md) |
+| 0039 | Feature | Document Bulk Download | Open | [0039-feature-document_bulk_download.md](0039-feature-document_bulk_download.md) |
