@@ -402,7 +402,7 @@ class DocumentsResource:
                 params["correspondent__isnull"] = "true"
             else:
                 resolved_id = await resolver.resolve("correspondents", correspondent)
-                params["correspondent__id__in"] = resolved_id
+                params["correspondent__id"] = resolved_id
 
         if exclude_correspondents is not None:
             resolved = await resolver.resolve_list("correspondents", exclude_correspondents)
@@ -421,7 +421,7 @@ class DocumentsResource:
                 params["document_type__isnull"] = "true"
             else:
                 resolved_id = await resolver.resolve("document_types", document_type)
-                params["document_type"] = resolved_id
+                params["document_type__id"] = resolved_id
 
         if exclude_document_types is not None:
             resolved = await resolver.resolve_list("document_types", exclude_document_types)
@@ -435,7 +435,7 @@ class DocumentsResource:
                 params["storage_path__isnull"] = "true"
             else:
                 resolved_id = await resolver.resolve("storage_paths", storage_path)
-                params["storage_path__id__in"] = resolved_id
+                params["storage_path__id"] = resolved_id
 
         if exclude_storage_paths is not None:
             resolved = await resolver.resolve_list("storage_paths", exclude_storage_paths)
@@ -445,7 +445,7 @@ class DocumentsResource:
             if owner is None:
                 params["owner__isnull"] = "true"
             else:
-                params["owner__id__in"] = owner
+                params["owner__id"] = owner
 
         if exclude_owners is not None:
             params["owner__id__none"] = ",".join(str(o) for o in exclude_owners)

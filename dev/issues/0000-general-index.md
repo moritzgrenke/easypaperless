@@ -1,6 +1,6 @@
 # Feature Index
 
-**Next Available ID:** 0040
+**Next Available ID:** 0041
 
 | ID | Type | Name | Status | File |
 |----|------|------|--------|------|
@@ -43,3 +43,4 @@
 | 0037 | Bug | `documents.download(original=True)` Returns Archived PDF Instead of Original File | Deployed | [0037-bug-download_original_returns_pdf.md](0037-bug-download_original_returns_pdf.md) |
 | 0038 | Feature | Document Thumbnail | Deployed | [0038-feature-document_thumbnail.md](0038-feature-document_thumbnail.md) |
 | 0039 | Feature | Document Bulk Download | Deployed | [0039-feature-document_bulk_download.md](0039-feature-document_bulk_download.md) |
+| 0040 | Bug | Wrong Query Parameter Keys for Single-Value Filters in `documents.list()` | Implemented | [0040-bug-document_type_filter_ignored_in_list.md](0040-bug-document_type_filter_ignored_in_list.md) |

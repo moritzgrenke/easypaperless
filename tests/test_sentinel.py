@@ -420,7 +420,7 @@ async def test_list_documents_any_correspondent_overrides_correspondent_none(
 
     await client.documents.list(any_correspondent=[3], correspondent=None)
 
-    assert "correspondent__id__in" in captured["params"]
+    assert "correspondent__id__in" in captured["params"]  # from any_correspondent
     assert "correspondent__isnull" not in captured["params"]
 
 
@@ -461,4 +461,4 @@ async def test_list_documents_correspondent_id_not_isnull_when_value_given(
     await client.documents.list(correspondent=5)
 
     assert "correspondent__isnull" not in captured["params"]
-    assert "correspondent__id__in" in captured["params"]
+    assert "correspondent__id" in captured["params"]

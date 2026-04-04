@@ -548,6 +548,28 @@ async def test_list_documents_any_correspondent_overrides_correspondent(client, 
 
 
 # ---------------------------------------------------------------------------
+# correspondent (single-value)
+# ---------------------------------------------------------------------------
+
+
+async def test_list_documents_correspondent_by_id(client, mock_router):
+    captured: dict = {}
+    mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
+    await client.documents.list(correspondent=5)
+    assert captured["params"]["correspondent__id"] == "5"
+    assert "correspondent__id__in" not in captured["params"]
+
+
+async def test_list_documents_correspondent_by_name(client, mock_router):
+    mock_router.get("/correspondents/").mock(return_value=Response(200, json=_CORR_RESP))
+    captured: dict = {}
+    mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
+    await client.documents.list(correspondent="ACME")
+    assert captured["params"]["correspondent__id"] == "5"
+    assert "correspondent__id__in" not in captured["params"]
+
+
+# ---------------------------------------------------------------------------
 # exclude_correspondents
 # ---------------------------------------------------------------------------
 
@@ -593,7 +615,31 @@ async def test_list_documents_any_document_type_overrides_document_type(client, 
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
     await client.documents.list(document_type=99, any_document_type=[10, 11])
     assert captured["params"]["document_type__id__in"] == "10,11"
+    assert "document_type__id" not in captured["params"]
+
+
+# ---------------------------------------------------------------------------
+# document_type (single-value)
+# ---------------------------------------------------------------------------
+
+
+async def test_list_documents_document_type_by_id(client, mock_router):
+    captured: dict = {}
+    mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
+    await client.documents.list(document_type=10)
+    assert captured["params"]["document_type__id"] == "10"
     assert "document_type" not in captured["params"]
+    assert "document_type__id__in" not in captured["params"]
+
+
+async def test_list_documents_document_type_by_name(client, mock_router):
+    mock_router.get("/document_types/").mock(return_value=Response(200, json=_DOCTYPE_RESP))
+    captured: dict = {}
+    mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
+    await client.documents.list(document_type="Invoice")
+    assert captured["params"]["document_type__id"] == "10"
+    assert "document_type" not in captured["params"]
+    assert "document_type__id__in" not in captured["params"]
 
 
 # ---------------------------------------------------------------------------
@@ -829,7 +875,8 @@ async def test_list_documents_storage_path_by_id(client, mock_router):
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
     await client.documents.list(storage_path=20)
-    assert captured["params"]["storage_path__id__in"] == "20"
+    assert captured["params"]["storage_path__id"] == "20"
+    assert "storage_path__id__in" not in captured["params"]
 
 
 async def test_list_documents_storage_path_by_name(client, mock_router):
@@ -837,7 +884,8 @@ async def test_list_documents_storage_path_by_name(client, mock_router):
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
     await client.documents.list(storage_path="Archive")
-    assert captured["params"]["storage_path__id__in"] == "20"
+    assert captured["params"]["storage_path__id"] == "20"
+    assert "storage_path__id__in" not in captured["params"]
 
 
 async def test_list_documents_any_storage_paths_by_id(client, mock_router):
@@ -886,7 +934,8 @@ async def test_list_documents_owner(client, mock_router):
     captured: dict = {}
     mock_router.get("/documents/").mock(side_effect=_capturing_side_effect(captured))
     await client.documents.list(owner=42)
-    assert captured["params"]["owner__id__in"] == "42"
+    assert captured["params"]["owner__id"] == "42"
+    assert "owner__id__in" not in captured["params"]
 
 
 async def test_list_documents_exclude_owners(client, mock_router):
@@ -1393,17 +1442,17 @@ async def test_list_documents_none_owner_filters_no_owner(client, mock_router):
     )
     await client.documents.list(owner=None)
     assert captured["params"].get("owner__isnull") == "true"
-    assert "owner__id__in" not in captured["params"]
+    assert "owner__id" not in captured["params"]
 
 
 async def test_list_documents_owner_id_filters_by_id(client, mock_router):
-    """Passing owner=5 must add owner__id__in=5 (not isnull)."""
+    """Passing owner=5 must add owner__id=5 (not isnull)."""
     captured: dict = {}
     mock_router.get("/documents/").mock(
         side_effect=_list_capturing_side_effect(captured, DOC_LIST)
     )
     await client.documents.list(owner=5)
-    assert captured["params"].get("owner__id__in") == "5"
+    assert captured["params"].get("owner__id") == "5"
     assert "owner__isnull" not in captured["params"]
 
 
@@ -1415,7 +1464,7 @@ async def test_list_documents_omitting_owner_applies_no_owner_filter(client, moc
     )
     await client.documents.list()
     assert "owner__isnull" not in captured["params"]
-    assert "owner__id__in" not in captured["params"]
+    assert "owner__id" not in captured["params"]
 
 
 async def test_list_documents_none_correspondent_filters_no_correspondent(client, mock_router):
