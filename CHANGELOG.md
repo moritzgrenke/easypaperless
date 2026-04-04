@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.5.1] - 2026-04-04
+
+### Fixed
+
+- **`documents.list()` single-value FK filters now send the correct query parameter keys** (#0040). Four parameters were sending wrong keys that Paperless-ngx silently ignored, returning all documents instead of filtered results:
+  - `document_type=<id>` now sends `document_type__id` (was `document_type`)
+  - `correspondent=<id>` now sends `correspondent__id` (was `correspondent__id__in` with a scalar)
+  - `storage_path=<id>` now sends `storage_path__id` (was `storage_path__id__in` with a scalar)
+  - `owner=<id>` now sends `owner__id` (was `owner__id__in` with a scalar)
+  - Null-filter paths (`None` → `__isnull=true`) and multi-value `any_*` / `exclude_*` variants are unchanged. The sync client is fixed automatically as it delegates to the async implementation.
+
+---
+
 ## [0.5.0] - 2026-03-31
 
 ### Added
