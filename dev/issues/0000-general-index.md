@@ -1,6 +1,6 @@
 # Feature Index
 
-**Next Available ID:** 0041
+**Next Available ID:** 0043
 
 | ID | Type | Name | Status | File |
 |----|------|------|--------|------|
@@ -44,3 +44,5 @@
 | 0038 | Feature | Document Thumbnail | Deployed | [0038-feature-document_thumbnail.md](0038-feature-document_thumbnail.md) |
 | 0039 | Feature | Document Bulk Download | Deployed | [0039-feature-document_bulk_download.md](0039-feature-document_bulk_download.md) |
 | 0040 | Bug | Wrong Query Parameter Keys for Single-Value Filters in `documents.list()` | Deployed | [0040-bug-document_type_filter_ignored_in_list.md](0040-bug-document_type_filter_ignored_in_list.md) |
+| 0041 | Feature | Optional Retry-with-Backoff Support for Transient Network/Proxy Errors | Open | [0041-feature-retry_with_backoff_on_transient_errors.md](0041-feature-retry_with_backoff_on_transient_errors.md) |
+| 0042 | Feature | Document History (Audit Log) Endpoint | Open | [0042-feature-document_history_endpoint.md](0042-feature-document_history_endpoint.md) |
