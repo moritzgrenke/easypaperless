@@ -61,3 +61,24 @@ class TaskTimeoutError(PaperlessError):
 
     def __init__(self, message: str) -> None:
         super().__init__(message, status_code=None)
+
+
+class RetryExhaustedError(PaperlessError):
+    """Raised when all retry attempts are exhausted.
+
+    Attributes:
+        attempts: Total number of attempts made (initial + retries).
+        url: The URL that was requested.
+    """
+
+    def __init__(self, message: str, attempts: int, url: str) -> None:
+        """Create a RetryExhaustedError.
+
+        Args:
+            message: Human-readable error description.
+            attempts: Total number of attempts made.
+            url: The URL that was requested.
+        """
+        super().__init__(message, status_code=None)
+        self.attempts = attempts
+        self.url = url

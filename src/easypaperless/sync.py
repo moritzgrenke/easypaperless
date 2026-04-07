@@ -131,7 +131,12 @@ class SyncPaperlessClient(_SyncCore):
                 *Settings → API → Generate Token*.
             **kwargs: Additional keyword arguments forwarded to
                 :class:`~easypaperless.client.PaperlessClient` (e.g.
-                ``poll_interval``, ``poll_timeout``).
+                ``poll_interval``, ``poll_timeout``, ``retry_attempts``,
+                ``retry_backoff``, ``retry_on``, ``tenacity_retrying``).
+                When using ``tenacity_retrying``, pass a
+                ``tenacity.AsyncRetrying`` instance — the sync
+                ``tenacity.Retrying`` is not compatible because all requests
+                run on an internal async event loop.
         """
         super().__init__(url, api_token, **kwargs)
 

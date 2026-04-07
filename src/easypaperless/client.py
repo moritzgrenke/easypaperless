@@ -42,8 +42,20 @@ class _ClientCore:
         timeout: float = 30.0,
         poll_interval: float = 2.0,
         poll_timeout: float = 60.0,
+        retry_attempts: int = 0,
+        retry_backoff: float = 1.0,
+        retry_on: tuple[type[Exception], ...] | None = None,
+        tenacity_retrying: Any = None,
     ) -> None:
-        self._session = HttpSession(base_url=url, api_token=api_token, timeout=timeout)
+        self._session = HttpSession(
+            base_url=url,
+            api_token=api_token,
+            timeout=timeout,
+            retry_attempts=retry_attempts,
+            retry_backoff=retry_backoff,
+            retry_on=retry_on,
+            tenacity_retrying=tenacity_retrying,
+        )
         self._resolver = NameResolver(self._session)
         self._poll_interval = poll_interval
         self._poll_timeout = poll_timeout
@@ -194,6 +206,10 @@ class PaperlessClient(_ClientCore):
         timeout: float = 30.0,
         poll_interval: float = 2.0,
         poll_timeout: float = 60.0,
+        retry_attempts: int = 0,
+        retry_backoff: float = 1.0,
+        retry_on: tuple[type[Exception], ...] | None = None,
+        tenacity_retrying: Any = None,
     ) -> None:
         """Create an async paperless-ngx client.
 
@@ -209,9 +225,38 @@ class PaperlessClient(_ClientCore):
                 processing before raising
                 :exc:`~easypaperless.exceptions.TaskTimeoutError`.
                 Default: ``60.0``.
+            retry_attempts: Maximum number of retry attempts after the first
+                failure.  ``0`` (the default) disables retrying entirely,
+                preserving backward-compatible behaviour.
+            retry_backoff: Initial sleep in seconds between retry attempts;
+                doubles on each subsequent attempt.  Default: ``1.0``.
+            retry_on: Tuple of exception types that trigger a retry.  Defaults
+                to ``(ServerError, httpx.TimeoutException, httpx.ConnectError)``.
+                ``NotFoundError`` is intentionally excluded from the default set
+                so that genuine 404 responses are never silently retried.
+                Note: ``httpx.TimeoutException`` and ``httpx.ConnectError`` are
+                intercepted inside the HTTP layer and re-raised as ``ServerError``
+                before the retry loop runs, so including them in a custom
+                ``retry_on`` tuple has no effect unless ``ServerError`` is also
+                present.
+            tenacity_retrying: An optional pre-configured
+                ``tenacity.AsyncRetrying`` instance.  When supplied, the
+                ``retry_attempts``, ``retry_backoff``, and ``retry_on``
+                parameters are ignored and tenacity drives the retry loop
+                instead.  Must be ``AsyncRetrying`` — the sync
+                ``tenacity.Retrying`` is not compatible with the async HTTP
+                layer used internally.
         """
         super().__init__(
-            url, api_token, timeout=timeout, poll_interval=poll_interval, poll_timeout=poll_timeout
+            url,
+            api_token,
+            timeout=timeout,
+            poll_interval=poll_interval,
+            poll_timeout=poll_timeout,
+            retry_attempts=retry_attempts,
+            retry_backoff=retry_backoff,
+            retry_on=retry_on,
+            tenacity_retrying=tenacity_retrying,
         )
 
     async def __aenter__(self) -> PaperlessClient:

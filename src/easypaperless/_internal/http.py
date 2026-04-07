@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import asyncio
 import logging
 import urllib.parse
 from dataclasses import dataclass
@@ -13,11 +14,18 @@ from easypaperless.exceptions import (
     AuthError,
     NotFoundError,
     PaperlessError,
+    RetryExhaustedError,
     ServerError,
     ValidationError,
 )
 
 logger = logging.getLogger(__name__)
+
+_DEFAULT_RETRY_ON: tuple[type[Exception], ...] = (
+    ServerError,
+    httpx.TimeoutException,
+    httpx.ConnectError,
+)
 
 
 @dataclass
@@ -31,13 +39,45 @@ class _PagedRaw:
     items: list[dict[str, Any]]
 
 
+def _sanitise_body(body: str) -> str:
+    """Return a safe representation of a response body.
+
+    If the body looks like HTML, replaces it with a human-readable note and
+    a short excerpt to avoid flooding logs or exception messages with raw HTML.
+    """
+    stripped = body.lstrip()
+    if stripped.lower().startswith("<!") or stripped.lower().startswith("<html"):
+        excerpt = body[:200]
+        return (
+            "response body appears to be an HTML page — this may indicate a "
+            f"proxy or gateway error. Excerpt: {excerpt!r}"
+        )
+    return body
+
+
 class HttpSession:
-    def __init__(self, base_url: str, api_token: str, timeout: float = 30.0) -> None:
+    def __init__(
+        self,
+        base_url: str,
+        api_token: str,
+        timeout: float = 30.0,
+        *,
+        retry_attempts: int = 0,
+        retry_backoff: float = 1.0,
+        retry_on: tuple[type[Exception], ...] | None = None,
+        tenacity_retrying: Any = None,
+    ) -> None:
         # Normalize: strip trailing slash, then append /api
         self._base_url = base_url.rstrip("/") + "/api"
         self._api_token = api_token
         self._timeout = timeout
         self._client: httpx.AsyncClient | None = None
+        self._retry_attempts = retry_attempts
+        self._retry_backoff = retry_backoff
+        self._retry_on: tuple[type[Exception], ...] = (
+            retry_on if retry_on is not None else _DEFAULT_RETRY_ON
+        )
+        self._tenacity_retrying = tenacity_retrying
 
     def _get_client(self) -> httpx.AsyncClient:
         if self._client is None:
@@ -60,7 +100,7 @@ class HttpSession:
         try:
             detail = response.json().get("detail", response.text)
         except Exception:
-            detail = response.text
+            detail = _sanitise_body(response.text)
 
         status = response.status_code
         logger.warning("HTTP %s on %s %s — %s", status, method.upper(), path, detail)
@@ -75,7 +115,7 @@ class HttpSession:
         else:
             raise PaperlessError(detail, status_code=status)
 
-    async def request(
+    async def _do_request(
         self,
         method: str,
         path: str,
@@ -86,16 +126,8 @@ class HttpSession:
         files: Any = None,
         timeout: float | None = None,
     ) -> httpx.Response:
+        """Execute a single HTTP request attempt (no retry logic)."""
         client = self._get_client()
-        if logger.isEnabledFor(logging.DEBUG):
-            if json is not None:
-                logger.debug("%s %s body=%s", method.upper(), path, json)
-            elif data is not None:
-                logger.debug("%s %s data=%s", method.upper(), path, data)
-            elif files is not None:
-                logger.debug("%s %s <multipart/form-data>", method.upper(), path)
-            else:
-                logger.debug("%s %s", method.upper(), path)
         try:
             response = await client.request(
                 method,
@@ -121,6 +153,72 @@ class HttpSession:
             logger.debug("%s %s %s response=%s", response.status_code, method.upper(), path, body)
         self._raise_for_status(response, method, path)
         return response
+
+    async def request(
+        self,
+        method: str,
+        path: str,
+        *,
+        params: dict[str, Any] | None = None,
+        json: Any = None,
+        data: dict[str, Any] | None = None,
+        files: Any = None,
+        timeout: float | None = None,
+    ) -> httpx.Response:
+        if logger.isEnabledFor(logging.DEBUG):
+            if json is not None:
+                logger.debug("%s %s body=%s", method.upper(), path, json)
+            elif data is not None:
+                logger.debug("%s %s data=%s", method.upper(), path, data)
+            elif files is not None:
+                logger.debug("%s %s <multipart/form-data>", method.upper(), path)
+            else:
+                logger.debug("%s %s", method.upper(), path)
+
+        # tenacity-based retry path
+        if self._tenacity_retrying is not None:
+            async for attempt in self._tenacity_retrying:
+                with attempt:
+                    result = await self._do_request(
+                        method, path,
+                        params=params, json=json, data=data,
+                        files=files, timeout=timeout,
+                    )
+            return result  # noqa: F821
+
+        # built-in retry path
+        backoff = self._retry_backoff
+        total_attempts = self._retry_attempts + 1
+        for attempt in range(1, total_attempts + 1):
+            try:
+                return await self._do_request(
+                    method, path, params=params, json=json, data=data, files=files, timeout=timeout
+                )
+            except Exception as exc:
+                if not isinstance(exc, self._retry_on):
+                    raise
+                if attempt == total_attempts:
+                    if self._retry_attempts == 0:
+                        raise
+                    raise RetryExhaustedError(
+                        f"All {self._retry_attempts} retry attempt(s) exhausted for "
+                        f"{method.upper()} {path}",
+                        attempts=total_attempts,
+                        url=path,
+                    ) from exc
+                logger.debug(
+                    "Retry %d/%d for %s %s after %s (backoff=%.1fs)",
+                    attempt,
+                    self._retry_attempts,
+                    method.upper(),
+                    path,
+                    type(exc).__name__,
+                    backoff,
+                )
+                await asyncio.sleep(backoff)
+                backoff *= 2
+
+        raise AssertionError("unreachable")  # pragma: no cover
 
     async def get(self, path: str, *, params: dict[str, Any] | None = None) -> httpx.Response:
         return await self.request("GET", path, params=params)
