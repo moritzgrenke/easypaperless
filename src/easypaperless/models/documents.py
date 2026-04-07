@@ -78,6 +78,42 @@ class CustomFieldValue(BaseModel):
     value: Any = None
 
 
+class AuditLogActor(BaseModel):
+    """The user who performed an audited action.
+
+    Attributes:
+        id: Numeric user ID.
+        username: Username of the actor.
+    """
+
+    model_config = ConfigDict(extra="ignore")
+
+    id: int
+    username: str
+
+
+class AuditLogEntry(BaseModel):
+    """A single entry in a document's audit log.
+
+    Attributes:
+        id: Unique audit log entry ID.
+        timestamp: When the action occurred.
+        action: Action type (e.g. ``"create"``, ``"update"``).
+        changes: Free-form dict describing what changed.  Keys and value
+            shapes vary by action type.
+        actor: The user who performed the action, or ``None`` for
+            system-generated entries.
+    """
+
+    model_config = ConfigDict(extra="ignore")
+
+    id: int
+    timestamp: datetime
+    action: str
+    changes: dict[str, Any]
+    actor: AuditLogActor | None = None
+
+
 class DocumentNote(BaseModel):
     """A user note attached to a document.
 

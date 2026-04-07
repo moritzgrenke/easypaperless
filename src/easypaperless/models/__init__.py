@@ -5,6 +5,8 @@ from easypaperless.models.correspondents import Correspondent
 from easypaperless.models.custom_fields import CustomField, FieldDataType
 from easypaperless.models.document_types import DocumentType
 from easypaperless.models.documents import (
+    AuditLogActor,
+    AuditLogEntry,
     CustomFieldValue,
     Document,
     DocumentMetadata,
@@ -23,6 +25,8 @@ from easypaperless.models.users import PaperlessPermission, User
 __all__ = [
     "MatchingAlgorithm",
     "PagedResult",
+    "AuditLogActor",
+    "AuditLogEntry",
     "Correspondent",
     "CustomField",
     "CustomFieldValue",

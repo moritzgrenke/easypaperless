@@ -15,6 +15,7 @@ from typing import TYPE_CHECKING, Any, List, Literal, cast
 from easypaperless._internal.sentinel import UNSET, Unset
 from easypaperless.exceptions import ServerError, TaskTimeoutError, UploadError
 from easypaperless.models.documents import (
+    AuditLogEntry,
     Document,
     DocumentMetadata,
     DocumentNote,
@@ -177,6 +178,70 @@ class DocumentsResource:
     def __init__(self, core: _ClientCore) -> None:
         self._core = core
         self.notes = NotesResource(core)
+
+    async def history(
+        self,
+        document_id: int,
+        *,
+        page: int | None = None,
+        page_size: int | None = None,
+    ) -> PagedResult[AuditLogEntry]:
+        """Fetch the audit log for a document.
+
+        The paperless-ngx ``/api/documents/{id}/history/`` endpoint returns a
+        plain JSON array rather than a paginated envelope.  This method wraps
+        the response into a :class:`~easypaperless.models.paged_result.PagedResult`
+        so callers always receive a consistent return type.
+
+        Args:
+            document_id: Numeric ID of the document whose history to retrieve.
+            page: Forwarded to the API as a query parameter when provided.
+                Effect depends on the paperless-ngx version; the server may
+                ignore this parameter.
+            page_size: Forwarded to the API as a query parameter when provided.
+
+        Returns:
+            :class:`~easypaperless.models.paged_result.PagedResult` of
+            :class:`~easypaperless.models.documents.AuditLogEntry` objects,
+            ordered by timestamp descending.
+
+        Raises:
+            ~easypaperless.exceptions.NotFoundError: If no document exists
+                with that ID.
+        """
+        logger.info("Fetching history for document id=%d", document_id)
+        path = f"/documents/{document_id}/history/"
+        params: dict[str, Any] = {}
+        if page is not None:
+            params["page"] = page
+        if page_size is not None:
+            params["page_size"] = page_size
+
+        resp = await self._core._session.get(path, params=params or None)
+        data = resp.json()
+
+        if isinstance(data, list):
+            entries = [AuditLogEntry.model_validate(item) for item in data]
+            entry_ids: list[int] = [e.id for e in entries]
+            return PagedResult(
+                count=len(entries),
+                next=None,
+                previous=None,
+                all=entry_ids if entry_ids else None,
+                results=entries,
+            )
+
+        # Forward-compatible: handle a paginated envelope if the API ever adds one.
+        items: list[Any] = list(data.get("results", []))
+        count: int = data.get("count", 0)
+        all_ids: list[int] | None = data.get("all")
+        return PagedResult(
+            count=count,
+            next=data.get("next"),
+            previous=data.get("previous"),
+            all=all_ids,
+            results=[AuditLogEntry.model_validate(item) for item in items],
+        )
 
     @staticmethod
     def _format_date_value(value: date | datetime | str) -> str:

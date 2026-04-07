@@ -12,12 +12,15 @@ from easypaperless.exceptions import (
     AuthError,
     NotFoundError,
     PaperlessError,
+    RetryExhaustedError,
     ServerError,
     TaskTimeoutError,
     UploadError,
     ValidationError,
 )
 from easypaperless.models import (
+    AuditLogActor,
+    AuditLogEntry,
     Correspondent,
     CustomField,
     CustomFieldValue,
@@ -54,6 +57,8 @@ __all__ = [
     # Models
     "MatchingAlgorithm",
     "PagedResult",
+    "AuditLogActor",
+    "AuditLogEntry",
     "Correspondent",
     "CustomField",
     "CustomFieldValue",
@@ -80,4 +85,5 @@ __all__ = [
     "ServerError",
     "UploadError",
     "TaskTimeoutError",
+    "RetryExhaustedError",
 ]

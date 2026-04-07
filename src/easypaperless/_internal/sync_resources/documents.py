@@ -8,7 +8,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any, List, Literal, cast
 
 from easypaperless._internal.sentinel import UNSET, Unset
-from easypaperless.models.documents import Document, DocumentMetadata, DocumentNote
+from easypaperless.models.documents import AuditLogEntry, Document, DocumentMetadata, DocumentNote
 from easypaperless.models.paged_result import PagedResult
 from easypaperless.models.permissions import SetPermissions
 
@@ -94,6 +94,41 @@ class SyncDocumentsResource:
         self._async_documents = async_documents
         self._run = run
         self.notes = SyncNotesResource(async_documents.notes, run)
+
+    def history(
+        self,
+        document_id: int,
+        *,
+        page: int | None = None,
+        page_size: int | None = None,
+    ) -> PagedResult[AuditLogEntry]:
+        """Fetch the audit log for a document.
+
+        The paperless-ngx ``/api/documents/{id}/history/`` endpoint returns a
+        plain JSON array rather than a paginated envelope.  This method wraps
+        the response into a :class:`~easypaperless.models.paged_result.PagedResult`
+        so callers always receive a consistent return type.
+
+        Args:
+            document_id: Numeric ID of the document whose history to retrieve.
+            page: Forwarded to the API as a query parameter when provided.
+                Effect depends on the paperless-ngx version; the server may
+                ignore this parameter.
+            page_size: Forwarded to the API as a query parameter when provided.
+
+        Returns:
+            :class:`~easypaperless.models.paged_result.PagedResult` of
+            :class:`~easypaperless.models.documents.AuditLogEntry` objects,
+            ordered by timestamp descending.
+
+        Raises:
+            ~easypaperless.exceptions.NotFoundError: If no document exists
+                with that ID.
+        """
+        return cast(
+            PagedResult[AuditLogEntry],
+            self._run(self._async_documents.history(document_id, page=page, page_size=page_size)),
+        )
 
     def get(self, id: int, *, include_metadata: bool = False) -> Document:
         """Fetch a single document by its ID.
