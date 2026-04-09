@@ -27,9 +27,9 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/TastyMojito/easypaperless"
-Repository = "https://github.com/TastyMojito/easypaperless"
-Issues = "https://github.com/TastyMojito/easypaperless/issues"
+Homepage = "https://github.com/MoritzGrenke/easypaperless"
+Repository = "https://github.com/MoritzGrenke/easypaperless"
+Issues = "https://github.com/MoritzGrenke/easypaperless/issues"
 
 [project.optional-dependencies]
 scripts = [
