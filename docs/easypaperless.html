@@ -18,8 +18,6 @@
         <input id="togglestate" type="checkbox" aria-hidden="true" tabindex="-1">
         <div>
 
-            <input type="search" placeholder="Search..." role="searchbox" aria-label="search"
-                   pattern=".+" required>
 
 
 
@@ -99,6 +97,39 @@
                         </li>
                         <li>
                                 <a class="variable" href="#PagedResult.results">results</a>
+                        </li>
+                </ul>
+
+            </li>
+            <li>
+                    <a class="class" href="#AuditLogActor">AuditLogActor</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="variable" href="#AuditLogActor.id">id</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#AuditLogActor.username">username</a>
+                        </li>
+                </ul>
+
+            </li>
+            <li>
+                    <a class="class" href="#AuditLogEntry">AuditLogEntry</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="variable" href="#AuditLogEntry.id">id</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#AuditLogEntry.timestamp">timestamp</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#AuditLogEntry.action">action</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#AuditLogEntry.changes">changes</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#AuditLogEntry.actor">actor</a>
                         </li>
                 </ul>
 
@@ -664,6 +695,21 @@
                 </ul>
 
             </li>
+            <li>
+                    <a class="class" href="#RetryExhaustedError">RetryExhaustedError</a>
+                            <ul class="memberlist">
+                        <li>
+                                <a class="function" href="#RetryExhaustedError.__init__">RetryExhaustedError</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#RetryExhaustedError.attempts">attempts</a>
+                        </li>
+                        <li>
+                                <a class="variable" href="#RetryExhaustedError.url">url</a>
+                        </li>
+                </ul>
+
+            </li>
     </ul>
 
 
@@ -701,75 +747,81 @@ easypaperless    </h1>
 </span><span id="L-12"><a href="#L-12"><span class="linenos">12</span></a>    <span class="n">AuthError</span><span class="p">,</span>
 </span><span id="L-13"><a href="#L-13"><span class="linenos">13</span></a>    <span class="n">NotFoundError</span><span class="p">,</span>
 </span><span id="L-14"><a href="#L-14"><span class="linenos">14</span></a>    <span class="n">PaperlessError</span><span class="p">,</span>
-</span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a>    <span class="n">ServerError</span><span class="p">,</span>
-</span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a>    <span class="n">TaskTimeoutError</span><span class="p">,</span>
-</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a>    <span class="n">UploadError</span><span class="p">,</span>
-</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a>    <span class="n">ValidationError</span><span class="p">,</span>
-</span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a><span class="p">)</span>
-</span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">easypaperless.models</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-</span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a>    <span class="n">Correspondent</span><span class="p">,</span>
-</span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a>    <span class="n">CustomField</span><span class="p">,</span>
-</span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a>    <span class="n">CustomFieldValue</span><span class="p">,</span>
-</span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a>    <span class="n">Document</span><span class="p">,</span>
-</span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a>    <span class="n">DocumentMetadata</span><span class="p">,</span>
-</span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a>    <span class="n">DocumentNote</span><span class="p">,</span>
-</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a>    <span class="n">DocumentType</span><span class="p">,</span>
-</span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a>    <span class="n">FieldDataType</span><span class="p">,</span>
-</span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a>    <span class="n">FileMetadataEntry</span><span class="p">,</span>
-</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a>    <span class="n">MatchingAlgorithm</span><span class="p">,</span>
-</span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a>    <span class="n">PagedResult</span><span class="p">,</span>
-</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a>    <span class="n">PaperlessPermission</span><span class="p">,</span>
-</span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a>    <span class="n">PermissionSet</span><span class="p">,</span>
-</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a>    <span class="n">SearchHit</span><span class="p">,</span>
-</span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a>    <span class="n">SetPermissions</span><span class="p">,</span>
-</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a>    <span class="n">StoragePath</span><span class="p">,</span>
-</span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a>    <span class="n">Tag</span><span class="p">,</span>
-</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a>    <span class="n">Task</span><span class="p">,</span>
-</span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a>    <span class="n">TaskStatus</span><span class="p">,</span>
-</span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a>    <span class="n">User</span><span class="p">,</span>
-</span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a><span class="p">)</span>
-</span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">easypaperless.sync</span><span class="w"> </span><span class="kn">import</span> <span class="n">SyncPaperlessClient</span>
-</span><span id="L-43"><a href="#L-43"><span class="linenos">43</span></a>
-</span><span id="L-44"><a href="#L-44"><span class="linenos">44</span></a><span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;easypaperless&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">NullHandler</span><span class="p">())</span>
-</span><span id="L-45"><a href="#L-45"><span class="linenos">45</span></a>
-</span><span id="L-46"><a href="#L-46"><span class="linenos">46</span></a><span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
-</span><span id="L-47"><a href="#L-47"><span class="linenos">47</span></a>    <span class="s2">&quot;__version__&quot;</span><span class="p">,</span>
-</span><span id="L-48"><a href="#L-48"><span class="linenos">48</span></a>    <span class="c1"># Clients</span>
-</span><span id="L-49"><a href="#L-49"><span class="linenos">49</span></a>    <span class="s2">&quot;PaperlessClient&quot;</span><span class="p">,</span>
-</span><span id="L-50"><a href="#L-50"><span class="linenos">50</span></a>    <span class="s2">&quot;SyncPaperlessClient&quot;</span><span class="p">,</span>
-</span><span id="L-51"><a href="#L-51"><span class="linenos">51</span></a>    <span class="c1"># Sentinel</span>
-</span><span id="L-52"><a href="#L-52"><span class="linenos">52</span></a>    <span class="s2">&quot;UNSET&quot;</span><span class="p">,</span>
-</span><span id="L-53"><a href="#L-53"><span class="linenos">53</span></a>    <span class="s2">&quot;Unset&quot;</span><span class="p">,</span>
-</span><span id="L-54"><a href="#L-54"><span class="linenos">54</span></a>    <span class="c1"># Models</span>
-</span><span id="L-55"><a href="#L-55"><span class="linenos">55</span></a>    <span class="s2">&quot;MatchingAlgorithm&quot;</span><span class="p">,</span>
-</span><span id="L-56"><a href="#L-56"><span class="linenos">56</span></a>    <span class="s2">&quot;PagedResult&quot;</span><span class="p">,</span>
-</span><span id="L-57"><a href="#L-57"><span class="linenos">57</span></a>    <span class="s2">&quot;Correspondent&quot;</span><span class="p">,</span>
-</span><span id="L-58"><a href="#L-58"><span class="linenos">58</span></a>    <span class="s2">&quot;CustomField&quot;</span><span class="p">,</span>
-</span><span id="L-59"><a href="#L-59"><span class="linenos">59</span></a>    <span class="s2">&quot;CustomFieldValue&quot;</span><span class="p">,</span>
-</span><span id="L-60"><a href="#L-60"><span class="linenos">60</span></a>    <span class="s2">&quot;Document&quot;</span><span class="p">,</span>
-</span><span id="L-61"><a href="#L-61"><span class="linenos">61</span></a>    <span class="s2">&quot;DocumentMetadata&quot;</span><span class="p">,</span>
-</span><span id="L-62"><a href="#L-62"><span class="linenos">62</span></a>    <span class="s2">&quot;DocumentNote&quot;</span><span class="p">,</span>
-</span><span id="L-63"><a href="#L-63"><span class="linenos">63</span></a>    <span class="s2">&quot;DocumentType&quot;</span><span class="p">,</span>
-</span><span id="L-64"><a href="#L-64"><span class="linenos">64</span></a>    <span class="s2">&quot;FieldDataType&quot;</span><span class="p">,</span>
-</span><span id="L-65"><a href="#L-65"><span class="linenos">65</span></a>    <span class="s2">&quot;FileMetadataEntry&quot;</span><span class="p">,</span>
-</span><span id="L-66"><a href="#L-66"><span class="linenos">66</span></a>    <span class="s2">&quot;PermissionSet&quot;</span><span class="p">,</span>
-</span><span id="L-67"><a href="#L-67"><span class="linenos">67</span></a>    <span class="s2">&quot;SearchHit&quot;</span><span class="p">,</span>
-</span><span id="L-68"><a href="#L-68"><span class="linenos">68</span></a>    <span class="s2">&quot;SetPermissions&quot;</span><span class="p">,</span>
-</span><span id="L-69"><a href="#L-69"><span class="linenos">69</span></a>    <span class="s2">&quot;StoragePath&quot;</span><span class="p">,</span>
-</span><span id="L-70"><a href="#L-70"><span class="linenos">70</span></a>    <span class="s2">&quot;Tag&quot;</span><span class="p">,</span>
-</span><span id="L-71"><a href="#L-71"><span class="linenos">71</span></a>    <span class="s2">&quot;Task&quot;</span><span class="p">,</span>
-</span><span id="L-72"><a href="#L-72"><span class="linenos">72</span></a>    <span class="s2">&quot;TaskStatus&quot;</span><span class="p">,</span>
-</span><span id="L-73"><a href="#L-73"><span class="linenos">73</span></a>    <span class="s2">&quot;User&quot;</span><span class="p">,</span>
-</span><span id="L-74"><a href="#L-74"><span class="linenos">74</span></a>    <span class="s2">&quot;PaperlessPermission&quot;</span><span class="p">,</span>
-</span><span id="L-75"><a href="#L-75"><span class="linenos">75</span></a>    <span class="c1"># Exceptions</span>
-</span><span id="L-76"><a href="#L-76"><span class="linenos">76</span></a>    <span class="s2">&quot;PaperlessError&quot;</span><span class="p">,</span>
-</span><span id="L-77"><a href="#L-77"><span class="linenos">77</span></a>    <span class="s2">&quot;AuthError&quot;</span><span class="p">,</span>
-</span><span id="L-78"><a href="#L-78"><span class="linenos">78</span></a>    <span class="s2">&quot;NotFoundError&quot;</span><span class="p">,</span>
-</span><span id="L-79"><a href="#L-79"><span class="linenos">79</span></a>    <span class="s2">&quot;ValidationError&quot;</span><span class="p">,</span>
-</span><span id="L-80"><a href="#L-80"><span class="linenos">80</span></a>    <span class="s2">&quot;ServerError&quot;</span><span class="p">,</span>
-</span><span id="L-81"><a href="#L-81"><span class="linenos">81</span></a>    <span class="s2">&quot;UploadError&quot;</span><span class="p">,</span>
-</span><span id="L-82"><a href="#L-82"><span class="linenos">82</span></a>    <span class="s2">&quot;TaskTimeoutError&quot;</span><span class="p">,</span>
-</span><span id="L-83"><a href="#L-83"><span class="linenos">83</span></a><span class="p">]</span>
+</span><span id="L-15"><a href="#L-15"><span class="linenos">15</span></a>    <span class="n">RetryExhaustedError</span><span class="p">,</span>
+</span><span id="L-16"><a href="#L-16"><span class="linenos">16</span></a>    <span class="n">ServerError</span><span class="p">,</span>
+</span><span id="L-17"><a href="#L-17"><span class="linenos">17</span></a>    <span class="n">TaskTimeoutError</span><span class="p">,</span>
+</span><span id="L-18"><a href="#L-18"><span class="linenos">18</span></a>    <span class="n">UploadError</span><span class="p">,</span>
+</span><span id="L-19"><a href="#L-19"><span class="linenos">19</span></a>    <span class="n">ValidationError</span><span class="p">,</span>
+</span><span id="L-20"><a href="#L-20"><span class="linenos">20</span></a><span class="p">)</span>
+</span><span id="L-21"><a href="#L-21"><span class="linenos">21</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">easypaperless.models</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+</span><span id="L-22"><a href="#L-22"><span class="linenos">22</span></a>    <span class="n">AuditLogActor</span><span class="p">,</span>
+</span><span id="L-23"><a href="#L-23"><span class="linenos">23</span></a>    <span class="n">AuditLogEntry</span><span class="p">,</span>
+</span><span id="L-24"><a href="#L-24"><span class="linenos">24</span></a>    <span class="n">Correspondent</span><span class="p">,</span>
+</span><span id="L-25"><a href="#L-25"><span class="linenos">25</span></a>    <span class="n">CustomField</span><span class="p">,</span>
+</span><span id="L-26"><a href="#L-26"><span class="linenos">26</span></a>    <span class="n">CustomFieldValue</span><span class="p">,</span>
+</span><span id="L-27"><a href="#L-27"><span class="linenos">27</span></a>    <span class="n">Document</span><span class="p">,</span>
+</span><span id="L-28"><a href="#L-28"><span class="linenos">28</span></a>    <span class="n">DocumentMetadata</span><span class="p">,</span>
+</span><span id="L-29"><a href="#L-29"><span class="linenos">29</span></a>    <span class="n">DocumentNote</span><span class="p">,</span>
+</span><span id="L-30"><a href="#L-30"><span class="linenos">30</span></a>    <span class="n">DocumentType</span><span class="p">,</span>
+</span><span id="L-31"><a href="#L-31"><span class="linenos">31</span></a>    <span class="n">FieldDataType</span><span class="p">,</span>
+</span><span id="L-32"><a href="#L-32"><span class="linenos">32</span></a>    <span class="n">FileMetadataEntry</span><span class="p">,</span>
+</span><span id="L-33"><a href="#L-33"><span class="linenos">33</span></a>    <span class="n">MatchingAlgorithm</span><span class="p">,</span>
+</span><span id="L-34"><a href="#L-34"><span class="linenos">34</span></a>    <span class="n">PagedResult</span><span class="p">,</span>
+</span><span id="L-35"><a href="#L-35"><span class="linenos">35</span></a>    <span class="n">PaperlessPermission</span><span class="p">,</span>
+</span><span id="L-36"><a href="#L-36"><span class="linenos">36</span></a>    <span class="n">PermissionSet</span><span class="p">,</span>
+</span><span id="L-37"><a href="#L-37"><span class="linenos">37</span></a>    <span class="n">SearchHit</span><span class="p">,</span>
+</span><span id="L-38"><a href="#L-38"><span class="linenos">38</span></a>    <span class="n">SetPermissions</span><span class="p">,</span>
+</span><span id="L-39"><a href="#L-39"><span class="linenos">39</span></a>    <span class="n">StoragePath</span><span class="p">,</span>
+</span><span id="L-40"><a href="#L-40"><span class="linenos">40</span></a>    <span class="n">Tag</span><span class="p">,</span>
+</span><span id="L-41"><a href="#L-41"><span class="linenos">41</span></a>    <span class="n">Task</span><span class="p">,</span>
+</span><span id="L-42"><a href="#L-42"><span class="linenos">42</span></a>    <span class="n">TaskStatus</span><span class="p">,</span>
+</span><span id="L-43"><a href="#L-43"><span class="linenos">43</span></a>    <span class="n">User</span><span class="p">,</span>
+</span><span id="L-44"><a href="#L-44"><span class="linenos">44</span></a><span class="p">)</span>
+</span><span id="L-45"><a href="#L-45"><span class="linenos">45</span></a><span class="kn">from</span><span class="w"> </span><span class="nn">easypaperless.sync</span><span class="w"> </span><span class="kn">import</span> <span class="n">SyncPaperlessClient</span>
+</span><span id="L-46"><a href="#L-46"><span class="linenos">46</span></a>
+</span><span id="L-47"><a href="#L-47"><span class="linenos">47</span></a><span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s2">&quot;easypaperless&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">addHandler</span><span class="p">(</span><span class="n">logging</span><span class="o">.</span><span class="n">NullHandler</span><span class="p">())</span>
+</span><span id="L-48"><a href="#L-48"><span class="linenos">48</span></a>
+</span><span id="L-49"><a href="#L-49"><span class="linenos">49</span></a><span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+</span><span id="L-50"><a href="#L-50"><span class="linenos">50</span></a>    <span class="s2">&quot;__version__&quot;</span><span class="p">,</span>
+</span><span id="L-51"><a href="#L-51"><span class="linenos">51</span></a>    <span class="c1"># Clients</span>
+</span><span id="L-52"><a href="#L-52"><span class="linenos">52</span></a>    <span class="s2">&quot;PaperlessClient&quot;</span><span class="p">,</span>
+</span><span id="L-53"><a href="#L-53"><span class="linenos">53</span></a>    <span class="s2">&quot;SyncPaperlessClient&quot;</span><span class="p">,</span>
+</span><span id="L-54"><a href="#L-54"><span class="linenos">54</span></a>    <span class="c1"># Sentinel</span>
+</span><span id="L-55"><a href="#L-55"><span class="linenos">55</span></a>    <span class="s2">&quot;UNSET&quot;</span><span class="p">,</span>
+</span><span id="L-56"><a href="#L-56"><span class="linenos">56</span></a>    <span class="s2">&quot;Unset&quot;</span><span class="p">,</span>
+</span><span id="L-57"><a href="#L-57"><span class="linenos">57</span></a>    <span class="c1"># Models</span>
+</span><span id="L-58"><a href="#L-58"><span class="linenos">58</span></a>    <span class="s2">&quot;MatchingAlgorithm&quot;</span><span class="p">,</span>
+</span><span id="L-59"><a href="#L-59"><span class="linenos">59</span></a>    <span class="s2">&quot;PagedResult&quot;</span><span class="p">,</span>
+</span><span id="L-60"><a href="#L-60"><span class="linenos">60</span></a>    <span class="s2">&quot;AuditLogActor&quot;</span><span class="p">,</span>
+</span><span id="L-61"><a href="#L-61"><span class="linenos">61</span></a>    <span class="s2">&quot;AuditLogEntry&quot;</span><span class="p">,</span>
+</span><span id="L-62"><a href="#L-62"><span class="linenos">62</span></a>    <span class="s2">&quot;Correspondent&quot;</span><span class="p">,</span>
+</span><span id="L-63"><a href="#L-63"><span class="linenos">63</span></a>    <span class="s2">&quot;CustomField&quot;</span><span class="p">,</span>
+</span><span id="L-64"><a href="#L-64"><span class="linenos">64</span></a>    <span class="s2">&quot;CustomFieldValue&quot;</span><span class="p">,</span>
+</span><span id="L-65"><a href="#L-65"><span class="linenos">65</span></a>    <span class="s2">&quot;Document&quot;</span><span class="p">,</span>
+</span><span id="L-66"><a href="#L-66"><span class="linenos">66</span></a>    <span class="s2">&quot;DocumentMetadata&quot;</span><span class="p">,</span>
+</span><span id="L-67"><a href="#L-67"><span class="linenos">67</span></a>    <span class="s2">&quot;DocumentNote&quot;</span><span class="p">,</span>
+</span><span id="L-68"><a href="#L-68"><span class="linenos">68</span></a>    <span class="s2">&quot;DocumentType&quot;</span><span class="p">,</span>
+</span><span id="L-69"><a href="#L-69"><span class="linenos">69</span></a>    <span class="s2">&quot;FieldDataType&quot;</span><span class="p">,</span>
+</span><span id="L-70"><a href="#L-70"><span class="linenos">70</span></a>    <span class="s2">&quot;FileMetadataEntry&quot;</span><span class="p">,</span>
+</span><span id="L-71"><a href="#L-71"><span class="linenos">71</span></a>    <span class="s2">&quot;PermissionSet&quot;</span><span class="p">,</span>
+</span><span id="L-72"><a href="#L-72"><span class="linenos">72</span></a>    <span class="s2">&quot;SearchHit&quot;</span><span class="p">,</span>
+</span><span id="L-73"><a href="#L-73"><span class="linenos">73</span></a>    <span class="s2">&quot;SetPermissions&quot;</span><span class="p">,</span>
+</span><span id="L-74"><a href="#L-74"><span class="linenos">74</span></a>    <span class="s2">&quot;StoragePath&quot;</span><span class="p">,</span>
+</span><span id="L-75"><a href="#L-75"><span class="linenos">75</span></a>    <span class="s2">&quot;Tag&quot;</span><span class="p">,</span>
+</span><span id="L-76"><a href="#L-76"><span class="linenos">76</span></a>    <span class="s2">&quot;Task&quot;</span><span class="p">,</span>
+</span><span id="L-77"><a href="#L-77"><span class="linenos">77</span></a>    <span class="s2">&quot;TaskStatus&quot;</span><span class="p">,</span>
+</span><span id="L-78"><a href="#L-78"><span class="linenos">78</span></a>    <span class="s2">&quot;User&quot;</span><span class="p">,</span>
+</span><span id="L-79"><a href="#L-79"><span class="linenos">79</span></a>    <span class="s2">&quot;PaperlessPermission&quot;</span><span class="p">,</span>
+</span><span id="L-80"><a href="#L-80"><span class="linenos">80</span></a>    <span class="c1"># Exceptions</span>
+</span><span id="L-81"><a href="#L-81"><span class="linenos">81</span></a>    <span class="s2">&quot;PaperlessError&quot;</span><span class="p">,</span>
+</span><span id="L-82"><a href="#L-82"><span class="linenos">82</span></a>    <span class="s2">&quot;AuthError&quot;</span><span class="p">,</span>
+</span><span id="L-83"><a href="#L-83"><span class="linenos">83</span></a>    <span class="s2">&quot;NotFoundError&quot;</span><span class="p">,</span>
+</span><span id="L-84"><a href="#L-84"><span class="linenos">84</span></a>    <span class="s2">&quot;ValidationError&quot;</span><span class="p">,</span>
+</span><span id="L-85"><a href="#L-85"><span class="linenos">85</span></a>    <span class="s2">&quot;ServerError&quot;</span><span class="p">,</span>
+</span><span id="L-86"><a href="#L-86"><span class="linenos">86</span></a>    <span class="s2">&quot;UploadError&quot;</span><span class="p">,</span>
+</span><span id="L-87"><a href="#L-87"><span class="linenos">87</span></a>    <span class="s2">&quot;TaskTimeoutError&quot;</span><span class="p">,</span>
+</span><span id="L-88"><a href="#L-88"><span class="linenos">88</span></a>    <span class="s2">&quot;RetryExhaustedError&quot;</span><span class="p">,</span>
+</span><span id="L-89"><a href="#L-89"><span class="linenos">89</span></a><span class="p">]</span>
 </span></pre></div>
 
 
@@ -797,71 +849,104 @@ easypaperless    </h1>
 
     </div>
     <a class="headerlink" href="#PaperlessClient"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="PaperlessClient-158"><a href="#PaperlessClient-158"><span class="linenos">158</span></a><span class="k">class</span><span class="w"> </span><span class="nc">PaperlessClient</span><span class="p">(</span><span class="n">_ClientCore</span><span class="p">):</span>
-</span><span id="PaperlessClient-159"><a href="#PaperlessClient-159"><span class="linenos">159</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Async client for the paperless-ngx API.</span>
-</span><span id="PaperlessClient-160"><a href="#PaperlessClient-160"><span class="linenos">160</span></a>
-</span><span id="PaperlessClient-161"><a href="#PaperlessClient-161"><span class="linenos">161</span></a><span class="sd">    Resources are accessible as attributes:</span>
-</span><span id="PaperlessClient-162"><a href="#PaperlessClient-162"><span class="linenos">162</span></a>
-</span><span id="PaperlessClient-163"><a href="#PaperlessClient-163"><span class="linenos">163</span></a><span class="sd">    * ``client.correspondents`` — correspondent CRUD + bulk ops -</span>
-</span><span id="PaperlessClient-164"><a href="#PaperlessClient-164"><span class="linenos">164</span></a><span class="sd">      see `easypaperless.resources.CorrespondentsResource`</span>
-</span><span id="PaperlessClient-165"><a href="#PaperlessClient-165"><span class="linenos">165</span></a><span class="sd">    * ``client.custom_fields`` — custom field CRUD -</span>
-</span><span id="PaperlessClient-166"><a href="#PaperlessClient-166"><span class="linenos">166</span></a><span class="sd">      see `easypaperless.resources.CustomFieldsResource`</span>
-</span><span id="PaperlessClient-167"><a href="#PaperlessClient-167"><span class="linenos">167</span></a><span class="sd">    * ``client.document_types`` — document type CRUD + bulk ops -</span>
-</span><span id="PaperlessClient-168"><a href="#PaperlessClient-168"><span class="linenos">168</span></a><span class="sd">      see `easypaperless.resources.DocumentTypesResource`</span>
-</span><span id="PaperlessClient-169"><a href="#PaperlessClient-169"><span class="linenos">169</span></a><span class="sd">    * ``client.documents`` — document CRUD, bulk ops, upload, download -</span>
-</span><span id="PaperlessClient-170"><a href="#PaperlessClient-170"><span class="linenos">170</span></a><span class="sd">      see `easypaperless.resources.DocumentsResource`</span>
-</span><span id="PaperlessClient-171"><a href="#PaperlessClient-171"><span class="linenos">171</span></a><span class="sd">    * ``client.documents.notes`` — document notes -</span>
-</span><span id="PaperlessClient-172"><a href="#PaperlessClient-172"><span class="linenos">172</span></a><span class="sd">      see `easypaperless.resources.NotesResource`</span>
-</span><span id="PaperlessClient-173"><a href="#PaperlessClient-173"><span class="linenos">173</span></a><span class="sd">    * ``client.storage_paths`` — storage path CRUD + bulk ops -</span>
-</span><span id="PaperlessClient-174"><a href="#PaperlessClient-174"><span class="linenos">174</span></a><span class="sd">      see `easypaperless.resources.StoragePathsResource`</span>
-</span><span id="PaperlessClient-175"><a href="#PaperlessClient-175"><span class="linenos">175</span></a><span class="sd">    * ``client.tags`` — tag CRUD + bulk ops -</span>
-</span><span id="PaperlessClient-176"><a href="#PaperlessClient-176"><span class="linenos">176</span></a><span class="sd">      see `easypaperless.resources.TagsResource`</span>
-</span><span id="PaperlessClient-177"><a href="#PaperlessClient-177"><span class="linenos">177</span></a><span class="sd">    * ``client.users`` — user CRUD -</span>
-</span><span id="PaperlessClient-178"><a href="#PaperlessClient-178"><span class="linenos">178</span></a><span class="sd">      see `easypaperless.resources.UsersResource`</span>
-</span><span id="PaperlessClient-179"><a href="#PaperlessClient-179"><span class="linenos">179</span></a><span class="sd">    * ``client.trash`` — list, restore, and permanently delete trashed documents -</span>
-</span><span id="PaperlessClient-180"><a href="#PaperlessClient-180"><span class="linenos">180</span></a><span class="sd">      see `easypaperless.resources.TrashResource`</span>
-</span><span id="PaperlessClient-181"><a href="#PaperlessClient-181"><span class="linenos">181</span></a>
-</span><span id="PaperlessClient-182"><a href="#PaperlessClient-182"><span class="linenos">182</span></a><span class="sd">    Use as an async context manager to ensure the underlying HTTP connection</span>
-</span><span id="PaperlessClient-183"><a href="#PaperlessClient-183"><span class="linenos">183</span></a><span class="sd">    pool is closed when you are done:</span>
-</span><span id="PaperlessClient-184"><a href="#PaperlessClient-184"><span class="linenos">184</span></a>
-</span><span id="PaperlessClient-185"><a href="#PaperlessClient-185"><span class="linenos">185</span></a><span class="sd">    Example:</span>
-</span><span id="PaperlessClient-186"><a href="#PaperlessClient-186"><span class="linenos">186</span></a><span class="sd">        async with PaperlessClient(url=&quot;http://localhost:8000&quot;, api_token=&quot;abc&quot;) as client:</span>
-</span><span id="PaperlessClient-187"><a href="#PaperlessClient-187"><span class="linenos">187</span></a><span class="sd">            docs = await client.documents.list(max_results=10)</span>
-</span><span id="PaperlessClient-188"><a href="#PaperlessClient-188"><span class="linenos">188</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="PaperlessClient-189"><a href="#PaperlessClient-189"><span class="linenos">189</span></a>
-</span><span id="PaperlessClient-190"><a href="#PaperlessClient-190"><span class="linenos">190</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
-</span><span id="PaperlessClient-191"><a href="#PaperlessClient-191"><span class="linenos">191</span></a>        <span class="bp">self</span><span class="p">,</span>
-</span><span id="PaperlessClient-192"><a href="#PaperlessClient-192"><span class="linenos">192</span></a>        <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-</span><span id="PaperlessClient-193"><a href="#PaperlessClient-193"><span class="linenos">193</span></a>        <span class="n">api_token</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-</span><span id="PaperlessClient-194"><a href="#PaperlessClient-194"><span class="linenos">194</span></a>        <span class="o">*</span><span class="p">,</span>
-</span><span id="PaperlessClient-195"><a href="#PaperlessClient-195"><span class="linenos">195</span></a>        <span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">30.0</span><span class="p">,</span>
-</span><span id="PaperlessClient-196"><a href="#PaperlessClient-196"><span class="linenos">196</span></a>        <span class="n">poll_interval</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.0</span><span class="p">,</span>
-</span><span id="PaperlessClient-197"><a href="#PaperlessClient-197"><span class="linenos">197</span></a>        <span class="n">poll_timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">60.0</span><span class="p">,</span>
-</span><span id="PaperlessClient-198"><a href="#PaperlessClient-198"><span class="linenos">198</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="PaperlessClient-199"><a href="#PaperlessClient-199"><span class="linenos">199</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Create an async paperless-ngx client.</span>
-</span><span id="PaperlessClient-200"><a href="#PaperlessClient-200"><span class="linenos">200</span></a>
-</span><span id="PaperlessClient-201"><a href="#PaperlessClient-201"><span class="linenos">201</span></a><span class="sd">        Args:</span>
-</span><span id="PaperlessClient-202"><a href="#PaperlessClient-202"><span class="linenos">202</span></a><span class="sd">            url: Base URL of the paperless-ngx instance</span>
-</span><span id="PaperlessClient-203"><a href="#PaperlessClient-203"><span class="linenos">203</span></a><span class="sd">                (e.g. ``&quot;http://localhost:8000&quot;``).</span>
-</span><span id="PaperlessClient-204"><a href="#PaperlessClient-204"><span class="linenos">204</span></a><span class="sd">            api_token: API token.  Generate one in paperless-ngx under</span>
-</span><span id="PaperlessClient-205"><a href="#PaperlessClient-205"><span class="linenos">205</span></a><span class="sd">                *Settings → API → Generate Token*.</span>
-</span><span id="PaperlessClient-206"><a href="#PaperlessClient-206"><span class="linenos">206</span></a><span class="sd">            timeout: Default request timeout in seconds.  Default: ``30.0``.</span>
-</span><span id="PaperlessClient-207"><a href="#PaperlessClient-207"><span class="linenos">207</span></a><span class="sd">            poll_interval: Seconds between status checks when ``wait=True``</span>
-</span><span id="PaperlessClient-208"><a href="#PaperlessClient-208"><span class="linenos">208</span></a><span class="sd">                is passed to :meth:`documents.upload`.  Default: ``2.0``.</span>
-</span><span id="PaperlessClient-209"><a href="#PaperlessClient-209"><span class="linenos">209</span></a><span class="sd">            poll_timeout: Maximum seconds to wait for a document to finish</span>
-</span><span id="PaperlessClient-210"><a href="#PaperlessClient-210"><span class="linenos">210</span></a><span class="sd">                processing before raising</span>
-</span><span id="PaperlessClient-211"><a href="#PaperlessClient-211"><span class="linenos">211</span></a><span class="sd">                :exc:`~easypaperless.exceptions.TaskTimeoutError`.</span>
-</span><span id="PaperlessClient-212"><a href="#PaperlessClient-212"><span class="linenos">212</span></a><span class="sd">                Default: ``60.0``.</span>
-</span><span id="PaperlessClient-213"><a href="#PaperlessClient-213"><span class="linenos">213</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="PaperlessClient-214"><a href="#PaperlessClient-214"><span class="linenos">214</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-</span><span id="PaperlessClient-215"><a href="#PaperlessClient-215"><span class="linenos">215</span></a>            <span class="n">url</span><span class="p">,</span> <span class="n">api_token</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">,</span> <span class="n">poll_interval</span><span class="o">=</span><span class="n">poll_interval</span><span class="p">,</span> <span class="n">poll_timeout</span><span class="o">=</span><span class="n">poll_timeout</span>
-</span><span id="PaperlessClient-216"><a href="#PaperlessClient-216"><span class="linenos">216</span></a>        <span class="p">)</span>
-</span><span id="PaperlessClient-217"><a href="#PaperlessClient-217"><span class="linenos">217</span></a>
-</span><span id="PaperlessClient-218"><a href="#PaperlessClient-218"><span class="linenos">218</span></a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="fm">__aenter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PaperlessClient</span><span class="p">:</span>
-</span><span id="PaperlessClient-219"><a href="#PaperlessClient-219"><span class="linenos">219</span></a>        <span class="k">return</span> <span class="bp">self</span>
-</span><span id="PaperlessClient-220"><a href="#PaperlessClient-220"><span class="linenos">220</span></a>
-</span><span id="PaperlessClient-221"><a href="#PaperlessClient-221"><span class="linenos">221</span></a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="fm">__aexit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="PaperlessClient-222"><a href="#PaperlessClient-222"><span class="linenos">222</span></a>        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="PaperlessClient-170"><a href="#PaperlessClient-170"><span class="linenos">170</span></a><span class="k">class</span><span class="w"> </span><span class="nc">PaperlessClient</span><span class="p">(</span><span class="n">_ClientCore</span><span class="p">):</span>
+</span><span id="PaperlessClient-171"><a href="#PaperlessClient-171"><span class="linenos">171</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Async client for the paperless-ngx API.</span>
+</span><span id="PaperlessClient-172"><a href="#PaperlessClient-172"><span class="linenos">172</span></a>
+</span><span id="PaperlessClient-173"><a href="#PaperlessClient-173"><span class="linenos">173</span></a><span class="sd">    Resources are accessible as attributes:</span>
+</span><span id="PaperlessClient-174"><a href="#PaperlessClient-174"><span class="linenos">174</span></a>
+</span><span id="PaperlessClient-175"><a href="#PaperlessClient-175"><span class="linenos">175</span></a><span class="sd">    * ``client.correspondents`` — correspondent CRUD + bulk ops -</span>
+</span><span id="PaperlessClient-176"><a href="#PaperlessClient-176"><span class="linenos">176</span></a><span class="sd">      see `easypaperless.resources.CorrespondentsResource`</span>
+</span><span id="PaperlessClient-177"><a href="#PaperlessClient-177"><span class="linenos">177</span></a><span class="sd">    * ``client.custom_fields`` — custom field CRUD -</span>
+</span><span id="PaperlessClient-178"><a href="#PaperlessClient-178"><span class="linenos">178</span></a><span class="sd">      see `easypaperless.resources.CustomFieldsResource`</span>
+</span><span id="PaperlessClient-179"><a href="#PaperlessClient-179"><span class="linenos">179</span></a><span class="sd">    * ``client.document_types`` — document type CRUD + bulk ops -</span>
+</span><span id="PaperlessClient-180"><a href="#PaperlessClient-180"><span class="linenos">180</span></a><span class="sd">      see `easypaperless.resources.DocumentTypesResource`</span>
+</span><span id="PaperlessClient-181"><a href="#PaperlessClient-181"><span class="linenos">181</span></a><span class="sd">    * ``client.documents`` — document CRUD, bulk ops, upload, download, history -</span>
+</span><span id="PaperlessClient-182"><a href="#PaperlessClient-182"><span class="linenos">182</span></a><span class="sd">      see `easypaperless.resources.DocumentsResource`</span>
+</span><span id="PaperlessClient-183"><a href="#PaperlessClient-183"><span class="linenos">183</span></a><span class="sd">    * ``client.documents.notes`` — document notes -</span>
+</span><span id="PaperlessClient-184"><a href="#PaperlessClient-184"><span class="linenos">184</span></a><span class="sd">      see `easypaperless.resources.NotesResource`</span>
+</span><span id="PaperlessClient-185"><a href="#PaperlessClient-185"><span class="linenos">185</span></a><span class="sd">    * ``client.storage_paths`` — storage path CRUD + bulk ops -</span>
+</span><span id="PaperlessClient-186"><a href="#PaperlessClient-186"><span class="linenos">186</span></a><span class="sd">      see `easypaperless.resources.StoragePathsResource`</span>
+</span><span id="PaperlessClient-187"><a href="#PaperlessClient-187"><span class="linenos">187</span></a><span class="sd">    * ``client.tags`` — tag CRUD + bulk ops -</span>
+</span><span id="PaperlessClient-188"><a href="#PaperlessClient-188"><span class="linenos">188</span></a><span class="sd">      see `easypaperless.resources.TagsResource`</span>
+</span><span id="PaperlessClient-189"><a href="#PaperlessClient-189"><span class="linenos">189</span></a><span class="sd">    * ``client.users`` — user CRUD -</span>
+</span><span id="PaperlessClient-190"><a href="#PaperlessClient-190"><span class="linenos">190</span></a><span class="sd">      see `easypaperless.resources.UsersResource`</span>
+</span><span id="PaperlessClient-191"><a href="#PaperlessClient-191"><span class="linenos">191</span></a><span class="sd">    * ``client.trash`` — list, restore, and permanently delete trashed documents -</span>
+</span><span id="PaperlessClient-192"><a href="#PaperlessClient-192"><span class="linenos">192</span></a><span class="sd">      see `easypaperless.resources.TrashResource`</span>
+</span><span id="PaperlessClient-193"><a href="#PaperlessClient-193"><span class="linenos">193</span></a>
+</span><span id="PaperlessClient-194"><a href="#PaperlessClient-194"><span class="linenos">194</span></a><span class="sd">    Use as an async context manager to ensure the underlying HTTP connection</span>
+</span><span id="PaperlessClient-195"><a href="#PaperlessClient-195"><span class="linenos">195</span></a><span class="sd">    pool is closed when you are done:</span>
+</span><span id="PaperlessClient-196"><a href="#PaperlessClient-196"><span class="linenos">196</span></a>
+</span><span id="PaperlessClient-197"><a href="#PaperlessClient-197"><span class="linenos">197</span></a><span class="sd">    Example:</span>
+</span><span id="PaperlessClient-198"><a href="#PaperlessClient-198"><span class="linenos">198</span></a><span class="sd">        async with PaperlessClient(url=&quot;http://localhost:8000&quot;, api_token=&quot;abc&quot;) as client:</span>
+</span><span id="PaperlessClient-199"><a href="#PaperlessClient-199"><span class="linenos">199</span></a><span class="sd">            docs = await client.documents.list(max_results=10)</span>
+</span><span id="PaperlessClient-200"><a href="#PaperlessClient-200"><span class="linenos">200</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="PaperlessClient-201"><a href="#PaperlessClient-201"><span class="linenos">201</span></a>
+</span><span id="PaperlessClient-202"><a href="#PaperlessClient-202"><span class="linenos">202</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+</span><span id="PaperlessClient-203"><a href="#PaperlessClient-203"><span class="linenos">203</span></a>        <span class="bp">self</span><span class="p">,</span>
+</span><span id="PaperlessClient-204"><a href="#PaperlessClient-204"><span class="linenos">204</span></a>        <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+</span><span id="PaperlessClient-205"><a href="#PaperlessClient-205"><span class="linenos">205</span></a>        <span class="n">api_token</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+</span><span id="PaperlessClient-206"><a href="#PaperlessClient-206"><span class="linenos">206</span></a>        <span class="o">*</span><span class="p">,</span>
+</span><span id="PaperlessClient-207"><a href="#PaperlessClient-207"><span class="linenos">207</span></a>        <span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">30.0</span><span class="p">,</span>
+</span><span id="PaperlessClient-208"><a href="#PaperlessClient-208"><span class="linenos">208</span></a>        <span class="n">poll_interval</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.0</span><span class="p">,</span>
+</span><span id="PaperlessClient-209"><a href="#PaperlessClient-209"><span class="linenos">209</span></a>        <span class="n">poll_timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">60.0</span><span class="p">,</span>
+</span><span id="PaperlessClient-210"><a href="#PaperlessClient-210"><span class="linenos">210</span></a>        <span class="n">retry_attempts</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+</span><span id="PaperlessClient-211"><a href="#PaperlessClient-211"><span class="linenos">211</span></a>        <span class="n">retry_backoff</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
+</span><span id="PaperlessClient-212"><a href="#PaperlessClient-212"><span class="linenos">212</span></a>        <span class="n">retry_on</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="ne">Exception</span><span class="p">],</span> <span class="o">...</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="PaperlessClient-213"><a href="#PaperlessClient-213"><span class="linenos">213</span></a>        <span class="n">tenacity_retrying</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="PaperlessClient-214"><a href="#PaperlessClient-214"><span class="linenos">214</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="PaperlessClient-215"><a href="#PaperlessClient-215"><span class="linenos">215</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Create an async paperless-ngx client.</span>
+</span><span id="PaperlessClient-216"><a href="#PaperlessClient-216"><span class="linenos">216</span></a>
+</span><span id="PaperlessClient-217"><a href="#PaperlessClient-217"><span class="linenos">217</span></a><span class="sd">        Args:</span>
+</span><span id="PaperlessClient-218"><a href="#PaperlessClient-218"><span class="linenos">218</span></a><span class="sd">            url: Base URL of the paperless-ngx instance</span>
+</span><span id="PaperlessClient-219"><a href="#PaperlessClient-219"><span class="linenos">219</span></a><span class="sd">                (e.g. ``&quot;http://localhost:8000&quot;``).</span>
+</span><span id="PaperlessClient-220"><a href="#PaperlessClient-220"><span class="linenos">220</span></a><span class="sd">            api_token: API token.  Generate one in paperless-ngx under</span>
+</span><span id="PaperlessClient-221"><a href="#PaperlessClient-221"><span class="linenos">221</span></a><span class="sd">                *Settings → API → Generate Token*.</span>
+</span><span id="PaperlessClient-222"><a href="#PaperlessClient-222"><span class="linenos">222</span></a><span class="sd">            timeout: Default request timeout in seconds.  Default: ``30.0``.</span>
+</span><span id="PaperlessClient-223"><a href="#PaperlessClient-223"><span class="linenos">223</span></a><span class="sd">            poll_interval: Seconds between status checks when ``wait=True``</span>
+</span><span id="PaperlessClient-224"><a href="#PaperlessClient-224"><span class="linenos">224</span></a><span class="sd">                is passed to :meth:`documents.upload`.  Default: ``2.0``.</span>
+</span><span id="PaperlessClient-225"><a href="#PaperlessClient-225"><span class="linenos">225</span></a><span class="sd">            poll_timeout: Maximum seconds to wait for a document to finish</span>
+</span><span id="PaperlessClient-226"><a href="#PaperlessClient-226"><span class="linenos">226</span></a><span class="sd">                processing before raising</span>
+</span><span id="PaperlessClient-227"><a href="#PaperlessClient-227"><span class="linenos">227</span></a><span class="sd">                :exc:`~easypaperless.exceptions.TaskTimeoutError`.</span>
+</span><span id="PaperlessClient-228"><a href="#PaperlessClient-228"><span class="linenos">228</span></a><span class="sd">                Default: ``60.0``.</span>
+</span><span id="PaperlessClient-229"><a href="#PaperlessClient-229"><span class="linenos">229</span></a><span class="sd">            retry_attempts: Maximum number of retry attempts after the first</span>
+</span><span id="PaperlessClient-230"><a href="#PaperlessClient-230"><span class="linenos">230</span></a><span class="sd">                failure.  ``0`` (the default) disables retrying entirely,</span>
+</span><span id="PaperlessClient-231"><a href="#PaperlessClient-231"><span class="linenos">231</span></a><span class="sd">                preserving backward-compatible behaviour.</span>
+</span><span id="PaperlessClient-232"><a href="#PaperlessClient-232"><span class="linenos">232</span></a><span class="sd">            retry_backoff: Initial sleep in seconds between retry attempts;</span>
+</span><span id="PaperlessClient-233"><a href="#PaperlessClient-233"><span class="linenos">233</span></a><span class="sd">                doubles on each subsequent attempt.  Default: ``1.0``.</span>
+</span><span id="PaperlessClient-234"><a href="#PaperlessClient-234"><span class="linenos">234</span></a><span class="sd">            retry_on: Tuple of exception types that trigger a retry.  Defaults</span>
+</span><span id="PaperlessClient-235"><a href="#PaperlessClient-235"><span class="linenos">235</span></a><span class="sd">                to ``(ServerError, httpx.TimeoutException, httpx.ConnectError)``.</span>
+</span><span id="PaperlessClient-236"><a href="#PaperlessClient-236"><span class="linenos">236</span></a><span class="sd">                ``NotFoundError`` is intentionally excluded from the default set</span>
+</span><span id="PaperlessClient-237"><a href="#PaperlessClient-237"><span class="linenos">237</span></a><span class="sd">                so that genuine 404 responses are never silently retried.</span>
+</span><span id="PaperlessClient-238"><a href="#PaperlessClient-238"><span class="linenos">238</span></a><span class="sd">                Note: ``httpx.TimeoutException`` and ``httpx.ConnectError`` are</span>
+</span><span id="PaperlessClient-239"><a href="#PaperlessClient-239"><span class="linenos">239</span></a><span class="sd">                intercepted inside the HTTP layer and re-raised as ``ServerError``</span>
+</span><span id="PaperlessClient-240"><a href="#PaperlessClient-240"><span class="linenos">240</span></a><span class="sd">                before the retry loop runs, so including them in a custom</span>
+</span><span id="PaperlessClient-241"><a href="#PaperlessClient-241"><span class="linenos">241</span></a><span class="sd">                ``retry_on`` tuple has no effect unless ``ServerError`` is also</span>
+</span><span id="PaperlessClient-242"><a href="#PaperlessClient-242"><span class="linenos">242</span></a><span class="sd">                present.</span>
+</span><span id="PaperlessClient-243"><a href="#PaperlessClient-243"><span class="linenos">243</span></a><span class="sd">            tenacity_retrying: An optional pre-configured</span>
+</span><span id="PaperlessClient-244"><a href="#PaperlessClient-244"><span class="linenos">244</span></a><span class="sd">                ``tenacity.AsyncRetrying`` instance.  When supplied, the</span>
+</span><span id="PaperlessClient-245"><a href="#PaperlessClient-245"><span class="linenos">245</span></a><span class="sd">                ``retry_attempts``, ``retry_backoff``, and ``retry_on``</span>
+</span><span id="PaperlessClient-246"><a href="#PaperlessClient-246"><span class="linenos">246</span></a><span class="sd">                parameters are ignored and tenacity drives the retry loop</span>
+</span><span id="PaperlessClient-247"><a href="#PaperlessClient-247"><span class="linenos">247</span></a><span class="sd">                instead.  Must be ``AsyncRetrying`` — the sync</span>
+</span><span id="PaperlessClient-248"><a href="#PaperlessClient-248"><span class="linenos">248</span></a><span class="sd">                ``tenacity.Retrying`` is not compatible with the async HTTP</span>
+</span><span id="PaperlessClient-249"><a href="#PaperlessClient-249"><span class="linenos">249</span></a><span class="sd">                layer used internally.</span>
+</span><span id="PaperlessClient-250"><a href="#PaperlessClient-250"><span class="linenos">250</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="PaperlessClient-251"><a href="#PaperlessClient-251"><span class="linenos">251</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+</span><span id="PaperlessClient-252"><a href="#PaperlessClient-252"><span class="linenos">252</span></a>            <span class="n">url</span><span class="p">,</span>
+</span><span id="PaperlessClient-253"><a href="#PaperlessClient-253"><span class="linenos">253</span></a>            <span class="n">api_token</span><span class="p">,</span>
+</span><span id="PaperlessClient-254"><a href="#PaperlessClient-254"><span class="linenos">254</span></a>            <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">,</span>
+</span><span id="PaperlessClient-255"><a href="#PaperlessClient-255"><span class="linenos">255</span></a>            <span class="n">poll_interval</span><span class="o">=</span><span class="n">poll_interval</span><span class="p">,</span>
+</span><span id="PaperlessClient-256"><a href="#PaperlessClient-256"><span class="linenos">256</span></a>            <span class="n">poll_timeout</span><span class="o">=</span><span class="n">poll_timeout</span><span class="p">,</span>
+</span><span id="PaperlessClient-257"><a href="#PaperlessClient-257"><span class="linenos">257</span></a>            <span class="n">retry_attempts</span><span class="o">=</span><span class="n">retry_attempts</span><span class="p">,</span>
+</span><span id="PaperlessClient-258"><a href="#PaperlessClient-258"><span class="linenos">258</span></a>            <span class="n">retry_backoff</span><span class="o">=</span><span class="n">retry_backoff</span><span class="p">,</span>
+</span><span id="PaperlessClient-259"><a href="#PaperlessClient-259"><span class="linenos">259</span></a>            <span class="n">retry_on</span><span class="o">=</span><span class="n">retry_on</span><span class="p">,</span>
+</span><span id="PaperlessClient-260"><a href="#PaperlessClient-260"><span class="linenos">260</span></a>            <span class="n">tenacity_retrying</span><span class="o">=</span><span class="n">tenacity_retrying</span><span class="p">,</span>
+</span><span id="PaperlessClient-261"><a href="#PaperlessClient-261"><span class="linenos">261</span></a>        <span class="p">)</span>
+</span><span id="PaperlessClient-262"><a href="#PaperlessClient-262"><span class="linenos">262</span></a>
+</span><span id="PaperlessClient-263"><a href="#PaperlessClient-263"><span class="linenos">263</span></a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="fm">__aenter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">PaperlessClient</span><span class="p">:</span>
+</span><span id="PaperlessClient-264"><a href="#PaperlessClient-264"><span class="linenos">264</span></a>        <span class="k">return</span> <span class="bp">self</span>
+</span><span id="PaperlessClient-265"><a href="#PaperlessClient-265"><span class="linenos">265</span></a>
+</span><span id="PaperlessClient-266"><a href="#PaperlessClient-266"><span class="linenos">266</span></a>    <span class="k">async</span> <span class="k">def</span><span class="w"> </span><span class="fm">__aexit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="PaperlessClient-267"><a href="#PaperlessClient-267"><span class="linenos">267</span></a>        <span class="k">await</span> <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 </span></pre></div>
 
 
@@ -871,23 +956,23 @@ easypaperless    </h1>
 
 <ul>
 <li><code>client.correspondents</code> — correspondent CRUD + bulk ops -
-see <code><a href="easypaperless/resources.html#CorrespondentsResource">easypaperless.resources.CorrespondentsResource</a></code></li>
+see <code>easypaperless.resources.CorrespondentsResource</code></li>
 <li><code>client.custom_fields</code> — custom field CRUD -
-see <code><a href="easypaperless/resources.html#CustomFieldsResource">easypaperless.resources.CustomFieldsResource</a></code></li>
+see <code>easypaperless.resources.CustomFieldsResource</code></li>
 <li><code>client.document_types</code> — document type CRUD + bulk ops -
-see <code><a href="easypaperless/resources.html#DocumentTypesResource">easypaperless.resources.DocumentTypesResource</a></code></li>
-<li><code>client.documents</code> — document CRUD, bulk ops, upload, download -
-see <code><a href="easypaperless/resources.html#DocumentsResource">easypaperless.resources.DocumentsResource</a></code></li>
+see <code>easypaperless.resources.DocumentTypesResource</code></li>
+<li><code>client.documents</code> — document CRUD, bulk ops, upload, download, history -
+see <code>easypaperless.resources.DocumentsResource</code></li>
 <li><code>client.documents.notes</code> — document notes -
-see <code><a href="easypaperless/resources.html#NotesResource">easypaperless.resources.NotesResource</a></code></li>
+see <code>easypaperless.resources.NotesResource</code></li>
 <li><code>client.storage_paths</code> — storage path CRUD + bulk ops -
-see <code><a href="easypaperless/resources.html#StoragePathsResource">easypaperless.resources.StoragePathsResource</a></code></li>
+see <code>easypaperless.resources.StoragePathsResource</code></li>
 <li><code>client.tags</code> — tag CRUD + bulk ops -
-see <code><a href="easypaperless/resources.html#TagsResource">easypaperless.resources.TagsResource</a></code></li>
+see <code>easypaperless.resources.TagsResource</code></li>
 <li><code>client.users</code> — user CRUD -
-see <code><a href="easypaperless/resources.html#UsersResource">easypaperless.resources.UsersResource</a></code></li>
+see <code>easypaperless.resources.UsersResource</code></li>
 <li><code>client.trash</code> — list, restore, and permanently delete trashed documents -
-see <code><a href="easypaperless/resources.html#TrashResource">easypaperless.resources.TrashResource</a></code></li>
+see <code>easypaperless.resources.TrashResource</code></li>
 </ul>
 
 <p>Use as an async context manager to ensure the underlying HTTP connection
@@ -906,39 +991,72 @@ pool is closed when you are done:</p>
                                         <input id="PaperlessClient.__init__-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
 <div class="attr function">
             
-        <span class="name">PaperlessClient</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">url</span><span class="p">:</span> <span class="nb">str</span>,</span><span class="param">	<span class="n">api_token</span><span class="p">:</span> <span class="nb">str</span>,</span><span class="param">	<span class="o">*</span>,</span><span class="param">	<span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">30.0</span>,</span><span class="param">	<span class="n">poll_interval</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.0</span>,</span><span class="param">	<span class="n">poll_timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">60.0</span></span>)</span>
+        <span class="name">PaperlessClient</span><span class="signature pdoc-code multiline">(<span class="param">	<span class="n">url</span><span class="p">:</span> <span class="nb">str</span>,</span><span class="param">	<span class="n">api_token</span><span class="p">:</span> <span class="nb">str</span>,</span><span class="param">	<span class="o">*</span>,</span><span class="param">	<span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">30.0</span>,</span><span class="param">	<span class="n">poll_interval</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.0</span>,</span><span class="param">	<span class="n">poll_timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">60.0</span>,</span><span class="param">	<span class="n">retry_attempts</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>,</span><span class="param">	<span class="n">retry_backoff</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span>,</span><span class="param">	<span class="n">retry_on</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="ne">Exception</span><span class="p">],</span> <span class="o">...</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>,</span><span class="param">	<span class="n">tenacity_retrying</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span></span>)</span>
 
                 <label class="view-source-button" for="PaperlessClient.__init__-view-source"><span>View Source</span></label>
 
     </div>
     <a class="headerlink" href="#PaperlessClient.__init__"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="PaperlessClient.__init__-190"><a href="#PaperlessClient.__init__-190"><span class="linenos">190</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
-</span><span id="PaperlessClient.__init__-191"><a href="#PaperlessClient.__init__-191"><span class="linenos">191</span></a>        <span class="bp">self</span><span class="p">,</span>
-</span><span id="PaperlessClient.__init__-192"><a href="#PaperlessClient.__init__-192"><span class="linenos">192</span></a>        <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-</span><span id="PaperlessClient.__init__-193"><a href="#PaperlessClient.__init__-193"><span class="linenos">193</span></a>        <span class="n">api_token</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
-</span><span id="PaperlessClient.__init__-194"><a href="#PaperlessClient.__init__-194"><span class="linenos">194</span></a>        <span class="o">*</span><span class="p">,</span>
-</span><span id="PaperlessClient.__init__-195"><a href="#PaperlessClient.__init__-195"><span class="linenos">195</span></a>        <span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">30.0</span><span class="p">,</span>
-</span><span id="PaperlessClient.__init__-196"><a href="#PaperlessClient.__init__-196"><span class="linenos">196</span></a>        <span class="n">poll_interval</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.0</span><span class="p">,</span>
-</span><span id="PaperlessClient.__init__-197"><a href="#PaperlessClient.__init__-197"><span class="linenos">197</span></a>        <span class="n">poll_timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">60.0</span><span class="p">,</span>
-</span><span id="PaperlessClient.__init__-198"><a href="#PaperlessClient.__init__-198"><span class="linenos">198</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="PaperlessClient.__init__-199"><a href="#PaperlessClient.__init__-199"><span class="linenos">199</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Create an async paperless-ngx client.</span>
-</span><span id="PaperlessClient.__init__-200"><a href="#PaperlessClient.__init__-200"><span class="linenos">200</span></a>
-</span><span id="PaperlessClient.__init__-201"><a href="#PaperlessClient.__init__-201"><span class="linenos">201</span></a><span class="sd">        Args:</span>
-</span><span id="PaperlessClient.__init__-202"><a href="#PaperlessClient.__init__-202"><span class="linenos">202</span></a><span class="sd">            url: Base URL of the paperless-ngx instance</span>
-</span><span id="PaperlessClient.__init__-203"><a href="#PaperlessClient.__init__-203"><span class="linenos">203</span></a><span class="sd">                (e.g. ``&quot;http://localhost:8000&quot;``).</span>
-</span><span id="PaperlessClient.__init__-204"><a href="#PaperlessClient.__init__-204"><span class="linenos">204</span></a><span class="sd">            api_token: API token.  Generate one in paperless-ngx under</span>
-</span><span id="PaperlessClient.__init__-205"><a href="#PaperlessClient.__init__-205"><span class="linenos">205</span></a><span class="sd">                *Settings → API → Generate Token*.</span>
-</span><span id="PaperlessClient.__init__-206"><a href="#PaperlessClient.__init__-206"><span class="linenos">206</span></a><span class="sd">            timeout: Default request timeout in seconds.  Default: ``30.0``.</span>
-</span><span id="PaperlessClient.__init__-207"><a href="#PaperlessClient.__init__-207"><span class="linenos">207</span></a><span class="sd">            poll_interval: Seconds between status checks when ``wait=True``</span>
-</span><span id="PaperlessClient.__init__-208"><a href="#PaperlessClient.__init__-208"><span class="linenos">208</span></a><span class="sd">                is passed to :meth:`documents.upload`.  Default: ``2.0``.</span>
-</span><span id="PaperlessClient.__init__-209"><a href="#PaperlessClient.__init__-209"><span class="linenos">209</span></a><span class="sd">            poll_timeout: Maximum seconds to wait for a document to finish</span>
-</span><span id="PaperlessClient.__init__-210"><a href="#PaperlessClient.__init__-210"><span class="linenos">210</span></a><span class="sd">                processing before raising</span>
-</span><span id="PaperlessClient.__init__-211"><a href="#PaperlessClient.__init__-211"><span class="linenos">211</span></a><span class="sd">                :exc:`~easypaperless.exceptions.TaskTimeoutError`.</span>
-</span><span id="PaperlessClient.__init__-212"><a href="#PaperlessClient.__init__-212"><span class="linenos">212</span></a><span class="sd">                Default: ``60.0``.</span>
-</span><span id="PaperlessClient.__init__-213"><a href="#PaperlessClient.__init__-213"><span class="linenos">213</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="PaperlessClient.__init__-214"><a href="#PaperlessClient.__init__-214"><span class="linenos">214</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
-</span><span id="PaperlessClient.__init__-215"><a href="#PaperlessClient.__init__-215"><span class="linenos">215</span></a>            <span class="n">url</span><span class="p">,</span> <span class="n">api_token</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">,</span> <span class="n">poll_interval</span><span class="o">=</span><span class="n">poll_interval</span><span class="p">,</span> <span class="n">poll_timeout</span><span class="o">=</span><span class="n">poll_timeout</span>
-</span><span id="PaperlessClient.__init__-216"><a href="#PaperlessClient.__init__-216"><span class="linenos">216</span></a>        <span class="p">)</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="PaperlessClient.__init__-202"><a href="#PaperlessClient.__init__-202"><span class="linenos">202</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
+</span><span id="PaperlessClient.__init__-203"><a href="#PaperlessClient.__init__-203"><span class="linenos">203</span></a>        <span class="bp">self</span><span class="p">,</span>
+</span><span id="PaperlessClient.__init__-204"><a href="#PaperlessClient.__init__-204"><span class="linenos">204</span></a>        <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+</span><span id="PaperlessClient.__init__-205"><a href="#PaperlessClient.__init__-205"><span class="linenos">205</span></a>        <span class="n">api_token</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
+</span><span id="PaperlessClient.__init__-206"><a href="#PaperlessClient.__init__-206"><span class="linenos">206</span></a>        <span class="o">*</span><span class="p">,</span>
+</span><span id="PaperlessClient.__init__-207"><a href="#PaperlessClient.__init__-207"><span class="linenos">207</span></a>        <span class="n">timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">30.0</span><span class="p">,</span>
+</span><span id="PaperlessClient.__init__-208"><a href="#PaperlessClient.__init__-208"><span class="linenos">208</span></a>        <span class="n">poll_interval</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">2.0</span><span class="p">,</span>
+</span><span id="PaperlessClient.__init__-209"><a href="#PaperlessClient.__init__-209"><span class="linenos">209</span></a>        <span class="n">poll_timeout</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">60.0</span><span class="p">,</span>
+</span><span id="PaperlessClient.__init__-210"><a href="#PaperlessClient.__init__-210"><span class="linenos">210</span></a>        <span class="n">retry_attempts</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+</span><span id="PaperlessClient.__init__-211"><a href="#PaperlessClient.__init__-211"><span class="linenos">211</span></a>        <span class="n">retry_backoff</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">1.0</span><span class="p">,</span>
+</span><span id="PaperlessClient.__init__-212"><a href="#PaperlessClient.__init__-212"><span class="linenos">212</span></a>        <span class="n">retry_on</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">type</span><span class="p">[</span><span class="ne">Exception</span><span class="p">],</span> <span class="o">...</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="PaperlessClient.__init__-213"><a href="#PaperlessClient.__init__-213"><span class="linenos">213</span></a>        <span class="n">tenacity_retrying</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+</span><span id="PaperlessClient.__init__-214"><a href="#PaperlessClient.__init__-214"><span class="linenos">214</span></a>    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="PaperlessClient.__init__-215"><a href="#PaperlessClient.__init__-215"><span class="linenos">215</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Create an async paperless-ngx client.</span>
+</span><span id="PaperlessClient.__init__-216"><a href="#PaperlessClient.__init__-216"><span class="linenos">216</span></a>
+</span><span id="PaperlessClient.__init__-217"><a href="#PaperlessClient.__init__-217"><span class="linenos">217</span></a><span class="sd">        Args:</span>
+</span><span id="PaperlessClient.__init__-218"><a href="#PaperlessClient.__init__-218"><span class="linenos">218</span></a><span class="sd">            url: Base URL of the paperless-ngx instance</span>
+</span><span id="PaperlessClient.__init__-219"><a href="#PaperlessClient.__init__-219"><span class="linenos">219</span></a><span class="sd">                (e.g. ``&quot;http://localhost:8000&quot;``).</span>
+</span><span id="PaperlessClient.__init__-220"><a href="#PaperlessClient.__init__-220"><span class="linenos">220</span></a><span class="sd">            api_token: API token.  Generate one in paperless-ngx under</span>
+</span><span id="PaperlessClient.__init__-221"><a href="#PaperlessClient.__init__-221"><span class="linenos">221</span></a><span class="sd">                *Settings → API → Generate Token*.</span>
+</span><span id="PaperlessClient.__init__-222"><a href="#PaperlessClient.__init__-222"><span class="linenos">222</span></a><span class="sd">            timeout: Default request timeout in seconds.  Default: ``30.0``.</span>
+</span><span id="PaperlessClient.__init__-223"><a href="#PaperlessClient.__init__-223"><span class="linenos">223</span></a><span class="sd">            poll_interval: Seconds between status checks when ``wait=True``</span>
+</span><span id="PaperlessClient.__init__-224"><a href="#PaperlessClient.__init__-224"><span class="linenos">224</span></a><span class="sd">                is passed to :meth:`documents.upload`.  Default: ``2.0``.</span>
+</span><span id="PaperlessClient.__init__-225"><a href="#PaperlessClient.__init__-225"><span class="linenos">225</span></a><span class="sd">            poll_timeout: Maximum seconds to wait for a document to finish</span>
+</span><span id="PaperlessClient.__init__-226"><a href="#PaperlessClient.__init__-226"><span class="linenos">226</span></a><span class="sd">                processing before raising</span>
+</span><span id="PaperlessClient.__init__-227"><a href="#PaperlessClient.__init__-227"><span class="linenos">227</span></a><span class="sd">                :exc:`~easypaperless.exceptions.TaskTimeoutError`.</span>
+</span><span id="PaperlessClient.__init__-228"><a href="#PaperlessClient.__init__-228"><span class="linenos">228</span></a><span class="sd">                Default: ``60.0``.</span>
+</span><span id="PaperlessClient.__init__-229"><a href="#PaperlessClient.__init__-229"><span class="linenos">229</span></a><span class="sd">            retry_attempts: Maximum number of retry attempts after the first</span>
+</span><span id="PaperlessClient.__init__-230"><a href="#PaperlessClient.__init__-230"><span class="linenos">230</span></a><span class="sd">                failure.  ``0`` (the default) disables retrying entirely,</span>
+</span><span id="PaperlessClient.__init__-231"><a href="#PaperlessClient.__init__-231"><span class="linenos">231</span></a><span class="sd">                preserving backward-compatible behaviour.</span>
+</span><span id="PaperlessClient.__init__-232"><a href="#PaperlessClient.__init__-232"><span class="linenos">232</span></a><span class="sd">            retry_backoff: Initial sleep in seconds between retry attempts;</span>
+</span><span id="PaperlessClient.__init__-233"><a href="#PaperlessClient.__init__-233"><span class="linenos">233</span></a><span class="sd">                doubles on each subsequent attempt.  Default: ``1.0``.</span>
+</span><span id="PaperlessClient.__init__-234"><a href="#PaperlessClient.__init__-234"><span class="linenos">234</span></a><span class="sd">            retry_on: Tuple of exception types that trigger a retry.  Defaults</span>
+</span><span id="PaperlessClient.__init__-235"><a href="#PaperlessClient.__init__-235"><span class="linenos">235</span></a><span class="sd">                to ``(ServerError, httpx.TimeoutException, httpx.ConnectError)``.</span>
+</span><span id="PaperlessClient.__init__-236"><a href="#PaperlessClient.__init__-236"><span class="linenos">236</span></a><span class="sd">                ``NotFoundError`` is intentionally excluded from the default set</span>
+</span><span id="PaperlessClient.__init__-237"><a href="#PaperlessClient.__init__-237"><span class="linenos">237</span></a><span class="sd">                so that genuine 404 responses are never silently retried.</span>
+</span><span id="PaperlessClient.__init__-238"><a href="#PaperlessClient.__init__-238"><span class="linenos">238</span></a><span class="sd">                Note: ``httpx.TimeoutException`` and ``httpx.ConnectError`` are</span>
+</span><span id="PaperlessClient.__init__-239"><a href="#PaperlessClient.__init__-239"><span class="linenos">239</span></a><span class="sd">                intercepted inside the HTTP layer and re-raised as ``ServerError``</span>
+</span><span id="PaperlessClient.__init__-240"><a href="#PaperlessClient.__init__-240"><span class="linenos">240</span></a><span class="sd">                before the retry loop runs, so including them in a custom</span>
+</span><span id="PaperlessClient.__init__-241"><a href="#PaperlessClient.__init__-241"><span class="linenos">241</span></a><span class="sd">                ``retry_on`` tuple has no effect unless ``ServerError`` is also</span>
+</span><span id="PaperlessClient.__init__-242"><a href="#PaperlessClient.__init__-242"><span class="linenos">242</span></a><span class="sd">                present.</span>
+</span><span id="PaperlessClient.__init__-243"><a href="#PaperlessClient.__init__-243"><span class="linenos">243</span></a><span class="sd">            tenacity_retrying: An optional pre-configured</span>
+</span><span id="PaperlessClient.__init__-244"><a href="#PaperlessClient.__init__-244"><span class="linenos">244</span></a><span class="sd">                ``tenacity.AsyncRetrying`` instance.  When supplied, the</span>
+</span><span id="PaperlessClient.__init__-245"><a href="#PaperlessClient.__init__-245"><span class="linenos">245</span></a><span class="sd">                ``retry_attempts``, ``retry_backoff``, and ``retry_on``</span>
+</span><span id="PaperlessClient.__init__-246"><a href="#PaperlessClient.__init__-246"><span class="linenos">246</span></a><span class="sd">                parameters are ignored and tenacity drives the retry loop</span>
+</span><span id="PaperlessClient.__init__-247"><a href="#PaperlessClient.__init__-247"><span class="linenos">247</span></a><span class="sd">                instead.  Must be ``AsyncRetrying`` — the sync</span>
+</span><span id="PaperlessClient.__init__-248"><a href="#PaperlessClient.__init__-248"><span class="linenos">248</span></a><span class="sd">                ``tenacity.Retrying`` is not compatible with the async HTTP</span>
+</span><span id="PaperlessClient.__init__-249"><a href="#PaperlessClient.__init__-249"><span class="linenos">249</span></a><span class="sd">                layer used internally.</span>
+</span><span id="PaperlessClient.__init__-250"><a href="#PaperlessClient.__init__-250"><span class="linenos">250</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="PaperlessClient.__init__-251"><a href="#PaperlessClient.__init__-251"><span class="linenos">251</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+</span><span id="PaperlessClient.__init__-252"><a href="#PaperlessClient.__init__-252"><span class="linenos">252</span></a>            <span class="n">url</span><span class="p">,</span>
+</span><span id="PaperlessClient.__init__-253"><a href="#PaperlessClient.__init__-253"><span class="linenos">253</span></a>            <span class="n">api_token</span><span class="p">,</span>
+</span><span id="PaperlessClient.__init__-254"><a href="#PaperlessClient.__init__-254"><span class="linenos">254</span></a>            <span class="n">timeout</span><span class="o">=</span><span class="n">timeout</span><span class="p">,</span>
+</span><span id="PaperlessClient.__init__-255"><a href="#PaperlessClient.__init__-255"><span class="linenos">255</span></a>            <span class="n">poll_interval</span><span class="o">=</span><span class="n">poll_interval</span><span class="p">,</span>
+</span><span id="PaperlessClient.__init__-256"><a href="#PaperlessClient.__init__-256"><span class="linenos">256</span></a>            <span class="n">poll_timeout</span><span class="o">=</span><span class="n">poll_timeout</span><span class="p">,</span>
+</span><span id="PaperlessClient.__init__-257"><a href="#PaperlessClient.__init__-257"><span class="linenos">257</span></a>            <span class="n">retry_attempts</span><span class="o">=</span><span class="n">retry_attempts</span><span class="p">,</span>
+</span><span id="PaperlessClient.__init__-258"><a href="#PaperlessClient.__init__-258"><span class="linenos">258</span></a>            <span class="n">retry_backoff</span><span class="o">=</span><span class="n">retry_backoff</span><span class="p">,</span>
+</span><span id="PaperlessClient.__init__-259"><a href="#PaperlessClient.__init__-259"><span class="linenos">259</span></a>            <span class="n">retry_on</span><span class="o">=</span><span class="n">retry_on</span><span class="p">,</span>
+</span><span id="PaperlessClient.__init__-260"><a href="#PaperlessClient.__init__-260"><span class="linenos">260</span></a>            <span class="n">tenacity_retrying</span><span class="o">=</span><span class="n">tenacity_retrying</span><span class="p">,</span>
+</span><span id="PaperlessClient.__init__-261"><a href="#PaperlessClient.__init__-261"><span class="linenos">261</span></a>        <span class="p">)</span>
 </span></pre></div>
 
 
@@ -958,6 +1076,27 @@ is passed to <code>documents.upload()</code>.  Default: <code>2.0</code>.</li>
 processing before raising
 <code>~<a href="#TaskTimeoutError">easypaperless.exceptions.TaskTimeoutError</a></code>.
 Default: <code>60.0</code>.</li>
+<li><strong>retry_attempts:</strong>  Maximum number of retry attempts after the first
+failure.  <code>0</code> (the default) disables retrying entirely,
+preserving backward-compatible behaviour.</li>
+<li><strong>retry_backoff:</strong>  Initial sleep in seconds between retry attempts;
+doubles on each subsequent attempt.  Default: <code>1.0</code>.</li>
+<li><strong>retry_on:</strong>  Tuple of exception types that trigger a retry.  Defaults
+to <code>(ServerError, httpx.TimeoutException, httpx.ConnectError)</code>.
+<code><a href="#NotFoundError">NotFoundError</a></code> is intentionally excluded from the default set
+so that genuine 404 responses are never silently retried.
+Note: <code>httpx.TimeoutException</code> and <code>httpx.ConnectError</code> are
+intercepted inside the HTTP layer and re-raised as <code><a href="#ServerError">ServerError</a></code>
+before the retry loop runs, so including them in a custom
+<code>retry_on</code> tuple has no effect unless <code><a href="#ServerError">ServerError</a></code> is also
+present.</li>
+<li><strong>tenacity_retrying:</strong>  An optional pre-configured
+<code>tenacity.AsyncRetrying</code> instance.  When supplied, the
+<code>retry_attempts</code>, <code>retry_backoff</code>, and <code>retry_on</code>
+parameters are ignored and tenacity drives the retry loop
+instead.  Must be <code>AsyncRetrying</code> — the sync
+<code>tenacity.Retrying</code> is not compatible with the async HTTP
+layer used internally.</li>
 </ul>
 </div>
 
@@ -1027,15 +1166,20 @@ Default: <code>60.0</code>.</li>
 </span><span id="SyncPaperlessClient-132"><a href="#SyncPaperlessClient-132"><span class="linenos">132</span></a><span class="sd">                *Settings → API → Generate Token*.</span>
 </span><span id="SyncPaperlessClient-133"><a href="#SyncPaperlessClient-133"><span class="linenos">133</span></a><span class="sd">            **kwargs: Additional keyword arguments forwarded to</span>
 </span><span id="SyncPaperlessClient-134"><a href="#SyncPaperlessClient-134"><span class="linenos">134</span></a><span class="sd">                :class:`~easypaperless.client.PaperlessClient` (e.g.</span>
-</span><span id="SyncPaperlessClient-135"><a href="#SyncPaperlessClient-135"><span class="linenos">135</span></a><span class="sd">                ``poll_interval``, ``poll_timeout``).</span>
-</span><span id="SyncPaperlessClient-136"><a href="#SyncPaperlessClient-136"><span class="linenos">136</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="SyncPaperlessClient-137"><a href="#SyncPaperlessClient-137"><span class="linenos">137</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">api_token</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
-</span><span id="SyncPaperlessClient-138"><a href="#SyncPaperlessClient-138"><span class="linenos">138</span></a>
-</span><span id="SyncPaperlessClient-139"><a href="#SyncPaperlessClient-139"><span class="linenos">139</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SyncPaperlessClient</span><span class="p">:</span>
-</span><span id="SyncPaperlessClient-140"><a href="#SyncPaperlessClient-140"><span class="linenos">140</span></a>        <span class="k">return</span> <span class="bp">self</span>
-</span><span id="SyncPaperlessClient-141"><a href="#SyncPaperlessClient-141"><span class="linenos">141</span></a>
-</span><span id="SyncPaperlessClient-142"><a href="#SyncPaperlessClient-142"><span class="linenos">142</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="SyncPaperlessClient-143"><a href="#SyncPaperlessClient-143"><span class="linenos">143</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+</span><span id="SyncPaperlessClient-135"><a href="#SyncPaperlessClient-135"><span class="linenos">135</span></a><span class="sd">                ``poll_interval``, ``poll_timeout``, ``retry_attempts``,</span>
+</span><span id="SyncPaperlessClient-136"><a href="#SyncPaperlessClient-136"><span class="linenos">136</span></a><span class="sd">                ``retry_backoff``, ``retry_on``, ``tenacity_retrying``).</span>
+</span><span id="SyncPaperlessClient-137"><a href="#SyncPaperlessClient-137"><span class="linenos">137</span></a><span class="sd">                When using ``tenacity_retrying``, pass a</span>
+</span><span id="SyncPaperlessClient-138"><a href="#SyncPaperlessClient-138"><span class="linenos">138</span></a><span class="sd">                ``tenacity.AsyncRetrying`` instance — the sync</span>
+</span><span id="SyncPaperlessClient-139"><a href="#SyncPaperlessClient-139"><span class="linenos">139</span></a><span class="sd">                ``tenacity.Retrying`` is not compatible because all requests</span>
+</span><span id="SyncPaperlessClient-140"><a href="#SyncPaperlessClient-140"><span class="linenos">140</span></a><span class="sd">                run on an internal async event loop.</span>
+</span><span id="SyncPaperlessClient-141"><a href="#SyncPaperlessClient-141"><span class="linenos">141</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="SyncPaperlessClient-142"><a href="#SyncPaperlessClient-142"><span class="linenos">142</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">api_token</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="SyncPaperlessClient-143"><a href="#SyncPaperlessClient-143"><span class="linenos">143</span></a>
+</span><span id="SyncPaperlessClient-144"><a href="#SyncPaperlessClient-144"><span class="linenos">144</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SyncPaperlessClient</span><span class="p">:</span>
+</span><span id="SyncPaperlessClient-145"><a href="#SyncPaperlessClient-145"><span class="linenos">145</span></a>        <span class="k">return</span> <span class="bp">self</span>
+</span><span id="SyncPaperlessClient-146"><a href="#SyncPaperlessClient-146"><span class="linenos">146</span></a>
+</span><span id="SyncPaperlessClient-147"><a href="#SyncPaperlessClient-147"><span class="linenos">147</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">*</span><span class="n">args</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="SyncPaperlessClient-148"><a href="#SyncPaperlessClient-148"><span class="linenos">148</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
 </span></pre></div>
 
 
@@ -1045,23 +1189,23 @@ Default: <code>60.0</code>.</li>
 
 <ul>
 <li><code>client.correspondents</code> — correspondent CRUD + bulk ops -
-see <code><a href="easypaperless/resources.html#SyncCorrespondentsResource">easypaperless.resources.SyncCorrespondentsResource</a></code></li>
+see <code>easypaperless.resources.SyncCorrespondentsResource</code></li>
 <li><code>client.custom_fields</code> — custom field CRUD -
-see <code><a href="easypaperless/resources.html#SyncCustomFieldsResource">easypaperless.resources.SyncCustomFieldsResource</a></code></li>
+see <code>easypaperless.resources.SyncCustomFieldsResource</code></li>
 <li><code>client.document_types</code> — document type CRUD + bulk ops -
-see <code><a href="easypaperless/resources.html#SyncDocumentTypesResource">easypaperless.resources.SyncDocumentTypesResource</a></code></li>
+see <code>easypaperless.resources.SyncDocumentTypesResource</code></li>
 <li><code>client.documents</code> — document CRUD, bulk ops, upload, download -
-see <code><a href="easypaperless/resources.html#SyncDocumentsResource">easypaperless.resources.SyncDocumentsResource</a></code></li>
+see <code>easypaperless.resources.SyncDocumentsResource</code></li>
 <li><code>client.documents.notes</code> — document notes -
-see <code><a href="easypaperless/resources.html#SyncNotesResource">easypaperless.resources.SyncNotesResource</a></code></li>
+see <code>easypaperless.resources.SyncNotesResource</code></li>
 <li><code>client.storage_paths</code> — storage path CRUD + bulk ops -
-see <code><a href="easypaperless/resources.html#SyncStoragePathsResource">easypaperless.resources.SyncStoragePathsResource</a></code></li>
+see <code>easypaperless.resources.SyncStoragePathsResource</code></li>
 <li><code>client.tags</code> — tag CRUD + bulk ops -
-see <code><a href="easypaperless/resources.html#SyncTagsResource">easypaperless.resources.SyncTagsResource</a></code></li>
+see <code>easypaperless.resources.SyncTagsResource</code></li>
 <li><code>client.users</code> — user CRUD -
-see <code><a href="easypaperless/resources.html#SyncUsersResource">easypaperless.resources.SyncUsersResource</a></code></li>
+see <code>easypaperless.resources.SyncUsersResource</code></li>
 <li><code>client.trash</code> — list, restore, and permanently delete trashed documents -
-see <code><a href="easypaperless/resources.html#SyncTrashResource">easypaperless.resources.SyncTrashResource</a></code></li>
+see <code>easypaperless.resources.SyncTrashResource</code></li>
 </ul>
 
 <p>All methods are synchronous wrappers around the async
@@ -1109,9 +1253,14 @@ is reused across calls and cleanup works correctly.</p>
 </span><span id="SyncPaperlessClient.__init__-132"><a href="#SyncPaperlessClient.__init__-132"><span class="linenos">132</span></a><span class="sd">                *Settings → API → Generate Token*.</span>
 </span><span id="SyncPaperlessClient.__init__-133"><a href="#SyncPaperlessClient.__init__-133"><span class="linenos">133</span></a><span class="sd">            **kwargs: Additional keyword arguments forwarded to</span>
 </span><span id="SyncPaperlessClient.__init__-134"><a href="#SyncPaperlessClient.__init__-134"><span class="linenos">134</span></a><span class="sd">                :class:`~easypaperless.client.PaperlessClient` (e.g.</span>
-</span><span id="SyncPaperlessClient.__init__-135"><a href="#SyncPaperlessClient.__init__-135"><span class="linenos">135</span></a><span class="sd">                ``poll_interval``, ``poll_timeout``).</span>
-</span><span id="SyncPaperlessClient.__init__-136"><a href="#SyncPaperlessClient.__init__-136"><span class="linenos">136</span></a><span class="sd">        &quot;&quot;&quot;</span>
-</span><span id="SyncPaperlessClient.__init__-137"><a href="#SyncPaperlessClient.__init__-137"><span class="linenos">137</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">api_token</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+</span><span id="SyncPaperlessClient.__init__-135"><a href="#SyncPaperlessClient.__init__-135"><span class="linenos">135</span></a><span class="sd">                ``poll_interval``, ``poll_timeout``, ``retry_attempts``,</span>
+</span><span id="SyncPaperlessClient.__init__-136"><a href="#SyncPaperlessClient.__init__-136"><span class="linenos">136</span></a><span class="sd">                ``retry_backoff``, ``retry_on``, ``tenacity_retrying``).</span>
+</span><span id="SyncPaperlessClient.__init__-137"><a href="#SyncPaperlessClient.__init__-137"><span class="linenos">137</span></a><span class="sd">                When using ``tenacity_retrying``, pass a</span>
+</span><span id="SyncPaperlessClient.__init__-138"><a href="#SyncPaperlessClient.__init__-138"><span class="linenos">138</span></a><span class="sd">                ``tenacity.AsyncRetrying`` instance — the sync</span>
+</span><span id="SyncPaperlessClient.__init__-139"><a href="#SyncPaperlessClient.__init__-139"><span class="linenos">139</span></a><span class="sd">                ``tenacity.Retrying`` is not compatible because all requests</span>
+</span><span id="SyncPaperlessClient.__init__-140"><a href="#SyncPaperlessClient.__init__-140"><span class="linenos">140</span></a><span class="sd">                run on an internal async event loop.</span>
+</span><span id="SyncPaperlessClient.__init__-141"><a href="#SyncPaperlessClient.__init__-141"><span class="linenos">141</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="SyncPaperlessClient.__init__-142"><a href="#SyncPaperlessClient.__init__-142"><span class="linenos">142</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">api_token</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
 </span></pre></div>
 
 
@@ -1126,7 +1275,12 @@ is reused across calls and cleanup works correctly.</p>
 <em>Settings → API → Generate Token</em>.</li>
 <li><strong>**kwargs:</strong>  Additional keyword arguments forwarded to
 <code>~<a href="#PaperlessClient">easypaperless.client.PaperlessClient</a></code> (e.g.
-<code>poll_interval</code>, <code>poll_timeout</code>).</li>
+<code>poll_interval</code>, <code>poll_timeout</code>, <code>retry_attempts</code>,
+<code>retry_backoff</code>, <code>retry_on</code>, <code>tenacity_retrying</code>).
+When using <code>tenacity_retrying</code>, pass a
+<code>tenacity.AsyncRetrying</code> instance — the sync
+<code>tenacity.Retrying</code> is not compatible because all requests
+run on an internal async event loop.</li>
 </ul>
 </div>
 
@@ -1409,6 +1563,179 @@ pages.</li>
         
     </div>
     <a class="headerlink" href="#PagedResult.results"></a>
+    
+    
+
+                            </div>
+                </section>
+                <section id="AuditLogActor">
+                            <input id="AuditLogActor-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr class">
+            
+    <span class="def">class</span>
+    <span class="name">AuditLogActor</span><wbr>(<span class="base">pydantic.main.BaseModel</span>):
+
+                <label class="view-source-button" for="AuditLogActor-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#AuditLogActor"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="AuditLogActor-82"><a href="#AuditLogActor-82"><span class="linenos">82</span></a><span class="k">class</span><span class="w"> </span><span class="nc">AuditLogActor</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+</span><span id="AuditLogActor-83"><a href="#AuditLogActor-83"><span class="linenos">83</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;The user who performed an audited action.</span>
+</span><span id="AuditLogActor-84"><a href="#AuditLogActor-84"><span class="linenos">84</span></a>
+</span><span id="AuditLogActor-85"><a href="#AuditLogActor-85"><span class="linenos">85</span></a><span class="sd">    Attributes:</span>
+</span><span id="AuditLogActor-86"><a href="#AuditLogActor-86"><span class="linenos">86</span></a><span class="sd">        id: Numeric user ID.</span>
+</span><span id="AuditLogActor-87"><a href="#AuditLogActor-87"><span class="linenos">87</span></a><span class="sd">        username: Username of the actor.</span>
+</span><span id="AuditLogActor-88"><a href="#AuditLogActor-88"><span class="linenos">88</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="AuditLogActor-89"><a href="#AuditLogActor-89"><span class="linenos">89</span></a>
+</span><span id="AuditLogActor-90"><a href="#AuditLogActor-90"><span class="linenos">90</span></a>    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">extra</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
+</span><span id="AuditLogActor-91"><a href="#AuditLogActor-91"><span class="linenos">91</span></a>
+</span><span id="AuditLogActor-92"><a href="#AuditLogActor-92"><span class="linenos">92</span></a>    <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span>
+</span><span id="AuditLogActor-93"><a href="#AuditLogActor-93"><span class="linenos">93</span></a>    <span class="n">username</span><span class="p">:</span> <span class="nb">str</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>The user who performed an audited action.</p>
+
+<h6 id="attributes">Attributes:</h6>
+
+<ul>
+<li><strong>id:</strong>  Numeric user ID.</li>
+<li><strong>username:</strong>  Username of the actor.</li>
+</ul>
+</div>
+
+
+                            <div id="AuditLogActor.id" class="classattr">
+                                <div class="attr variable">
+            <span class="name">id</span><span class="annotation">: int</span>        =
+<span class="default_value">PydanticUndefined</span>
+
+        
+    </div>
+    <a class="headerlink" href="#AuditLogActor.id"></a>
+    
+    
+
+                            </div>
+                            <div id="AuditLogActor.username" class="classattr">
+                                <div class="attr variable">
+            <span class="name">username</span><span class="annotation">: str</span>        =
+<span class="default_value">PydanticUndefined</span>
+
+        
+    </div>
+    <a class="headerlink" href="#AuditLogActor.username"></a>
+    
+    
+
+                            </div>
+                </section>
+                <section id="AuditLogEntry">
+                            <input id="AuditLogEntry-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr class">
+            
+    <span class="def">class</span>
+    <span class="name">AuditLogEntry</span><wbr>(<span class="base">pydantic.main.BaseModel</span>):
+
+                <label class="view-source-button" for="AuditLogEntry-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#AuditLogEntry"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="AuditLogEntry-96"><a href="#AuditLogEntry-96"><span class="linenos"> 96</span></a><span class="k">class</span><span class="w"> </span><span class="nc">AuditLogEntry</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+</span><span id="AuditLogEntry-97"><a href="#AuditLogEntry-97"><span class="linenos"> 97</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;A single entry in a document&#39;s audit log.</span>
+</span><span id="AuditLogEntry-98"><a href="#AuditLogEntry-98"><span class="linenos"> 98</span></a>
+</span><span id="AuditLogEntry-99"><a href="#AuditLogEntry-99"><span class="linenos"> 99</span></a><span class="sd">    Attributes:</span>
+</span><span id="AuditLogEntry-100"><a href="#AuditLogEntry-100"><span class="linenos">100</span></a><span class="sd">        id: Unique audit log entry ID.</span>
+</span><span id="AuditLogEntry-101"><a href="#AuditLogEntry-101"><span class="linenos">101</span></a><span class="sd">        timestamp: When the action occurred.</span>
+</span><span id="AuditLogEntry-102"><a href="#AuditLogEntry-102"><span class="linenos">102</span></a><span class="sd">        action: Action type (e.g. ``&quot;create&quot;``, ``&quot;update&quot;``).</span>
+</span><span id="AuditLogEntry-103"><a href="#AuditLogEntry-103"><span class="linenos">103</span></a><span class="sd">        changes: Free-form dict describing what changed.  Keys and value</span>
+</span><span id="AuditLogEntry-104"><a href="#AuditLogEntry-104"><span class="linenos">104</span></a><span class="sd">            shapes vary by action type.</span>
+</span><span id="AuditLogEntry-105"><a href="#AuditLogEntry-105"><span class="linenos">105</span></a><span class="sd">        actor: The user who performed the action, or ``None`` for</span>
+</span><span id="AuditLogEntry-106"><a href="#AuditLogEntry-106"><span class="linenos">106</span></a><span class="sd">            system-generated entries.</span>
+</span><span id="AuditLogEntry-107"><a href="#AuditLogEntry-107"><span class="linenos">107</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="AuditLogEntry-108"><a href="#AuditLogEntry-108"><span class="linenos">108</span></a>
+</span><span id="AuditLogEntry-109"><a href="#AuditLogEntry-109"><span class="linenos">109</span></a>    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">extra</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
+</span><span id="AuditLogEntry-110"><a href="#AuditLogEntry-110"><span class="linenos">110</span></a>
+</span><span id="AuditLogEntry-111"><a href="#AuditLogEntry-111"><span class="linenos">111</span></a>    <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span>
+</span><span id="AuditLogEntry-112"><a href="#AuditLogEntry-112"><span class="linenos">112</span></a>    <span class="n">timestamp</span><span class="p">:</span> <span class="n">datetime</span>
+</span><span id="AuditLogEntry-113"><a href="#AuditLogEntry-113"><span class="linenos">113</span></a>    <span class="n">action</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="AuditLogEntry-114"><a href="#AuditLogEntry-114"><span class="linenos">114</span></a>    <span class="n">changes</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span>
+</span><span id="AuditLogEntry-115"><a href="#AuditLogEntry-115"><span class="linenos">115</span></a>    <span class="n">actor</span><span class="p">:</span> <span class="n">AuditLogActor</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>A single entry in a document's audit log.</p>
+
+<h6 id="attributes">Attributes:</h6>
+
+<ul>
+<li><strong>id:</strong>  Unique audit log entry ID.</li>
+<li><strong>timestamp:</strong>  When the action occurred.</li>
+<li><strong>action:</strong>  Action type (e.g. <code>"create"</code>, <code>"update"</code>).</li>
+<li><strong>changes:</strong>  Free-form dict describing what changed.  Keys and value
+shapes vary by action type.</li>
+<li><strong>actor:</strong>  The user who performed the action, or <code>None</code> for
+system-generated entries.</li>
+</ul>
+</div>
+
+
+                            <div id="AuditLogEntry.id" class="classattr">
+                                <div class="attr variable">
+            <span class="name">id</span><span class="annotation">: int</span>        =
+<span class="default_value">PydanticUndefined</span>
+
+        
+    </div>
+    <a class="headerlink" href="#AuditLogEntry.id"></a>
+    
+    
+
+                            </div>
+                            <div id="AuditLogEntry.timestamp" class="classattr">
+                                <div class="attr variable">
+            <span class="name">timestamp</span><span class="annotation">: datetime.datetime</span>        =
+<span class="default_value">PydanticUndefined</span>
+
+        
+    </div>
+    <a class="headerlink" href="#AuditLogEntry.timestamp"></a>
+    
+    
+
+                            </div>
+                            <div id="AuditLogEntry.action" class="classattr">
+                                <div class="attr variable">
+            <span class="name">action</span><span class="annotation">: str</span>        =
+<span class="default_value">PydanticUndefined</span>
+
+        
+    </div>
+    <a class="headerlink" href="#AuditLogEntry.action"></a>
+    
+    
+
+                            </div>
+                            <div id="AuditLogEntry.changes" class="classattr">
+                                <div class="attr variable">
+            <span class="name">changes</span><span class="annotation">: dict[str, typing.Any]</span>        =
+<span class="default_value">PydanticUndefined</span>
+
+        
+    </div>
+    <a class="headerlink" href="#AuditLogEntry.changes"></a>
+    
+    
+
+                            </div>
+                            <div id="AuditLogEntry.actor" class="classattr">
+                                <div class="attr variable">
+            <span class="name">actor</span><span class="annotation">: <a href="#AuditLogActor">AuditLogActor</a> | None</span>        =
+<span class="default_value">None</span>
+
+        
+    </div>
+    <a class="headerlink" href="#AuditLogEntry.actor"></a>
     
     
 
@@ -1774,56 +2101,56 @@ definition.</li>
 
     </div>
     <a class="headerlink" href="#Document"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="Document-173"><a href="#Document-173"><span class="linenos">173</span></a><span class="k">class</span><span class="w"> </span><span class="nc">Document</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-</span><span id="Document-174"><a href="#Document-174"><span class="linenos">174</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;A paperless-ngx document.</span>
-</span><span id="Document-175"><a href="#Document-175"><span class="linenos">175</span></a>
-</span><span id="Document-176"><a href="#Document-176"><span class="linenos">176</span></a><span class="sd">    Attributes:</span>
-</span><span id="Document-177"><a href="#Document-177"><span class="linenos">177</span></a><span class="sd">        id: Unique document ID.</span>
-</span><span id="Document-178"><a href="#Document-178"><span class="linenos">178</span></a><span class="sd">        title: Document title.</span>
-</span><span id="Document-179"><a href="#Document-179"><span class="linenos">179</span></a><span class="sd">        content: Full OCR text content, if available.</span>
-</span><span id="Document-180"><a href="#Document-180"><span class="linenos">180</span></a><span class="sd">        tags: List of tag IDs assigned to this document.</span>
-</span><span id="Document-181"><a href="#Document-181"><span class="linenos">181</span></a><span class="sd">        document_type: ID of the assigned document type, or ``None``.</span>
-</span><span id="Document-182"><a href="#Document-182"><span class="linenos">182</span></a><span class="sd">        correspondent: ID of the assigned correspondent, or ``None``.</span>
-</span><span id="Document-183"><a href="#Document-183"><span class="linenos">183</span></a><span class="sd">        storage_path: ID of the assigned storage path, or ``None``.</span>
-</span><span id="Document-184"><a href="#Document-184"><span class="linenos">184</span></a><span class="sd">        created: Document creation date (``date`` object). Changed from</span>
-</span><span id="Document-185"><a href="#Document-185"><span class="linenos">185</span></a><span class="sd">            ``datetime`` to ``date`` in paperless-ngx API v9.</span>
-</span><span id="Document-186"><a href="#Document-186"><span class="linenos">186</span></a><span class="sd">        created_date: Date portion of creation. **Deprecated** by</span>
-</span><span id="Document-187"><a href="#Document-187"><span class="linenos">187</span></a><span class="sd">            paperless-ngx as of v9 — use ``created`` instead. Will be</span>
-</span><span id="Document-188"><a href="#Document-188"><span class="linenos">188</span></a><span class="sd">            removed in a future API version.</span>
-</span><span id="Document-189"><a href="#Document-189"><span class="linenos">189</span></a><span class="sd">        archive_serial_number: Archive serial number (ASN), or ``None``.</span>
-</span><span id="Document-190"><a href="#Document-190"><span class="linenos">190</span></a><span class="sd">        custom_fields: List of :class:`CustomFieldValue` instances.</span>
-</span><span id="Document-191"><a href="#Document-191"><span class="linenos">191</span></a><span class="sd">        notes: User notes attached to this document.</span>
-</span><span id="Document-192"><a href="#Document-192"><span class="linenos">192</span></a><span class="sd">        search_hit: Full-text search relevance metadata, populated only when</span>
-</span><span id="Document-193"><a href="#Document-193"><span class="linenos">193</span></a><span class="sd">            the document was returned by a full-text search.</span>
-</span><span id="Document-194"><a href="#Document-194"><span class="linenos">194</span></a><span class="sd">        metadata: Extended file-level metadata (checksums, sizes, MIME type).</span>
-</span><span id="Document-195"><a href="#Document-195"><span class="linenos">195</span></a><span class="sd">            ``None`` unless the document was fetched with</span>
-</span><span id="Document-196"><a href="#Document-196"><span class="linenos">196</span></a><span class="sd">            ``include_metadata=True`` or retrieved via</span>
-</span><span id="Document-197"><a href="#Document-197"><span class="linenos">197</span></a><span class="sd">            :meth:`~easypaperless._internal.resources.documents.DocumentsResource.get_metadata`.</span>
-</span><span id="Document-198"><a href="#Document-198"><span class="linenos">198</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="Document-199"><a href="#Document-199"><span class="linenos">199</span></a>
-</span><span id="Document-200"><a href="#Document-200"><span class="linenos">200</span></a>    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">extra</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">populate_by_name</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
-</span><span id="Document-201"><a href="#Document-201"><span class="linenos">201</span></a>
-</span><span id="Document-202"><a href="#Document-202"><span class="linenos">202</span></a>    <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span>
-</span><span id="Document-203"><a href="#Document-203"><span class="linenos">203</span></a>    <span class="n">title</span><span class="p">:</span> <span class="nb">str</span>
-</span><span id="Document-204"><a href="#Document-204"><span class="linenos">204</span></a>    <span class="n">content</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="Document-205"><a href="#Document-205"><span class="linenos">205</span></a>    <span class="n">tags</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
-</span><span id="Document-206"><a href="#Document-206"><span class="linenos">206</span></a>    <span class="n">document_type</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="Document-207"><a href="#Document-207"><span class="linenos">207</span></a>    <span class="n">correspondent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="Document-208"><a href="#Document-208"><span class="linenos">208</span></a>    <span class="n">storage_path</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="Document-209"><a href="#Document-209"><span class="linenos">209</span></a>    <span class="n">created</span><span class="p">:</span> <span class="n">date</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="Document-210"><a href="#Document-210"><span class="linenos">210</span></a>    <span class="n">created_date</span><span class="p">:</span> <span class="n">date</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="Document-211"><a href="#Document-211"><span class="linenos">211</span></a>    <span class="n">modified</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="Document-212"><a href="#Document-212"><span class="linenos">212</span></a>    <span class="n">added</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="Document-213"><a href="#Document-213"><span class="linenos">213</span></a>    <span class="n">archive_serial_number</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="Document-214"><a href="#Document-214"><span class="linenos">214</span></a>    <span class="n">original_file_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="Document-215"><a href="#Document-215"><span class="linenos">215</span></a>    <span class="n">archived_file_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="Document-216"><a href="#Document-216"><span class="linenos">216</span></a>    <span class="n">owner</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="Document-217"><a href="#Document-217"><span class="linenos">217</span></a>    <span class="n">user_can_change</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="Document-218"><a href="#Document-218"><span class="linenos">218</span></a>    <span class="n">is_shared_by_requester</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="Document-219"><a href="#Document-219"><span class="linenos">219</span></a>    <span class="n">notes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">DocumentNote</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
-</span><span id="Document-220"><a href="#Document-220"><span class="linenos">220</span></a>    <span class="n">custom_fields</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CustomFieldValue</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
-</span><span id="Document-221"><a href="#Document-221"><span class="linenos">221</span></a>    <span class="n">search_hit</span><span class="p">:</span> <span class="n">SearchHit</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">alias</span><span class="o">=</span><span class="s2">&quot;__search_hit__&quot;</span><span class="p">)</span>
-</span><span id="Document-222"><a href="#Document-222"><span class="linenos">222</span></a>    <span class="n">metadata</span><span class="p">:</span> <span class="n">DocumentMetadata</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="Document-209"><a href="#Document-209"><span class="linenos">209</span></a><span class="k">class</span><span class="w"> </span><span class="nc">Document</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+</span><span id="Document-210"><a href="#Document-210"><span class="linenos">210</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;A paperless-ngx document.</span>
+</span><span id="Document-211"><a href="#Document-211"><span class="linenos">211</span></a>
+</span><span id="Document-212"><a href="#Document-212"><span class="linenos">212</span></a><span class="sd">    Attributes:</span>
+</span><span id="Document-213"><a href="#Document-213"><span class="linenos">213</span></a><span class="sd">        id: Unique document ID.</span>
+</span><span id="Document-214"><a href="#Document-214"><span class="linenos">214</span></a><span class="sd">        title: Document title.</span>
+</span><span id="Document-215"><a href="#Document-215"><span class="linenos">215</span></a><span class="sd">        content: Full OCR text content, if available.</span>
+</span><span id="Document-216"><a href="#Document-216"><span class="linenos">216</span></a><span class="sd">        tags: List of tag IDs assigned to this document.</span>
+</span><span id="Document-217"><a href="#Document-217"><span class="linenos">217</span></a><span class="sd">        document_type: ID of the assigned document type, or ``None``.</span>
+</span><span id="Document-218"><a href="#Document-218"><span class="linenos">218</span></a><span class="sd">        correspondent: ID of the assigned correspondent, or ``None``.</span>
+</span><span id="Document-219"><a href="#Document-219"><span class="linenos">219</span></a><span class="sd">        storage_path: ID of the assigned storage path, or ``None``.</span>
+</span><span id="Document-220"><a href="#Document-220"><span class="linenos">220</span></a><span class="sd">        created: Document creation date (``date`` object). Changed from</span>
+</span><span id="Document-221"><a href="#Document-221"><span class="linenos">221</span></a><span class="sd">            ``datetime`` to ``date`` in paperless-ngx API v9.</span>
+</span><span id="Document-222"><a href="#Document-222"><span class="linenos">222</span></a><span class="sd">        created_date: Date portion of creation. **Deprecated** by</span>
+</span><span id="Document-223"><a href="#Document-223"><span class="linenos">223</span></a><span class="sd">            paperless-ngx as of v9 — use ``created`` instead. Will be</span>
+</span><span id="Document-224"><a href="#Document-224"><span class="linenos">224</span></a><span class="sd">            removed in a future API version.</span>
+</span><span id="Document-225"><a href="#Document-225"><span class="linenos">225</span></a><span class="sd">        archive_serial_number: Archive serial number (ASN), or ``None``.</span>
+</span><span id="Document-226"><a href="#Document-226"><span class="linenos">226</span></a><span class="sd">        custom_fields: List of :class:`CustomFieldValue` instances.</span>
+</span><span id="Document-227"><a href="#Document-227"><span class="linenos">227</span></a><span class="sd">        notes: User notes attached to this document.</span>
+</span><span id="Document-228"><a href="#Document-228"><span class="linenos">228</span></a><span class="sd">        search_hit: Full-text search relevance metadata, populated only when</span>
+</span><span id="Document-229"><a href="#Document-229"><span class="linenos">229</span></a><span class="sd">            the document was returned by a full-text search.</span>
+</span><span id="Document-230"><a href="#Document-230"><span class="linenos">230</span></a><span class="sd">        metadata: Extended file-level metadata (checksums, sizes, MIME type).</span>
+</span><span id="Document-231"><a href="#Document-231"><span class="linenos">231</span></a><span class="sd">            ``None`` unless the document was fetched with</span>
+</span><span id="Document-232"><a href="#Document-232"><span class="linenos">232</span></a><span class="sd">            ``include_metadata=True`` or retrieved via</span>
+</span><span id="Document-233"><a href="#Document-233"><span class="linenos">233</span></a><span class="sd">            :meth:`~easypaperless._internal.resources.documents.DocumentsResource.get_metadata`.</span>
+</span><span id="Document-234"><a href="#Document-234"><span class="linenos">234</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="Document-235"><a href="#Document-235"><span class="linenos">235</span></a>
+</span><span id="Document-236"><a href="#Document-236"><span class="linenos">236</span></a>    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">extra</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">populate_by_name</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</span><span id="Document-237"><a href="#Document-237"><span class="linenos">237</span></a>
+</span><span id="Document-238"><a href="#Document-238"><span class="linenos">238</span></a>    <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span>
+</span><span id="Document-239"><a href="#Document-239"><span class="linenos">239</span></a>    <span class="n">title</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="Document-240"><a href="#Document-240"><span class="linenos">240</span></a>    <span class="n">content</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="Document-241"><a href="#Document-241"><span class="linenos">241</span></a>    <span class="n">tags</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">int</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+</span><span id="Document-242"><a href="#Document-242"><span class="linenos">242</span></a>    <span class="n">document_type</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="Document-243"><a href="#Document-243"><span class="linenos">243</span></a>    <span class="n">correspondent</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="Document-244"><a href="#Document-244"><span class="linenos">244</span></a>    <span class="n">storage_path</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="Document-245"><a href="#Document-245"><span class="linenos">245</span></a>    <span class="n">created</span><span class="p">:</span> <span class="n">date</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="Document-246"><a href="#Document-246"><span class="linenos">246</span></a>    <span class="n">created_date</span><span class="p">:</span> <span class="n">date</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="Document-247"><a href="#Document-247"><span class="linenos">247</span></a>    <span class="n">modified</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="Document-248"><a href="#Document-248"><span class="linenos">248</span></a>    <span class="n">added</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="Document-249"><a href="#Document-249"><span class="linenos">249</span></a>    <span class="n">archive_serial_number</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="Document-250"><a href="#Document-250"><span class="linenos">250</span></a>    <span class="n">original_file_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="Document-251"><a href="#Document-251"><span class="linenos">251</span></a>    <span class="n">archived_file_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="Document-252"><a href="#Document-252"><span class="linenos">252</span></a>    <span class="n">owner</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="Document-253"><a href="#Document-253"><span class="linenos">253</span></a>    <span class="n">user_can_change</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="Document-254"><a href="#Document-254"><span class="linenos">254</span></a>    <span class="n">is_shared_by_requester</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="Document-255"><a href="#Document-255"><span class="linenos">255</span></a>    <span class="n">notes</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">DocumentNote</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+</span><span id="Document-256"><a href="#Document-256"><span class="linenos">256</span></a>    <span class="n">custom_fields</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">CustomFieldValue</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+</span><span id="Document-257"><a href="#Document-257"><span class="linenos">257</span></a>    <span class="n">search_hit</span><span class="p">:</span> <span class="n">SearchHit</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">alias</span><span class="o">=</span><span class="s2">&quot;__search_hit__&quot;</span><span class="p">)</span>
+</span><span id="Document-258"><a href="#Document-258"><span class="linenos">258</span></a>    <span class="n">metadata</span><span class="p">:</span> <span class="n">DocumentMetadata</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 </span></pre></div>
 
 
@@ -2121,46 +2448,46 @@ the document was returned by a full-text search.</li>
 
     </div>
     <a class="headerlink" href="#DocumentMetadata"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="DocumentMetadata-131"><a href="#DocumentMetadata-131"><span class="linenos">131</span></a><span class="k">class</span><span class="w"> </span><span class="nc">DocumentMetadata</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-</span><span id="DocumentMetadata-132"><a href="#DocumentMetadata-132"><span class="linenos">132</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Extended file-level metadata for a document.</span>
-</span><span id="DocumentMetadata-133"><a href="#DocumentMetadata-133"><span class="linenos">133</span></a>
-</span><span id="DocumentMetadata-134"><a href="#DocumentMetadata-134"><span class="linenos">134</span></a><span class="sd">    Returned by ``GET /api/documents/{id}/metadata/`` and optionally attached</span>
-</span><span id="DocumentMetadata-135"><a href="#DocumentMetadata-135"><span class="linenos">135</span></a><span class="sd">    to a :class:`Document` when</span>
-</span><span id="DocumentMetadata-136"><a href="#DocumentMetadata-136"><span class="linenos">136</span></a><span class="sd">    :meth:`~easypaperless._internal.resources.documents.DocumentsResource.get`</span>
-</span><span id="DocumentMetadata-137"><a href="#DocumentMetadata-137"><span class="linenos">137</span></a><span class="sd">    is called with ``include_metadata=True``.</span>
-</span><span id="DocumentMetadata-138"><a href="#DocumentMetadata-138"><span class="linenos">138</span></a>
-</span><span id="DocumentMetadata-139"><a href="#DocumentMetadata-139"><span class="linenos">139</span></a><span class="sd">    Because reading metadata requires disk I/O it is **not** included in</span>
-</span><span id="DocumentMetadata-140"><a href="#DocumentMetadata-140"><span class="linenos">140</span></a><span class="sd">    document list responses; it must be requested explicitly.</span>
-</span><span id="DocumentMetadata-141"><a href="#DocumentMetadata-141"><span class="linenos">141</span></a>
-</span><span id="DocumentMetadata-142"><a href="#DocumentMetadata-142"><span class="linenos">142</span></a><span class="sd">    Attributes:</span>
-</span><span id="DocumentMetadata-143"><a href="#DocumentMetadata-143"><span class="linenos">143</span></a><span class="sd">        original_checksum: MD5 checksum of the original uploaded file.</span>
-</span><span id="DocumentMetadata-144"><a href="#DocumentMetadata-144"><span class="linenos">144</span></a><span class="sd">        original_size: Size of the original file in bytes.</span>
-</span><span id="DocumentMetadata-145"><a href="#DocumentMetadata-145"><span class="linenos">145</span></a><span class="sd">        original_mime_type: MIME type of the original file</span>
-</span><span id="DocumentMetadata-146"><a href="#DocumentMetadata-146"><span class="linenos">146</span></a><span class="sd">            (e.g. ``&quot;application/pdf&quot;``).</span>
-</span><span id="DocumentMetadata-147"><a href="#DocumentMetadata-147"><span class="linenos">147</span></a><span class="sd">        media_filename: Path of the archived file relative to the</span>
-</span><span id="DocumentMetadata-148"><a href="#DocumentMetadata-148"><span class="linenos">148</span></a><span class="sd">            paperless-ngx media root.</span>
-</span><span id="DocumentMetadata-149"><a href="#DocumentMetadata-149"><span class="linenos">149</span></a><span class="sd">        has_archive_version: ``True`` when paperless-ngx has produced an</span>
-</span><span id="DocumentMetadata-150"><a href="#DocumentMetadata-150"><span class="linenos">150</span></a><span class="sd">            archived (post-processed) PDF in addition to the original.</span>
-</span><span id="DocumentMetadata-151"><a href="#DocumentMetadata-151"><span class="linenos">151</span></a><span class="sd">        original_metadata: File-level metadata entries extracted from the</span>
-</span><span id="DocumentMetadata-152"><a href="#DocumentMetadata-152"><span class="linenos">152</span></a><span class="sd">            original document (PDF XMP/info tags, etc.).</span>
-</span><span id="DocumentMetadata-153"><a href="#DocumentMetadata-153"><span class="linenos">153</span></a><span class="sd">        archive_checksum: MD5 checksum of the archived file, or ``None`` if</span>
-</span><span id="DocumentMetadata-154"><a href="#DocumentMetadata-154"><span class="linenos">154</span></a><span class="sd">            no archive version exists.</span>
-</span><span id="DocumentMetadata-155"><a href="#DocumentMetadata-155"><span class="linenos">155</span></a><span class="sd">        archive_size: Size of the archived file in bytes, or ``None``.</span>
-</span><span id="DocumentMetadata-156"><a href="#DocumentMetadata-156"><span class="linenos">156</span></a><span class="sd">        archive_metadata: File-level metadata entries from the archived</span>
-</span><span id="DocumentMetadata-157"><a href="#DocumentMetadata-157"><span class="linenos">157</span></a><span class="sd">            document, or ``None``.</span>
-</span><span id="DocumentMetadata-158"><a href="#DocumentMetadata-158"><span class="linenos">158</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="DocumentMetadata-159"><a href="#DocumentMetadata-159"><span class="linenos">159</span></a>
-</span><span id="DocumentMetadata-160"><a href="#DocumentMetadata-160"><span class="linenos">160</span></a>    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">extra</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
-</span><span id="DocumentMetadata-161"><a href="#DocumentMetadata-161"><span class="linenos">161</span></a>
-</span><span id="DocumentMetadata-162"><a href="#DocumentMetadata-162"><span class="linenos">162</span></a>    <span class="n">original_checksum</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="DocumentMetadata-163"><a href="#DocumentMetadata-163"><span class="linenos">163</span></a>    <span class="n">original_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="DocumentMetadata-164"><a href="#DocumentMetadata-164"><span class="linenos">164</span></a>    <span class="n">original_mime_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="DocumentMetadata-165"><a href="#DocumentMetadata-165"><span class="linenos">165</span></a>    <span class="n">media_filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="DocumentMetadata-166"><a href="#DocumentMetadata-166"><span class="linenos">166</span></a>    <span class="n">has_archive_version</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="DocumentMetadata-167"><a href="#DocumentMetadata-167"><span class="linenos">167</span></a>    <span class="n">original_metadata</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">FileMetadataEntry</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
-</span><span id="DocumentMetadata-168"><a href="#DocumentMetadata-168"><span class="linenos">168</span></a>    <span class="n">archive_checksum</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="DocumentMetadata-169"><a href="#DocumentMetadata-169"><span class="linenos">169</span></a>    <span class="n">archive_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="DocumentMetadata-170"><a href="#DocumentMetadata-170"><span class="linenos">170</span></a>    <span class="n">archive_metadata</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">FileMetadataEntry</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="DocumentMetadata-167"><a href="#DocumentMetadata-167"><span class="linenos">167</span></a><span class="k">class</span><span class="w"> </span><span class="nc">DocumentMetadata</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+</span><span id="DocumentMetadata-168"><a href="#DocumentMetadata-168"><span class="linenos">168</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Extended file-level metadata for a document.</span>
+</span><span id="DocumentMetadata-169"><a href="#DocumentMetadata-169"><span class="linenos">169</span></a>
+</span><span id="DocumentMetadata-170"><a href="#DocumentMetadata-170"><span class="linenos">170</span></a><span class="sd">    Returned by ``GET /api/documents/{id}/metadata/`` and optionally attached</span>
+</span><span id="DocumentMetadata-171"><a href="#DocumentMetadata-171"><span class="linenos">171</span></a><span class="sd">    to a :class:`Document` when</span>
+</span><span id="DocumentMetadata-172"><a href="#DocumentMetadata-172"><span class="linenos">172</span></a><span class="sd">    :meth:`~easypaperless._internal.resources.documents.DocumentsResource.get`</span>
+</span><span id="DocumentMetadata-173"><a href="#DocumentMetadata-173"><span class="linenos">173</span></a><span class="sd">    is called with ``include_metadata=True``.</span>
+</span><span id="DocumentMetadata-174"><a href="#DocumentMetadata-174"><span class="linenos">174</span></a>
+</span><span id="DocumentMetadata-175"><a href="#DocumentMetadata-175"><span class="linenos">175</span></a><span class="sd">    Because reading metadata requires disk I/O it is **not** included in</span>
+</span><span id="DocumentMetadata-176"><a href="#DocumentMetadata-176"><span class="linenos">176</span></a><span class="sd">    document list responses; it must be requested explicitly.</span>
+</span><span id="DocumentMetadata-177"><a href="#DocumentMetadata-177"><span class="linenos">177</span></a>
+</span><span id="DocumentMetadata-178"><a href="#DocumentMetadata-178"><span class="linenos">178</span></a><span class="sd">    Attributes:</span>
+</span><span id="DocumentMetadata-179"><a href="#DocumentMetadata-179"><span class="linenos">179</span></a><span class="sd">        original_checksum: MD5 checksum of the original uploaded file.</span>
+</span><span id="DocumentMetadata-180"><a href="#DocumentMetadata-180"><span class="linenos">180</span></a><span class="sd">        original_size: Size of the original file in bytes.</span>
+</span><span id="DocumentMetadata-181"><a href="#DocumentMetadata-181"><span class="linenos">181</span></a><span class="sd">        original_mime_type: MIME type of the original file</span>
+</span><span id="DocumentMetadata-182"><a href="#DocumentMetadata-182"><span class="linenos">182</span></a><span class="sd">            (e.g. ``&quot;application/pdf&quot;``).</span>
+</span><span id="DocumentMetadata-183"><a href="#DocumentMetadata-183"><span class="linenos">183</span></a><span class="sd">        media_filename: Path of the archived file relative to the</span>
+</span><span id="DocumentMetadata-184"><a href="#DocumentMetadata-184"><span class="linenos">184</span></a><span class="sd">            paperless-ngx media root.</span>
+</span><span id="DocumentMetadata-185"><a href="#DocumentMetadata-185"><span class="linenos">185</span></a><span class="sd">        has_archive_version: ``True`` when paperless-ngx has produced an</span>
+</span><span id="DocumentMetadata-186"><a href="#DocumentMetadata-186"><span class="linenos">186</span></a><span class="sd">            archived (post-processed) PDF in addition to the original.</span>
+</span><span id="DocumentMetadata-187"><a href="#DocumentMetadata-187"><span class="linenos">187</span></a><span class="sd">        original_metadata: File-level metadata entries extracted from the</span>
+</span><span id="DocumentMetadata-188"><a href="#DocumentMetadata-188"><span class="linenos">188</span></a><span class="sd">            original document (PDF XMP/info tags, etc.).</span>
+</span><span id="DocumentMetadata-189"><a href="#DocumentMetadata-189"><span class="linenos">189</span></a><span class="sd">        archive_checksum: MD5 checksum of the archived file, or ``None`` if</span>
+</span><span id="DocumentMetadata-190"><a href="#DocumentMetadata-190"><span class="linenos">190</span></a><span class="sd">            no archive version exists.</span>
+</span><span id="DocumentMetadata-191"><a href="#DocumentMetadata-191"><span class="linenos">191</span></a><span class="sd">        archive_size: Size of the archived file in bytes, or ``None``.</span>
+</span><span id="DocumentMetadata-192"><a href="#DocumentMetadata-192"><span class="linenos">192</span></a><span class="sd">        archive_metadata: File-level metadata entries from the archived</span>
+</span><span id="DocumentMetadata-193"><a href="#DocumentMetadata-193"><span class="linenos">193</span></a><span class="sd">            document, or ``None``.</span>
+</span><span id="DocumentMetadata-194"><a href="#DocumentMetadata-194"><span class="linenos">194</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="DocumentMetadata-195"><a href="#DocumentMetadata-195"><span class="linenos">195</span></a>
+</span><span id="DocumentMetadata-196"><a href="#DocumentMetadata-196"><span class="linenos">196</span></a>    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">extra</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
+</span><span id="DocumentMetadata-197"><a href="#DocumentMetadata-197"><span class="linenos">197</span></a>
+</span><span id="DocumentMetadata-198"><a href="#DocumentMetadata-198"><span class="linenos">198</span></a>    <span class="n">original_checksum</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="DocumentMetadata-199"><a href="#DocumentMetadata-199"><span class="linenos">199</span></a>    <span class="n">original_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="DocumentMetadata-200"><a href="#DocumentMetadata-200"><span class="linenos">200</span></a>    <span class="n">original_mime_type</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="DocumentMetadata-201"><a href="#DocumentMetadata-201"><span class="linenos">201</span></a>    <span class="n">media_filename</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="DocumentMetadata-202"><a href="#DocumentMetadata-202"><span class="linenos">202</span></a>    <span class="n">has_archive_version</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="DocumentMetadata-203"><a href="#DocumentMetadata-203"><span class="linenos">203</span></a>    <span class="n">original_metadata</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">FileMetadataEntry</span><span class="p">]</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+</span><span id="DocumentMetadata-204"><a href="#DocumentMetadata-204"><span class="linenos">204</span></a>    <span class="n">archive_checksum</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="DocumentMetadata-205"><a href="#DocumentMetadata-205"><span class="linenos">205</span></a>    <span class="n">archive_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="DocumentMetadata-206"><a href="#DocumentMetadata-206"><span class="linenos">206</span></a>    <span class="n">archive_metadata</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">FileMetadataEntry</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
 </span></pre></div>
 
 
@@ -2316,31 +2643,31 @@ document, or <code>None</code>.</li>
 
     </div>
     <a class="headerlink" href="#DocumentNote"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="DocumentNote-82"><a href="#DocumentNote-82"><span class="linenos"> 82</span></a><span class="k">class</span><span class="w"> </span><span class="nc">DocumentNote</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-</span><span id="DocumentNote-83"><a href="#DocumentNote-83"><span class="linenos"> 83</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;A user note attached to a document.</span>
-</span><span id="DocumentNote-84"><a href="#DocumentNote-84"><span class="linenos"> 84</span></a>
-</span><span id="DocumentNote-85"><a href="#DocumentNote-85"><span class="linenos"> 85</span></a><span class="sd">    Attributes:</span>
-</span><span id="DocumentNote-86"><a href="#DocumentNote-86"><span class="linenos"> 86</span></a><span class="sd">        id: Unique note ID.</span>
-</span><span id="DocumentNote-87"><a href="#DocumentNote-87"><span class="linenos"> 87</span></a><span class="sd">        note: Text content of the note.</span>
-</span><span id="DocumentNote-88"><a href="#DocumentNote-88"><span class="linenos"> 88</span></a><span class="sd">        created: Timestamp when the note was created.</span>
-</span><span id="DocumentNote-89"><a href="#DocumentNote-89"><span class="linenos"> 89</span></a><span class="sd">        document: ID of the parent document.</span>
-</span><span id="DocumentNote-90"><a href="#DocumentNote-90"><span class="linenos"> 90</span></a><span class="sd">        user: ID of the user who created the note.</span>
-</span><span id="DocumentNote-91"><a href="#DocumentNote-91"><span class="linenos"> 91</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="DocumentNote-92"><a href="#DocumentNote-92"><span class="linenos"> 92</span></a>
-</span><span id="DocumentNote-93"><a href="#DocumentNote-93"><span class="linenos"> 93</span></a>    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">extra</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
-</span><span id="DocumentNote-94"><a href="#DocumentNote-94"><span class="linenos"> 94</span></a>
-</span><span id="DocumentNote-95"><a href="#DocumentNote-95"><span class="linenos"> 95</span></a>    <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="DocumentNote-96"><a href="#DocumentNote-96"><span class="linenos"> 96</span></a>    <span class="n">note</span><span class="p">:</span> <span class="nb">str</span>
-</span><span id="DocumentNote-97"><a href="#DocumentNote-97"><span class="linenos"> 97</span></a>    <span class="n">created</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="DocumentNote-98"><a href="#DocumentNote-98"><span class="linenos"> 98</span></a>    <span class="n">document</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="DocumentNote-99"><a href="#DocumentNote-99"><span class="linenos"> 99</span></a>    <span class="n">user</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="DocumentNote-100"><a href="#DocumentNote-100"><span class="linenos">100</span></a>
-</span><span id="DocumentNote-101"><a href="#DocumentNote-101"><span class="linenos">101</span></a>    <span class="nd">@field_validator</span><span class="p">(</span><span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;before&quot;</span><span class="p">)</span>
-</span><span id="DocumentNote-102"><a href="#DocumentNote-102"><span class="linenos">102</span></a>    <span class="nd">@classmethod</span>
-</span><span id="DocumentNote-103"><a href="#DocumentNote-103"><span class="linenos">103</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">_coerce_user</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-</span><span id="DocumentNote-104"><a href="#DocumentNote-104"><span class="linenos">104</span></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
-</span><span id="DocumentNote-105"><a href="#DocumentNote-105"><span class="linenos">105</span></a>            <span class="k">return</span> <span class="n">v</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span>
-</span><span id="DocumentNote-106"><a href="#DocumentNote-106"><span class="linenos">106</span></a>        <span class="k">return</span> <span class="n">v</span>  <span class="c1"># type: ignore[return-value]</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="DocumentNote-118"><a href="#DocumentNote-118"><span class="linenos">118</span></a><span class="k">class</span><span class="w"> </span><span class="nc">DocumentNote</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+</span><span id="DocumentNote-119"><a href="#DocumentNote-119"><span class="linenos">119</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;A user note attached to a document.</span>
+</span><span id="DocumentNote-120"><a href="#DocumentNote-120"><span class="linenos">120</span></a>
+</span><span id="DocumentNote-121"><a href="#DocumentNote-121"><span class="linenos">121</span></a><span class="sd">    Attributes:</span>
+</span><span id="DocumentNote-122"><a href="#DocumentNote-122"><span class="linenos">122</span></a><span class="sd">        id: Unique note ID.</span>
+</span><span id="DocumentNote-123"><a href="#DocumentNote-123"><span class="linenos">123</span></a><span class="sd">        note: Text content of the note.</span>
+</span><span id="DocumentNote-124"><a href="#DocumentNote-124"><span class="linenos">124</span></a><span class="sd">        created: Timestamp when the note was created.</span>
+</span><span id="DocumentNote-125"><a href="#DocumentNote-125"><span class="linenos">125</span></a><span class="sd">        document: ID of the parent document.</span>
+</span><span id="DocumentNote-126"><a href="#DocumentNote-126"><span class="linenos">126</span></a><span class="sd">        user: ID of the user who created the note.</span>
+</span><span id="DocumentNote-127"><a href="#DocumentNote-127"><span class="linenos">127</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="DocumentNote-128"><a href="#DocumentNote-128"><span class="linenos">128</span></a>
+</span><span id="DocumentNote-129"><a href="#DocumentNote-129"><span class="linenos">129</span></a>    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">extra</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
+</span><span id="DocumentNote-130"><a href="#DocumentNote-130"><span class="linenos">130</span></a>
+</span><span id="DocumentNote-131"><a href="#DocumentNote-131"><span class="linenos">131</span></a>    <span class="nb">id</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="DocumentNote-132"><a href="#DocumentNote-132"><span class="linenos">132</span></a>    <span class="n">note</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="DocumentNote-133"><a href="#DocumentNote-133"><span class="linenos">133</span></a>    <span class="n">created</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="DocumentNote-134"><a href="#DocumentNote-134"><span class="linenos">134</span></a>    <span class="n">document</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="DocumentNote-135"><a href="#DocumentNote-135"><span class="linenos">135</span></a>    <span class="n">user</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="DocumentNote-136"><a href="#DocumentNote-136"><span class="linenos">136</span></a>
+</span><span id="DocumentNote-137"><a href="#DocumentNote-137"><span class="linenos">137</span></a>    <span class="nd">@field_validator</span><span class="p">(</span><span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;before&quot;</span><span class="p">)</span>
+</span><span id="DocumentNote-138"><a href="#DocumentNote-138"><span class="linenos">138</span></a>    <span class="nd">@classmethod</span>
+</span><span id="DocumentNote-139"><a href="#DocumentNote-139"><span class="linenos">139</span></a>    <span class="k">def</span><span class="w"> </span><span class="nf">_coerce_user</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="n">v</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="DocumentNote-140"><a href="#DocumentNote-140"><span class="linenos">140</span></a>        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="nb">dict</span><span class="p">):</span>
+</span><span id="DocumentNote-141"><a href="#DocumentNote-141"><span class="linenos">141</span></a>            <span class="k">return</span> <span class="n">v</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;id&quot;</span><span class="p">)</span>
+</span><span id="DocumentNote-142"><a href="#DocumentNote-142"><span class="linenos">142</span></a>        <span class="k">return</span> <span class="n">v</span>  <span class="c1"># type: ignore[return-value]</span>
 </span></pre></div>
 
 
@@ -2724,26 +3051,26 @@ document, or <code>None</code>.</li>
 
     </div>
     <a class="headerlink" href="#FileMetadataEntry"></a>
-            <div class="pdoc-code codehilite"><pre><span></span><span id="FileMetadataEntry-109"><a href="#FileMetadataEntry-109"><span class="linenos">109</span></a><span class="k">class</span><span class="w"> </span><span class="nc">FileMetadataEntry</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
-</span><span id="FileMetadataEntry-110"><a href="#FileMetadataEntry-110"><span class="linenos">110</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;A single embedded metadata key-value pair from a document file.</span>
-</span><span id="FileMetadataEntry-111"><a href="#FileMetadataEntry-111"><span class="linenos">111</span></a>
-</span><span id="FileMetadataEntry-112"><a href="#FileMetadataEntry-112"><span class="linenos">112</span></a><span class="sd">    Paperless-ngx reads file-level metadata (e.g. PDF XMP/info tags) and</span>
-</span><span id="FileMetadataEntry-113"><a href="#FileMetadataEntry-113"><span class="linenos">113</span></a><span class="sd">    exposes each entry in this format.  ``namespace`` and ``prefix`` are</span>
-</span><span id="FileMetadataEntry-114"><a href="#FileMetadataEntry-114"><span class="linenos">114</span></a><span class="sd">    ``None`` for non-namespaced entries.</span>
-</span><span id="FileMetadataEntry-115"><a href="#FileMetadataEntry-115"><span class="linenos">115</span></a>
-</span><span id="FileMetadataEntry-116"><a href="#FileMetadataEntry-116"><span class="linenos">116</span></a><span class="sd">    Attributes:</span>
-</span><span id="FileMetadataEntry-117"><a href="#FileMetadataEntry-117"><span class="linenos">117</span></a><span class="sd">        namespace: XML namespace URI, or ``None``.</span>
-</span><span id="FileMetadataEntry-118"><a href="#FileMetadataEntry-118"><span class="linenos">118</span></a><span class="sd">        prefix: Namespace prefix (e.g. ``&quot;pdf&quot;``), or ``None``.</span>
-</span><span id="FileMetadataEntry-119"><a href="#FileMetadataEntry-119"><span class="linenos">119</span></a><span class="sd">        key: Metadata key (e.g. ``&quot;Producer&quot;``).</span>
-</span><span id="FileMetadataEntry-120"><a href="#FileMetadataEntry-120"><span class="linenos">120</span></a><span class="sd">        value: Metadata value as a string.</span>
-</span><span id="FileMetadataEntry-121"><a href="#FileMetadataEntry-121"><span class="linenos">121</span></a><span class="sd">    &quot;&quot;&quot;</span>
-</span><span id="FileMetadataEntry-122"><a href="#FileMetadataEntry-122"><span class="linenos">122</span></a>
-</span><span id="FileMetadataEntry-123"><a href="#FileMetadataEntry-123"><span class="linenos">123</span></a>    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">extra</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
-</span><span id="FileMetadataEntry-124"><a href="#FileMetadataEntry-124"><span class="linenos">124</span></a>
-</span><span id="FileMetadataEntry-125"><a href="#FileMetadataEntry-125"><span class="linenos">125</span></a>    <span class="n">namespace</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="FileMetadataEntry-126"><a href="#FileMetadataEntry-126"><span class="linenos">126</span></a>    <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-</span><span id="FileMetadataEntry-127"><a href="#FileMetadataEntry-127"><span class="linenos">127</span></a>    <span class="n">key</span><span class="p">:</span> <span class="nb">str</span>
-</span><span id="FileMetadataEntry-128"><a href="#FileMetadataEntry-128"><span class="linenos">128</span></a>    <span class="n">value</span><span class="p">:</span> <span class="nb">str</span>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="FileMetadataEntry-145"><a href="#FileMetadataEntry-145"><span class="linenos">145</span></a><span class="k">class</span><span class="w"> </span><span class="nc">FileMetadataEntry</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+</span><span id="FileMetadataEntry-146"><a href="#FileMetadataEntry-146"><span class="linenos">146</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;A single embedded metadata key-value pair from a document file.</span>
+</span><span id="FileMetadataEntry-147"><a href="#FileMetadataEntry-147"><span class="linenos">147</span></a>
+</span><span id="FileMetadataEntry-148"><a href="#FileMetadataEntry-148"><span class="linenos">148</span></a><span class="sd">    Paperless-ngx reads file-level metadata (e.g. PDF XMP/info tags) and</span>
+</span><span id="FileMetadataEntry-149"><a href="#FileMetadataEntry-149"><span class="linenos">149</span></a><span class="sd">    exposes each entry in this format.  ``namespace`` and ``prefix`` are</span>
+</span><span id="FileMetadataEntry-150"><a href="#FileMetadataEntry-150"><span class="linenos">150</span></a><span class="sd">    ``None`` for non-namespaced entries.</span>
+</span><span id="FileMetadataEntry-151"><a href="#FileMetadataEntry-151"><span class="linenos">151</span></a>
+</span><span id="FileMetadataEntry-152"><a href="#FileMetadataEntry-152"><span class="linenos">152</span></a><span class="sd">    Attributes:</span>
+</span><span id="FileMetadataEntry-153"><a href="#FileMetadataEntry-153"><span class="linenos">153</span></a><span class="sd">        namespace: XML namespace URI, or ``None``.</span>
+</span><span id="FileMetadataEntry-154"><a href="#FileMetadataEntry-154"><span class="linenos">154</span></a><span class="sd">        prefix: Namespace prefix (e.g. ``&quot;pdf&quot;``), or ``None``.</span>
+</span><span id="FileMetadataEntry-155"><a href="#FileMetadataEntry-155"><span class="linenos">155</span></a><span class="sd">        key: Metadata key (e.g. ``&quot;Producer&quot;``).</span>
+</span><span id="FileMetadataEntry-156"><a href="#FileMetadataEntry-156"><span class="linenos">156</span></a><span class="sd">        value: Metadata value as a string.</span>
+</span><span id="FileMetadataEntry-157"><a href="#FileMetadataEntry-157"><span class="linenos">157</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="FileMetadataEntry-158"><a href="#FileMetadataEntry-158"><span class="linenos">158</span></a>
+</span><span id="FileMetadataEntry-159"><a href="#FileMetadataEntry-159"><span class="linenos">159</span></a>    <span class="n">model_config</span> <span class="o">=</span> <span class="n">ConfigDict</span><span class="p">(</span><span class="n">extra</span><span class="o">=</span><span class="s2">&quot;ignore&quot;</span><span class="p">)</span>
+</span><span id="FileMetadataEntry-160"><a href="#FileMetadataEntry-160"><span class="linenos">160</span></a>
+</span><span id="FileMetadataEntry-161"><a href="#FileMetadataEntry-161"><span class="linenos">161</span></a>    <span class="n">namespace</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="FileMetadataEntry-162"><a href="#FileMetadataEntry-162"><span class="linenos">162</span></a>    <span class="n">prefix</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+</span><span id="FileMetadataEntry-163"><a href="#FileMetadataEntry-163"><span class="linenos">163</span></a>    <span class="n">key</span><span class="p">:</span> <span class="nb">str</span>
+</span><span id="FileMetadataEntry-164"><a href="#FileMetadataEntry-164"><span class="linenos">164</span></a>    <span class="n">value</span><span class="p">:</span> <span class="nb">str</span>
 </span></pre></div>
 
 
@@ -4244,187 +4571,110 @@ terminal state within <code>poll_timeout</code> seconds.</p>
 
                             </div>
                 </section>
+                <section id="RetryExhaustedError">
+                            <input id="RetryExhaustedError-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr class">
+            
+    <span class="def">class</span>
+    <span class="name">RetryExhaustedError</span><wbr>(<span class="base"><a href="#PaperlessError">easypaperless.PaperlessError</a></span>):
+
+                <label class="view-source-button" for="RetryExhaustedError-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#RetryExhaustedError"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="RetryExhaustedError-67"><a href="#RetryExhaustedError-67"><span class="linenos">67</span></a><span class="k">class</span><span class="w"> </span><span class="nc">RetryExhaustedError</span><span class="p">(</span><span class="n">PaperlessError</span><span class="p">):</span>
+</span><span id="RetryExhaustedError-68"><a href="#RetryExhaustedError-68"><span class="linenos">68</span></a><span class="w">    </span><span class="sd">&quot;&quot;&quot;Raised when all retry attempts are exhausted.</span>
+</span><span id="RetryExhaustedError-69"><a href="#RetryExhaustedError-69"><span class="linenos">69</span></a>
+</span><span id="RetryExhaustedError-70"><a href="#RetryExhaustedError-70"><span class="linenos">70</span></a><span class="sd">    Attributes:</span>
+</span><span id="RetryExhaustedError-71"><a href="#RetryExhaustedError-71"><span class="linenos">71</span></a><span class="sd">        attempts: Total number of attempts made (initial + retries).</span>
+</span><span id="RetryExhaustedError-72"><a href="#RetryExhaustedError-72"><span class="linenos">72</span></a><span class="sd">        url: The URL that was requested.</span>
+</span><span id="RetryExhaustedError-73"><a href="#RetryExhaustedError-73"><span class="linenos">73</span></a><span class="sd">    &quot;&quot;&quot;</span>
+</span><span id="RetryExhaustedError-74"><a href="#RetryExhaustedError-74"><span class="linenos">74</span></a>
+</span><span id="RetryExhaustedError-75"><a href="#RetryExhaustedError-75"><span class="linenos">75</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">attempts</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="RetryExhaustedError-76"><a href="#RetryExhaustedError-76"><span class="linenos">76</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a RetryExhaustedError.</span>
+</span><span id="RetryExhaustedError-77"><a href="#RetryExhaustedError-77"><span class="linenos">77</span></a>
+</span><span id="RetryExhaustedError-78"><a href="#RetryExhaustedError-78"><span class="linenos">78</span></a><span class="sd">        Args:</span>
+</span><span id="RetryExhaustedError-79"><a href="#RetryExhaustedError-79"><span class="linenos">79</span></a><span class="sd">            message: Human-readable error description.</span>
+</span><span id="RetryExhaustedError-80"><a href="#RetryExhaustedError-80"><span class="linenos">80</span></a><span class="sd">            attempts: Total number of attempts made.</span>
+</span><span id="RetryExhaustedError-81"><a href="#RetryExhaustedError-81"><span class="linenos">81</span></a><span class="sd">            url: The URL that was requested.</span>
+</span><span id="RetryExhaustedError-82"><a href="#RetryExhaustedError-82"><span class="linenos">82</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="RetryExhaustedError-83"><a href="#RetryExhaustedError-83"><span class="linenos">83</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">status_code</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</span><span id="RetryExhaustedError-84"><a href="#RetryExhaustedError-84"><span class="linenos">84</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">attempts</span> <span class="o">=</span> <span class="n">attempts</span>
+</span><span id="RetryExhaustedError-85"><a href="#RetryExhaustedError-85"><span class="linenos">85</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="n">url</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Raised when all retry attempts are exhausted.</p>
+
+<h6 id="attributes">Attributes:</h6>
+
+<ul>
+<li><strong>attempts:</strong>  Total number of attempts made (initial + retries).</li>
+<li><strong>url:</strong>  The URL that was requested.</li>
+</ul>
+</div>
+
+
+                            <div id="RetryExhaustedError.__init__" class="classattr">
+                                        <input id="RetryExhaustedError.__init__-view-source" class="view-source-toggle-state" type="checkbox" aria-hidden="true" tabindex="-1">
+<div class="attr function">
+            
+        <span class="name">RetryExhaustedError</span><span class="signature pdoc-code condensed">(<span class="param"><span class="n">message</span><span class="p">:</span> <span class="nb">str</span>, </span><span class="param"><span class="n">attempts</span><span class="p">:</span> <span class="nb">int</span>, </span><span class="param"><span class="n">url</span><span class="p">:</span> <span class="nb">str</span></span>)</span>
+
+                <label class="view-source-button" for="RetryExhaustedError.__init__-view-source"><span>View Source</span></label>
+
+    </div>
+    <a class="headerlink" href="#RetryExhaustedError.__init__"></a>
+            <div class="pdoc-code codehilite"><pre><span></span><span id="RetryExhaustedError.__init__-75"><a href="#RetryExhaustedError.__init__-75"><span class="linenos">75</span></a>    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">attempts</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">url</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+</span><span id="RetryExhaustedError.__init__-76"><a href="#RetryExhaustedError.__init__-76"><span class="linenos">76</span></a><span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a RetryExhaustedError.</span>
+</span><span id="RetryExhaustedError.__init__-77"><a href="#RetryExhaustedError.__init__-77"><span class="linenos">77</span></a>
+</span><span id="RetryExhaustedError.__init__-78"><a href="#RetryExhaustedError.__init__-78"><span class="linenos">78</span></a><span class="sd">        Args:</span>
+</span><span id="RetryExhaustedError.__init__-79"><a href="#RetryExhaustedError.__init__-79"><span class="linenos">79</span></a><span class="sd">            message: Human-readable error description.</span>
+</span><span id="RetryExhaustedError.__init__-80"><a href="#RetryExhaustedError.__init__-80"><span class="linenos">80</span></a><span class="sd">            attempts: Total number of attempts made.</span>
+</span><span id="RetryExhaustedError.__init__-81"><a href="#RetryExhaustedError.__init__-81"><span class="linenos">81</span></a><span class="sd">            url: The URL that was requested.</span>
+</span><span id="RetryExhaustedError.__init__-82"><a href="#RetryExhaustedError.__init__-82"><span class="linenos">82</span></a><span class="sd">        &quot;&quot;&quot;</span>
+</span><span id="RetryExhaustedError.__init__-83"><a href="#RetryExhaustedError.__init__-83"><span class="linenos">83</span></a>        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">,</span> <span class="n">status_code</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span>
+</span><span id="RetryExhaustedError.__init__-84"><a href="#RetryExhaustedError.__init__-84"><span class="linenos">84</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">attempts</span> <span class="o">=</span> <span class="n">attempts</span>
+</span><span id="RetryExhaustedError.__init__-85"><a href="#RetryExhaustedError.__init__-85"><span class="linenos">85</span></a>        <span class="bp">self</span><span class="o">.</span><span class="n">url</span> <span class="o">=</span> <span class="n">url</span>
+</span></pre></div>
+
+
+            <div class="docstring"><p>Create a RetryExhaustedError.</p>
+
+<h6 id="arguments">Arguments:</h6>
+
+<ul>
+<li><strong>message:</strong>  Human-readable error description.</li>
+<li><strong>attempts:</strong>  Total number of attempts made.</li>
+<li><strong>url:</strong>  The URL that was requested.</li>
+</ul>
+</div>
+
+
+                            </div>
+                            <div id="RetryExhaustedError.attempts" class="classattr">
+                                <div class="attr variable">
+            <span class="name">attempts</span>
+
+        
+    </div>
+    <a class="headerlink" href="#RetryExhaustedError.attempts"></a>
+    
+    
+
+                            </div>
+                            <div id="RetryExhaustedError.url" class="classattr">
+                                <div class="attr variable">
+            <span class="name">url</span>
+
+        
+    </div>
+    <a class="headerlink" href="#RetryExhaustedError.url"></a>
+    
+    
+
+                            </div>
+                </section>
     </main>
-<script>
-    function escapeHTML(html) {
-        return document.createElement('div').appendChild(document.createTextNode(html)).parentNode.innerHTML;
-    }
-
-    const originalContent = document.querySelector("main.pdoc");
-    let currentContent = originalContent;
-
-    function setContent(innerHTML) {
-        let elem;
-        if (innerHTML) {
-            elem = document.createElement("main");
-            elem.classList.add("pdoc");
-            elem.innerHTML = innerHTML;
-        } else {
-            elem = originalContent;
-        }
-        if (currentContent !== elem) {
-            currentContent.replaceWith(elem);
-            currentContent = elem;
-        }
-    }
-
-    function getSearchTerm() {
-        return (new URL(window.location)).searchParams.get("search");
-    }
-
-    const searchBox = document.querySelector(".pdoc input[type=search]");
-    searchBox.addEventListener("input", function () {
-        let url = new URL(window.location);
-        if (searchBox.value.trim()) {
-            url.hash = "";
-            url.searchParams.set("search", searchBox.value);
-        } else {
-            url.searchParams.delete("search");
-        }
-        history.replaceState("", "", url.toString());
-        onInput();
-    });
-    window.addEventListener("popstate", onInput);
-
-
-    let search, searchErr;
-
-    async function initialize() {
-        try {
-            search = await new Promise((resolve, reject) => {
-                const script = document.createElement("script");
-                script.type = "text/javascript";
-                script.async = true;
-                script.onload = () => resolve(window.pdocSearch);
-                script.onerror = (e) => reject(e);
-                script.src = "search.js";
-                document.getElementsByTagName("head")[0].appendChild(script);
-            });
-        } catch (e) {
-            console.error("Cannot fetch pdoc search index");
-            searchErr = "Cannot fetch search index.";
-        }
-        onInput();
-
-        document.querySelector("nav.pdoc").addEventListener("click", e => {
-            if (e.target.hash) {
-                searchBox.value = "";
-                searchBox.dispatchEvent(new Event("input"));
-            }
-        });
-    }
-
-    function onInput() {
-        setContent((() => {
-            const term = getSearchTerm();
-            if (!term) {
-                return null
-            }
-            if (searchErr) {
-                return `<h3>Error: ${searchErr}</h3>`
-            }
-            if (!search) {
-                return "<h3>Searching...</h3>"
-            }
-
-            window.scrollTo({top: 0, left: 0, behavior: 'auto'});
-
-            const results = search(term);
-
-            let html;
-            if (results.length === 0) {
-                html = `No search results for '${escapeHTML(term)}'.`
-            } else {
-                html = `<h4>${results.length} search result${results.length > 1 ? "s" : ""} for '${escapeHTML(term)}'.</h4>`;
-            }
-            for (let result of results.slice(0, 10)) {
-                let doc = result.doc;
-                let url = `${doc.modulename.replaceAll(".", "/")}.html`;
-                if (doc.qualname) {
-                    url += `#${doc.qualname}`;
-                }
-
-                let heading;
-                switch (result.doc.kind) {
-                    case "function":
-                        if (doc.fullname.endsWith(".__init__")) {
-                            heading = `<span class="name">${doc.fullname.replace(/\.__init__$/, "")}</span>${doc.signature}`;
-                        } else {
-                            heading = `<span class="def">${doc.funcdef}</span> <span class="name">${doc.fullname}</span>${doc.signature}`;
-                        }
-                        break;
-                    case "class":
-                        heading = `<span class="def">class</span> <span class="name">${doc.fullname}</span>`;
-                        if (doc.bases)
-                            heading += `<wbr>(<span class="base">${doc.bases}</span>)`;
-                        heading += `:`;
-                        break;
-                    case "variable":
-                        heading = `<span class="name">${doc.fullname}</span>`;
-                        if (doc.annotation)
-                            heading += `<span class="annotation">${doc.annotation}</span>`;
-                        if (doc.default_value)
-                            heading += `<span class="default_value"> = ${doc.default_value}</span>`;
-                        break;
-                    default:
-                        heading = `<span class="name">${doc.fullname}</span>`;
-                        break;
-                }
-                html += `
-                        <section class="search-result">
-                        <a href="${url}" class="attr ${doc.kind}">${heading}</a>
-                        <div class="docstring">${doc.doc}</div>
-                        </section>
-                    `;
-
-            }
-            return html;
-        })());
-    }
-
-    if (getSearchTerm()) {
-        initialize();
-        searchBox.value = getSearchTerm();
-        onInput();
-    } else {
-        searchBox.addEventListener("focus", initialize, {once: true});
-    }
-
-    searchBox.addEventListener("keydown", e => {
-        if (["ArrowDown", "ArrowUp", "Enter"].includes(e.key)) {
-            let focused = currentContent.querySelector(".search-result.focused");
-            if (!focused) {
-                currentContent.querySelector(".search-result").classList.add("focused");
-            } else if (
-                e.key === "ArrowDown"
-                && focused.nextElementSibling
-                && focused.nextElementSibling.classList.contains("search-result")
-            ) {
-                focused.classList.remove("focused");
-                focused.nextElementSibling.classList.add("focused");
-                focused.nextElementSibling.scrollIntoView({
-                    behavior: "smooth",
-                    block: "nearest",
-                    inline: "nearest"
-                });
-            } else if (
-                e.key === "ArrowUp"
-                && focused.previousElementSibling
-                && focused.previousElementSibling.classList.contains("search-result")
-            ) {
-                focused.classList.remove("focused");
-                focused.previousElementSibling.classList.add("focused");
-                focused.previousElementSibling.scrollIntoView({
-                    behavior: "smooth",
-                    block: "nearest",
-                    inline: "nearest"
-                });
-            } else if (
-                e.key === "Enter"
-            ) {
-                focused.querySelector("a").click();
-            }
-        }
-    });
-</script></body>
+</body>
 </html>

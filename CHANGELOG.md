@@ -3,6 +3,15 @@
 All notable changes to this project will be documented in this file.
 Format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/).
 
+## [0.6.0] - 2026-04-10
+
+### Added
+
+- **`documents.history(document_id)`** (`client.documents` / `sync_client.documents`): Fetches the full audit log for a document from `GET /documents/{id}/history/`. Returns `PagedResult[AuditLogEntry]`; each entry records the `timestamp`, `action` (e.g. `"create"`, `"update"`), `changes` dict, and `actor` (the user who performed the action, or `None` for system events). The `AuditLogEntry` and `AuditLogActor` models are exported from the top-level package.
+- **Retry-with-backoff support** (`PaperlessClient` / `SyncPaperlessClient`): Three new constructor parameters enable automatic retries on transient errors: `retry_attempts` (max retries after the first failure; default `0` = disabled), `retry_backoff` (initial sleep in seconds between attempts, doubles on each retry; default `1.0`), and `retry_on` (tuple of exception types that trigger a retry; defaults to `ServerError`, `httpx.TimeoutException`, and `httpx.ConnectError`). When all attempts are exhausted a `RetryExhaustedError` is raised. Alternatively, pass a pre-configured `tenacity.AsyncRetrying` instance via `tenacity_retrying` to let tenacity drive the retry loop instead. `RetryExhaustedError` is exported from the top-level package.
+
+---
+
 ## [0.5.1] - 2026-04-04
 
 ### Fixed

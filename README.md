@@ -148,7 +148,7 @@ The `UNSET` sentinel (importable from `easypaperless`) allows you to distinguish
 
 ### Client
 
-* **PaperlessClient / SyncPaperlessClient** Token-based authentication. Configurable timeout, poll interval, and poll timeout for slow instances.
+* **PaperlessClient / SyncPaperlessClient** Token-based authentication. Configurable timeout, poll interval, and poll timeout for slow instances. Optional built-in retry-with-exponential-backoff for transient errors (`retry_attempts`, `retry_backoff`, `retry_on`); also accepts a pre-configured `tenacity.AsyncRetrying` instance for advanced retry strategies.
 
 ### `client.documents` — Documents
 
@@ -160,6 +160,7 @@ The `UNSET` sentinel (importable from `easypaperless`) allows you to distinguish
 * **download()** Download the binary content of a document — either the archived PDF or the original file.
 * **thumbnail()** Download the thumbnail image of a document as raw bytes.
 * **upload()** Upload a new file to Paperless-ngx and optionally wait for the processing task to complete.
+* **history()** Retrieve the full audit log for a document as a `PagedResult[AuditLogEntry]`, showing who changed what and when.
 
 #### Document Bulk Operations
 

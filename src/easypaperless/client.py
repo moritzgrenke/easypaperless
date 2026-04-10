@@ -177,7 +177,7 @@ class PaperlessClient(_ClientCore):
       see `easypaperless.resources.CustomFieldsResource`
     * ``client.document_types`` — document type CRUD + bulk ops -
       see `easypaperless.resources.DocumentTypesResource`
-    * ``client.documents`` — document CRUD, bulk ops, upload, download -
+    * ``client.documents`` — document CRUD, bulk ops, upload, download, history -
       see `easypaperless.resources.DocumentsResource`
     * ``client.documents.notes`` — document notes -
       see `easypaperless.resources.NotesResource`
